@@ -1,0 +1,108 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:ital,wght@0,400..900;1,400..900&family=Monda:wght@400;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    font-family: 'Monda', sans-serif;
+    background-color: #000;
+    color: #fff;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4, h5, h6, .font-heading {
+    font-family: 'Cinzel', serif;
+  }
+}
+
+@layer utilities {
+  .clip-button {
+    clip-path: polygon(15px 0, 100% 0, calc(100% - 15px) 100%, 0 100%);
+  }
+
+  .clip-card-btn {
+    clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+  }
+
+  .text-shadow-strong {
+    text-shadow: 0px 4px 10px rgba(0,0,0,0.8);
+  }
+
+  .text-shadow-sm {
+    text-shadow: 0px 2px 6px rgba(0,0,0,0.1);
+  }
+
+  .delay-200 { animation-delay: 0.2s; }
+  .delay-400 { animation-delay: 0.4s; }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 1s ease-out forwards;
+}
+
+@keyframes floatLeft {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes floatRight {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.animate-float-left {
+  animation: floatLeft 6s ease-in-out infinite;
+}
+
+.animate-float-right {
+  animation: floatRight 6s ease-in-out infinite;
+  animation-delay: -3s;
+}
+
+/* New animations for Champion's Path */
+@keyframes pulseGold {
+  0%, 100% { box-shadow: 0 0 15px 2px rgba(194, 142, 58, 0.4), inset 0 0 20px rgba(194, 142, 58, 0.2); }
+  50% { box-shadow: 0 0 35px 8px rgba(194, 142, 58, 0.8), inset 0 0 40px rgba(194, 142, 58, 0.4); border-color: #fce5a1; }
+}
+
+.aura-gold {
+  animation: pulseGold 2.5s ease-in-out infinite;
+}
+
+@keyframes floatXP {
+  0% { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-60px) scale(1.2); }
+}
+
+.animate-float-xp {
+  animation: floatXP 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+.video-background {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100vw;
+  height: 56.25vw;
+  min-height: 100vh;
+  min-width: 177.77vh;
+  transform: translate(-50%, -50%);
+  z-index: 0;
+  pointer-events: none;
+}
