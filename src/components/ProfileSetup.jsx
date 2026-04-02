@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 
 const CLANS = [
-    { id: 'fox', name: 'Clan of the Fox', icon: 'lucide:fox', desc: 'Agility and Cunning', image: 'file:///C:/Users/jenra/.gemini/antigravity/brain/2d7135a0-e432-499a-b574-9b2e2fc536fc/clan_fox_warrior_1775124144548.png' },
-    { id: 'tiger', name: 'Clan of the Tiger', icon: 'lucide:cat', desc: 'Strength and Power', image: 'file:///C:/Users/jenra/.gemini/antigravity/brain/2d7135a0-e432-499a-b574-9b2e2fc536fc/clan_tiger_warrior_1775124161110.png' },
-    { id: 'wolf', name: 'Clan of the Wolf', icon: 'lucide:dog', desc: 'Loyalty and Instinct', image: 'file:///C:/Users/jenra/.gemini/antigravity/brain/2d7135a0-e432-499a-b574-9b2e2fc536fc/clan_wolf_warrior_1775124365188.png' },
+    { id: 'fox', name: 'Clan of the Fox', icon: 'lucide:fox', desc: 'Agility and Cunning', image: 'assets/clan_fox_warrior.png' },
+    { id: 'tiger', name: 'Clan of the Tiger', icon: 'lucide:cat', desc: 'Strength and Power', image: 'assets/clan_tiger_warrior.png' },
+    { id: 'wolf', name: 'Clan of the Wolf', icon: 'lucide:dog', desc: 'Loyalty and Instinct', image: 'assets/clan_wolf_warrior.png' },
 ];
 
 export default function ProfileSetup({ onComplete }) {

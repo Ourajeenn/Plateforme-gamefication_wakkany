@@ -11,21 +11,21 @@ const INITIAL_QUESTS = [
 const LEVEL_DATA = {
   1: {
     title: "Novice Scrapper",
-    image: "file:///C:/Users/jenra/.gemini/antigravity/brain/2d7135a0-e432-499a-b574-9b2e2fc536fc/clan_fox_warrior_1775124144548.png",
+    image: "assets/clan_fox_warrior.png",
     border: "border-zinc-700",
     aura: "",
     text: "text-gray-400"
   },
   2: {
     title: "Veteran Hunter",
-    image: "file:///C:/Users/jenra/.gemini/antigravity/brain/2d7135a0-e432-499a-b574-9b2e2fc536fc/clan_tiger_warrior_1775124161110.png",
+    image: "assets/clan_tiger_warrior.png",
     border: "border-[#c28e3a]",
     aura: "shadow-[0_0_20px_rgba(194,142,58,0.3)]",
     text: "text-[#c28e3a]"
   },
   3: {
     title: "Ascended Champion",
-    image: "file:///C:/Users/jenra/.gemini/antigravity/brain/2d7135a0-e432-499a-b574-9b2e2fc536fc/ascended_champion_aura_1775124470086.png",
+    image: "assets/ascended_champion.png",
     border: "border-[#fce5a1]",
     aura: "aura-gold",
     text: "text-white text-shadow-strong"
