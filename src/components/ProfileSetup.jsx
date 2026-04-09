@@ -8,13 +8,14 @@ const CLANS = [
 
 export default function ProfileSetup({ onComplete }) {
     const [name, setName] = useState('');
+    const [academy, setAcademy] = useState('');
     const [selectedClan, setSelectedClan] = useState(CLANS[0]);
     const [step, setStep] = useState(1);
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (name.trim()) {
-            onComplete({ name, clan: selectedClan });
+        if (name.trim() && academy.trim()) {
+            onComplete({ name, academy, clan: selectedClan });
         }
     };
 
@@ -45,12 +46,23 @@ export default function ProfileSetup({ onComplete }) {
                                         autoFocus
                                     />
                                 </div>
+                                <div>
+                                    <label className="block text-gray-400 text-xs font-bold uppercase tracking-widest mb-3">Your Academy / School</label>
+                                    <input
+                                        type="text"
+                                        value={academy}
+                                        onChange={(e) => setAcademy(e.target.value)}
+                                        placeholder="ENTER ACADEMY..."
+                                        className="w-full bg-black/40 border border-white/10 rounded-lg px-6 py-4 text-white text-xl focus:border-[#c28e3a] focus:ring-0 transition-colors outline-none font-monda"
+                                        required
+                                    />
+                                </div>
                                 <button
                                     type="button"
-                                    onClick={() => name && setStep(2)}
+                                    onClick={() => (name && academy) && setStep(2)}
                                     className="w-full py-4 bg-white text-black font-bold uppercase tracking-widest hover:bg-[#c28e3a] hover:text-white transition-all transform active:scale-95"
                                 >
-                                    Confirm Callsign
+                                    Confirm Identity
                                 </button>
                             </div>
                         ) : (
