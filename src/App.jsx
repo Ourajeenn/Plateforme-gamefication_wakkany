@@ -5,7 +5,10 @@ import Avatar from './components/Avatar';
 import SkillTree from './components/SkillTree';
 import QuestPanel from './components/quests/QuestPanel';
 import StatsPanel from './components/StatsPanel';
+import BadgeGallery from './components/BadgeGallery';
+import NotificationToast from './components/NotificationToast';
 import usePlayerData from './hooks/usePlayerData';
+import { ACHIEVEMENTS } from './data/achievements';
 import { getDominantBranch } from './utils/xpHelpers';
 import { getLevel } from './data/levels';
 
@@ -18,6 +21,32 @@ export default function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [waitlistStatus, setWaitlistStatus] = useState('idle'); // 'idle', 'loading', 'success'
+  const [notifications, setNotifications] = useState([]);
+
+  // Gestion des notifications
+  const addNotification = (type, message) => {
+    const id = Date.now();
+    setNotifications(prev => [...prev, { id, type, message }]);
+  };
+
+  const removeNotification = (id) => {
+    setNotifications(prev => prev.filter(n => n.id !== id));
+  };
+
+  // Tracking automatique des succès
+  useEffect(() => {
+    if (!user) return;
+    
+    ACHIEVEMENTS.forEach(achievement => {
+      if (!unlockedAchievements.includes(achievement.id)) {
+        if (achievement.condition({ user, xp, unlockedSkills, completedQuests })) {
+          setUnlockedAchievements(prev => [...prev, achievement.id]);
+          addNotification('achievement', `Succès débloqué : ${achievement.title}`);
+        }
+      }
+    });
+  }, [xp, unlockedSkills, completedQuests, user]);
+
   useEffect(() => {
     // Initial loading simulation
     const timer = setTimeout(() => {
@@ -44,7 +73,14 @@ export default function App() {
 
   const handleCompleteQuest = (quest) => {
     setCompletedQuests(prev => [...prev, quest.id]);
-    setXp(prev => prev + quest.xpReward);
+    const oldLevel = getLevel(xp).level;
+    const newXp = xp + quest.xpReward;
+    setXp(newXp);
+    addNotification('xp', `+${quest.xpReward} XP gagnés !`);
+    
+    if (getLevel(newXp).level > oldLevel) {
+      addNotification('level', `Niveau ${getLevel(newXp).level} atteint !`);
+    }
   };
 
   const scrollToSection = (id) => {
@@ -295,13 +331,14 @@ export default function App() {
             <header id="hero" className="relative w-full h-screen min-h-[850px] overflow-hidden flex flex-col justify-end pb-12 sm:pb-24">
               <div className="absolute inset-0 z-0 bg-zinc-950 overflow-hidden">
                 <iframe
-                  className="video-background opacity-60 w-full h-full object-cover scale-[1.3]"
+                  className="video-background opacity-85 w-full h-full object-cover scale-[1.3] brightness-125"
                   src="https://player.mux.com/01mywJGOo4l00f8YOasdq4nIXXI6vrrIIVTKtMN6PCeQM?autoplay=true&loop=true&muted=true&controls=false"
                   frameBorder="0"
                   allow="autoplay; fullscreen"
                 ></iframe>
-                <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-zinc-950"></div>
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_0%,_#09090b_90%)]"></div>
+                <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-zinc-950/80"></div>
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_0%,_#09090b_70%)] opacity-60"></div>
+                <div className="absolute inset-0 bg-[#c28e3a]/5 mix-blend-overlay"></div>
               </div>
 
               <div className="relative z-10 w-full max-w-7xl mx-auto px-8 h-full flex flex-col pt-32 sm:pt-40">
@@ -553,6 +590,7 @@ export default function App() {
                       </div>
                     </div>
                   </div>
+                  <BadgeGallery unlockedAchievements={unlockedAchievements} />
                 </div>
               )}
 
@@ -585,6 +623,7 @@ export default function App() {
           </section>
         </div>
       )}
+      <NotificationToast notifications={notifications} removeNotification={removeNotification} />
     </div>
   );
 }

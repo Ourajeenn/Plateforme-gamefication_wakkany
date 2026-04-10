@@ -31,6 +31,11 @@ export default function usePlayerData() {
         return saved ? JSON.parse(saved) : [];
     });
 
+    const [unlockedAchievements, setUnlockedAchievements] = useState(() => {
+        const saved = localStorage.getItem('beastborne_achievements');
+        return saved ? JSON.parse(saved) : [];
+    });
+
     const [xpHistory, setXpHistory] = useState(() => {
         const saved = localStorage.getItem('beastborne_history');
         if (saved) return JSON.parse(saved);
@@ -68,12 +73,18 @@ export default function usePlayerData() {
         localStorage.setItem('beastborne_quests', JSON.stringify(completedQuests));
     }, [completedQuests]);
 
+    useEffect(() => {
+        localStorage.setItem('beastborne_achievements', JSON.stringify(unlockedAchievements));
+    }, [unlockedAchievements]);
+
     return {
         user, setUser,
         xp, setXp,
         unlockedSkills, setUnlockedSkills,
         completedQuests, setCompletedQuests,
+        unlockedAchievements, setUnlockedAchievements,
         xpHistory
     };
 }
+
 
