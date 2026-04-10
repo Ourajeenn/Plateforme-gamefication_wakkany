@@ -5,6 +5,9 @@ import Avatar from './components/Avatar';
 import SkillTree from './components/SkillTree';
 import QuestPanel from './components/quests/QuestPanel';
 import usePlayerData from './hooks/usePlayerData';
+import { getDominantBranch } from './utils/xpHelpers';
+import { getLevel } from './data/levels';
+
 export default function App() {
   const [view, setView] = useState('landing'); // 'landing', 'setup', 'dashboard'
   const [dashboardTab, setDashboardTab] = useState('profile'); // 'profile', 'skills', 'quests', 'rankings'
@@ -58,55 +61,54 @@ export default function App() {
         <div className="absolute inset-0 bg-[#c28e3a] w-1/4 animate-progress-run"></div>
       </div>
       <div className="mt-6 text-[#c28e3a] font-heading font-bold italic tracking-[0.3em] uppercase text-xs animate-pulse">
-        Initialisation de Aethermoor...
+        Initialisation de Beastborne...
       </div>
     </div>
   );
 
   const LandingNav = () => (
-    <nav className="fixed md:absolute top-6 left-1/2 -translate-x-1/2 w-[95%] max-w-7xl bg-black/60 backdrop-blur-xl rounded-2xl border border-white/10 flex items-center justify-between px-6 py-4 z-[100]">
-      <div className="flex items-center gap-3">
-        <iconify-icon icon="lucide:triangle" width="32" height="32" className="text-[#c28e3a] rotate-180 stroke-[1.5]"></iconify-icon>
-        <span className="text-white font-heading font-bold italic tracking-tighter uppercase text-xl md:hidden">Beastborne</span>
+    <nav className="fixed top-6 left-1/2 -translate-x-1/2 w-[95%] max-w-7xl bg-black/40 backdrop-blur-2xl rounded-2xl border border-white/10 flex items-center justify-between px-8 py-4 z-[100] transition-all hover:bg-black/60 shadow-2xl shadow-black/50">
+      <div className="flex items-center gap-3 group cursor-pointer" onClick={() => { setView('landing'); setLandingTab(null); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
+        <div className="relative">
+          <iconify-icon icon="lucide:triangle" width="32" height="32" className="text-[#c28e3a] rotate-180 stroke-[1.5]"></iconify-icon>
+          <div className="absolute inset-0 bg-[#c28e3a] blur-xl opacity-0 group-hover:opacity-40 transition-opacity"></div>
+        </div>
+        <span className="text-white font-heading font-bold italic tracking-tighter uppercase text-xl hidden sm:block">Beastborne</span>
       </div>
 
-      <div className="hidden md:flex items-center gap-10 text-white text-base font-medium uppercase tracking-wider">
-        <button onClick={() => { setView('landing'); setLandingTab(null); scrollToSection('hero'); }} className="hover:text-[#c28e3a] transition-colors">ACCUEIL</button>
-        <button onClick={() => setLandingTab('waitlist')} className={`transition-colors ${landingTab === 'waitlist' ? 'text-[#c28e3a]' : 'text-gray-300 hover:text-white'}`}>LISTE D'ATTENTE</button>
+      <div className="hidden lg:flex items-center gap-10 text-white text-[11px] font-black uppercase tracking-[0.2em]">
+        <button onClick={() => { setView('landing'); setLandingTab(null); scrollToSection('hero'); }} className="hover:text-[#c28e3a] transition-all hover:tracking-[0.3em]">ACCUEIL</button>
+        <button onClick={() => setLandingTab('waitlist')} className={`transition-all hover:text-[#c28e3a] ${landingTab === 'waitlist' ? 'text-[#c28e3a]' : 'text-zinc-500'}`}>LISTE D'ATTENTE</button>
         <button onClick={() => {
           if (user) setView('dashboard');
           else handleJoinClick();
-        }} className="text-gray-300 hover:text-white transition-colors">MON PROFIL</button>
-        <button onClick={() => setLandingTab('about')} className={`transition-colors ${landingTab === 'about' ? 'text-[#c28e3a]' : 'text-gray-300 hover:text-white'}`}>À PROPOS</button>
-        <button onClick={() => setLandingTab('blog')} className={`transition-colors ${landingTab === 'blog' ? 'text-[#c28e3a]' : 'text-gray-300 hover:text-white'}`}>ACTUALITÉS</button>
+        }} className="text-zinc-500 hover:text-white transition-all">MON PROFIL</button>
+        <button onClick={() => setLandingTab('about')} className={`transition-all hover:text-[#c28e3a] ${landingTab === 'about' ? 'text-[#c28e3a]' : 'text-zinc-500'}`}>ÉCOSYSTÈME</button>
+        <button onClick={() => setLandingTab('blog')} className={`transition-all hover:text-[#c28e3a] ${landingTab === 'blog' ? 'text-[#c28e3a]' : 'text-zinc-500'}`}>ARCHIVES</button>
       </div>
 
       <div className="flex items-center gap-4">
-        <div className="hidden md:flex items-center bg-white/5 rounded-lg px-4 py-2 border border-white/5">
-          <iconify-icon icon="solar:magnifier-linear" width="16" height="16" className="text-gray-400 stroke-[1.5]"></iconify-icon>
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="bg-transparent border-none outline-none text-white text-base ml-3 w-40 placeholder-gray-500 focus:ring-0"
-            placeholder="Search lore..."
-          />
-        </div>
+        <button
+          onClick={handleJoinClick}
+          className="hidden md:block px-6 py-2.5 bg-[#c28e3a] text-black font-black uppercase text-[10px] tracking-widest rounded-lg hover:brightness-110 transition-all hover:scale-105 active:scale-95 shadow-lg shadow-orange-950/20"
+        >
+          Rejoindre l'élite
+        </button>
 
         <button
           onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className="md:hidden text-white p-2"
+          className="lg:hidden text-white p-2"
         >
           <iconify-icon icon={isMenuOpen ? "lucide:x" : "lucide:menu"} width="24"></iconify-icon>
         </button>
       </div>
 
       {isMenuOpen && (
-        <div className="absolute top-full left-0 w-full mt-4 bg-zinc-900/95 backdrop-blur-2xl border border-white/10 rounded-2xl p-8 flex flex-col gap-6 animate-fade-in md:hidden">
-          <button onClick={() => { setView('landing'); setIsMenuOpen(false); }} className="text-white font-bold uppercase tracking-widest text-left">Home</button>
-          <button onClick={() => { setLandingTab('waitlist'); setIsMenuOpen(false); }} className="text-white font-bold uppercase tracking-widest text-left">Waitlist</button>
-          <button onClick={() => { handleJoinClick(); setIsMenuOpen(false); }} className="text-white font-bold uppercase tracking-widest text-left">Join the Pack</button>
-          <button onClick={() => { setLandingTab('about'); setIsMenuOpen(false); }} className="text-white font-bold uppercase tracking-widest text-left">About</button>
+        <div className="absolute top-full left-0 w-full mt-4 bg-zinc-950/95 backdrop-blur-3xl border border-white/10 rounded-3xl p-8 flex flex-col gap-6 animate-scale-up lg:hidden">
+          <button onClick={() => { setView('landing'); setIsMenuOpen(false); }} className="text-white font-black uppercase tracking-widest text-left">Accueil</button>
+          <button onClick={() => { setLandingTab('waitlist'); setIsMenuOpen(false); }} className="text-white font-black uppercase tracking-widest text-left">Liste d'attente</button>
+          <button onClick={() => { handleJoinClick(); setIsMenuOpen(false); }} className="text-white font-black uppercase tracking-widest text-left">Commencer</button>
+          <button onClick={() => { setLandingTab('about'); setIsMenuOpen(false); }} className="text-white font-black uppercase tracking-widest text-left">À Propos</button>
         </div>
       )}
     </nav>
@@ -289,87 +291,208 @@ export default function App() {
         ) : (
           <>
             {/* Hero Section */}
-            <header id="hero" className="relative w-full h-screen min-h-[900px] overflow-hidden flex flex-col justify-end pb-24">
-              <div className="absolute inset-0 z-0 bg-zinc-900 overflow-hidden">
+            <header id="hero" className="relative w-full h-screen min-h-[850px] overflow-hidden flex flex-col justify-end pb-12 sm:pb-24">
+              <div className="absolute inset-0 z-0 bg-zinc-950 overflow-hidden">
                 <iframe
-                  className="video-background opacity-80 w-full h-full object-cover scale-[1.5]"
+                  className="video-background opacity-60 w-full h-full object-cover scale-[1.3]"
                   src="https://player.mux.com/01mywJGOo4l00f8YOasdq4nIXXI6vrrIIVTKtMN6PCeQM?autoplay=true&loop=true&muted=true&controls=false"
                   frameBorder="0"
                   allow="autoplay; fullscreen"
                 ></iframe>
-                <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-[#151515]"></div>
-                <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-transparent to-black/40"></div>
+                <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-zinc-950"></div>
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_0%,_#09090b_90%)]"></div>
               </div>
 
-              <div className="relative z-10 w-full max-w-7xl mx-auto px-6 h-full flex flex-col pt-40">
-                <div className="flex flex-col md:flex-row justify-between items-start w-full">
-                  <div className="mt-24 md:mt-32 opacity-0 animate-fade-in delay-200">
-                    <h2 className="text-white text-4xl md:text-5xl font-medium italic tracking-tight font-heading uppercase">DEVENEZ LA MEILLEURE VERSION DE VOUS-MÊME</h2>
+              <div className="relative z-10 w-full max-w-7xl mx-auto px-8 h-full flex flex-col pt-32 sm:pt-40">
+                <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end w-full gap-8">
+                  <div className="opacity-0 animate-scale-up delay-200">
+                    <div className="flex items-center gap-3 text-[#c28e3a] mb-4">
+                      <div className="h-px w-8 bg-[#c28e3a]"></div>
+                      <span className="text-[10px] font-black uppercase tracking-[0.4em]">Propulsé par l'Aether</span>
+                    </div>
+                    <h2 className="text-white text-4xl sm:text-6xl font-black italic tracking-tighter font-heading uppercase leading-none">
+                      TRANSFORMEZ<br />VOTRE <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#c28e3a] to-white">POTENTIEL</span>
+                    </h2>
                   </div>
-                  <div className="text-right flex flex-col items-end mt-12 md:mt-0 opacity-0 animate-fade-in delay-400">
-                    <h1 className="text-white text-7xl md:text-9xl font-bold italic leading-[0.9] tracking-tight font-heading">Beast<br />borne</h1>
-                    <p className="text-gray-200 text-2xl md:text-3xl mt-6 max-w-lg tracking-tight">Votre évolution commence maintenant.</p>
 
-                    <div className="mt-12 flex gap-4 w-full justify-end">
-                      <button
-                        onClick={() => setLandingTab('archetypes')}
-                        className="text-center shadow-xl bg-black/40 backdrop-blur-md p-6 rounded-2xl border border-white/10 hover:border-[#c28e3a]/50 transition-all group flex flex-col items-center"
-                      >
-                        <iconify-icon icon="lucide:star" width="48" height="48" className="text-[#c28e3a] mx-auto stroke-[1.5] block group-hover:scale-110 transition-transform"></iconify-icon>
-                        <p className="text-gray-400 text-[10px] uppercase tracking-[0.2em] mt-4 font-bold">Votre Profil</p>
-                        <p className="text-white text-2xl font-heading italic uppercase mt-1">Explorateur</p>
-                      </button>
+                  <div className="lg:text-right flex flex-col lg:items-end opacity-0 animate-fade-in delay-500">
+                    <h1 className="text-white text-[80px] sm:text-[140px] font-black italic leading-[0.8] tracking-tighter font-heading uppercase drop-shadow-[0_20px_20px_rgba(0,0,0,0.5)]">
+                      Beast<br />borne
+                    </h1>
+                    <p className="text-zinc-400 text-lg sm:text-2xl mt-6 max-w-md tracking-tight font-monda font-light italic">
+                      "Votre évolution ne dépend pas du hasard, mais de vos choix."
+                    </p>
 
-                      <button
-                        onClick={() => setWaitlistStatus('loading')}
-                        className="px-8 py-3 bg-white/5 border border-white/10 text-white font-bold uppercase tracking-widest text-xs hover:bg-[#c28e3a] hover:border-[#c28e3a] hover:text-black transition-all"
-                      >
-                        {waitlistStatus === 'success' ? 'Inscrit !' : 'Liste d\'attente'}
-                      </button>
+                    <div className="mt-10 flex flex-wrap gap-4 w-full lg:justify-end">
+                      <div className="flex items-center bg-black/40 backdrop-blur-xl border border-white/5 py-4 px-6 rounded-2xl">
+                        <div className="flex flex-col">
+                          <span className="text-[9px] text-zinc-600 font-black uppercase tracking-widest">Utilisateurs Actifs</span>
+                          <span className="text-white font-heading font-bold italic text-xl">12,450+ </span>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
-                <div className="mx-auto mt-auto mb-12 flex justify-center">
+
+                <div className="mt-auto mb-8 sm:mb-12 flex flex-col items-center gap-8">
+                  <div className="flex flex-col items-center animate-bounce-slow opacity-40">
+                    <span className="text-[8px] font-black uppercase tracking-[0.5em] mb-2">Défiler vers l'Aube</span>
+                    <iconify-icon icon="lucide:chevron-down" width="16"></iconify-icon>
+                  </div>
+                  
                   <button
                     onClick={handleJoinClick}
-                    className="clip-button relative px-16 py-5 bg-gradient-to-r from-[#e6aa45] to-[#c28e3a] text-black font-bold text-2xl uppercase tracking-[0.2em] font-heading italic transition-all duration-300 hover:scale-105 hover:brightness-110 shadow-2xl"
+                    className="relative group overflow-hidden px-16 py-6 bg-white text-black font-black text-xl sm:text-2xl uppercase tracking-[0.2em] font-heading italic transition-all duration-500 hover:scale-105 active:scale-95 shadow-[0_20px_50px_rgba(194,142,58,0.3)] rounded-2xl"
                   >
-                    COMMENCER L'AVENTURE
+                    <span className="relative z-10 transition-colors group-hover:text-white">REJOINDRE LA MEUTE</span>
+                    <div className="absolute inset-0 bg-[#c28e3a] -translate-x-full group-hover:translate-x-0 transition-transform duration-500 ease-out"></div>
                   </button>
                 </div>
               </div>
-
-              {waitlistStatus === 'loading' && (
-                <div className="fixed inset-0 z-[300] bg-black/80 backdrop-blur-md flex items-center justify-center p-6 text-center">
-                  <div className="bg-zinc-900 border border-[#c28e3a] p-12 rounded-3xl max-w-md animate-scale-up">
-                    <iconify-icon icon="lucide:mail-check" width="64" className="text-[#c28e3a] mb-6 mx-auto"></iconify-icon>
-                    <h2 className="text-white text-2xl font-bold uppercase mb-4">Securing Your Slot</h2>
-                    <p className="text-zinc-500 mb-8">You've been added to the elite queue. Watch your inbox, hunter.</p>
-                    <button onClick={() => { setWaitlistStatus('success'); }} className="w-full py-4 bg-[#c28e3a] text-black font-bold uppercase tracking-widest">Acknowledge</button>
-                  </div>
-                </div>
-              )}
             </header>
 
-            {/* Lore Section */}
-            <section id="lore" className="py-32 relative bg-cover bg-center bg-fixed" style={{ backgroundImage: "linear-gradient(to bottom, rgba(21,21,21,0.85), rgba(21,21,21,0.9)), url('https://i.postimg.cc/Qtjkb1QH/bg24.png')" }}>
-              <div className="max-w-6xl mx-auto px-6 relative z-10 text-center py-24">
-                <h2 className="text-white text-5xl md:text-6xl font-bold tracking-tight font-heading italic uppercase mb-6 text-center">THE WORLD OF AETHERMOOR</h2>
-                <div className="w-16 h-1 bg-[#c28e3a] mx-auto mb-20 shadow-[0_0_10px_#c28e3a]"></div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-16 text-left text-gray-400 text-xl leading-relaxed italic">
-                  <p>Before the chains. Before the silence. There was a promise between beasts — sworn in blood, sealed in steel.</p>
-                  <p className="md:text-right">That truth is dead now. Broken by betrayal. Buried under iron and ash. The clans turned on each other.</p>
-                </div>
+            {/* Visual Evolution Section */}
+            <section className="py-24 sm:py-32 bg-zinc-950 border-y border-white/5 overflow-hidden">
+               <div className="max-w-7xl mx-auto px-8">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                    <div>
+                      <h3 className="text-[#c28e3a] text-xs font-black uppercase tracking-[0.3em] mb-4">Système d'Evolution Visuelle</h3>
+                      <h2 className="text-white text-5xl font-heading font-black italic uppercase tracking-tighter mb-8 leading-none">VOTRE AVATAR<br />DEVIENT VOTRE <span className="text-zinc-500">LÉGENDE</span></h2>
+                      <p className="text-zinc-400 text-lg leading-relaxed italic font-monda mb-10">
+                        Chaque point d'expérience investi dans votre arbre de compétences modifie physiquement votre avatar SVG. D'un simple nomade à un champion rayonnant d'énergie éthérée.
+                      </p>
+                      
+                      <div className="space-y-6">
+                        {[
+                          { label: 'FORCE / RÉSISTANCE', desc: 'Armures lourdes et teintures émeraude.', color: '#4ade80' },
+                          { label: 'ARCANE / EXPLOSIVITÉ', desc: 'Effets particulaires et reflets incandescents.', color: '#f87171' },
+                          { label: 'OMBRE / CONTRÔLE', desc: 'Auras de stase et nuances violettes.', color: '#818cf8' }
+                        ].map((way, idx) => (
+                          <div key={idx} className="flex gap-4 items-start group">
+                            <div className="w-1.5 h-1.5 rounded-full mt-2 transition-all group-hover:scale-[2.5]" style={{ backgroundColor: way.color, boxShadow: `0 0 10px ${way.color}` }}></div>
+                            <div>
+                              <h4 className="text-white text-xs font-black tracking-widest">{way.label}</h4>
+                              <p className="text-zinc-600 text-[11px] uppercase font-bold">{way.desc}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="relative group perspective-1000">
+                      <div className="bg-gradient-to-br from-zinc-900 to-black border border-white/10 rounded-[40px] p-12 aspect-square flex items-center justify-center transform transition-all duration-700 group-hover:rotate-y-12 group-hover:scale-105 shadow-2xl">
+                         <Avatar xp={150} unlockedSkills={['sustain_1', 'sus_2']} />
+                         <div className="absolute -top-8 -right-8 w-32 h-32 bg-[#c28e3a]/10 blur-3xl animate-pulse"></div>
+                      </div>
+                    </div>
+                  </div>
+               </div>
+            </section>
+
+            {/* Mechanics Section */}
+            <section className="py-32 bg-black relative">
+               <div className="max-w-7xl mx-auto px-8">
+                  <div className="text-center mb-24">
+                    <h2 className="text-white text-4xl sm:text-6xl font-heading font-black italic uppercase tracking-tighter mb-6">MÉCANIQUES DE <span className="text-zinc-700">DESTINÉE</span></h2>
+                    <div className="w-24 h-1 bg-[#c28e3a] mx-auto"></div>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    {[
+                      { icon: 'solar:graph-up-bold-duotone', title: 'Progression Hexagonale', desc: 'Un arbre de compétences modulaire qui s\'adapte à votre style sans contraintes de classe.' },
+                      { icon: 'solar:shield-star-bold-duotone', title: 'Contrats Majeurs', desc: 'Relevez des défis de productivité pour forger votre caractère et augmenter votre score.' },
+                      { icon: 'solar:ranking-bold-duotone', title: 'Honneur Partagé', desc: 'Faites partie d\'un classement dynamique géré en temps réel par la blockchain Aethermoor.' }
+                    ].map((feature, idx) => (
+                      <div key={idx} className="bg-zinc-900/40 border border-white/5 p-12 rounded-[32px] hover:border-[#c28e3a]/30 transition-all group">
+                        <div className="w-16 h-16 bg-zinc-950 rounded-2xl flex items-center justify-center mb-8 border border-white/10 group-hover:bg-[#c28e3a] group-hover:text-black transition-all">
+                          <iconify-icon icon={feature.icon} width="32"></iconify-icon>
+                        </div>
+                        <h3 className="text-white text-xl font-black uppercase mb-4 italic tracking-tight">{feature.title}</h3>
+                        <p className="text-zinc-500 font-monda leading-relaxed text-sm italic">"{feature.desc}"</p>
+                      </div>
+                    ))}
+                  </div>
+               </div>
+            </section>
+
+            {/* Lore Section (Improved) */}
+            <section id="lore" className="py-48 relative overflow-hidden flex items-center justify-center">
+              <div className="absolute inset-0 z-0 scale-105">
+                <img src="https://i.postimg.cc/Qtjkb1QH/bg24.png" className="w-full h-full object-cover opacity-20 grayscale" />
+                <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black"></div>
+              </div>
+              <div className="max-w-4xl mx-auto px-8 relative z-10 text-center">
+                 <iconify-icon icon="lucide:scroll-text" className="text-[#c28e3a] mb-12 text-6xl animate-pulse"></iconify-icon>
+                 <h2 className="text-white text-5xl sm:text-6xl font-black italic uppercase tracking-tighter mb-8 leading-tight">L'HÉRITAGE D'EIKONR</h2>
+                 <p className="text-zinc-400 text-xl font-monda italic leading-relaxed mb-12">
+                   "Avant les chaînes. Avant le silence. Il y avait une promesse entre les bêtes — jurée par le sang, scellée par l'acier. Aujourd'hui, cette vérité est morte, enterrée sous le fer et les cendres. Les clans se sont retournés les uns contre les autres. La chasse vient de recommencer."
+                 </p>
+                 <button onClick={handleJoinClick} className="text-[#c28e3a] font-black uppercase tracking-[0.4em] text-xs hover:tracking-[0.6em] transition-all">S'inscrire dans les archives →</button>
               </div>
             </section>
 
             {/* Footer */}
-            <footer className="relative bg-black pt-48 pb-12 flex flex-col items-center border-t border-white/5 w-full">
-              <div className="relative z-10 w-full max-w-7xl mx-auto px-6 mt-16 pb-12 border-b border-white/10 text-center">
-                <div className="flex items-center justify-center gap-3 text-white font-heading text-2xl font-semibold italic tracking-tight mb-8">
-                  <iconify-icon icon="lucide:swords" width="32" height="32" className="text-white"></iconify-icon> The Hunt
+            <footer className="relative bg-zinc-950 pt-32 pb-12 border-t border-white/5 overflow-hidden">
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-px bg-gradient-to-r from-transparent via-[#c28e3a]/40 to-transparent"></div>
+              
+              <div className="max-w-7xl mx-auto px-8 relative z-10">
+                <div className="grid grid-cols-1 lg:grid-cols-4 gap-16 mb-24">
+                  <div className="lg:col-span-1">
+                    <div className="flex items-center gap-3 text-white font-heading text-2xl font-black italic uppercase mb-8">
+                       <iconify-icon icon="lucide:triangle" width="24" className="text-[#c28e3a] rotate-180"></iconify-icon>
+                       Beastborne
+                    </div>
+                    <p className="text-zinc-500 text-sm italic font-monda leading-relaxed mb-8">
+                      La plateforme de gamification next-gen qui transforme votre progression personnelle en une épopée légendaire.
+                    </p>
+                    <div className="flex gap-4">
+                      {['discord', 'twitter', 'github', 'instagram'].map(platform => (
+                        <a key={platform} href="#" className="w-10 h-10 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center text-zinc-500 hover:text-white hover:bg-white/10 transition-all">
+                          <iconify-icon icon={`solar:${platform}-bold`} width="20"></iconify-icon>
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 lg:col-span-3 gap-12 sm:grid-cols-3">
+                    <div>
+                      <h4 className="text-white text-[10px] font-black uppercase tracking-[0.3em] mb-8">L'UNIVERS</h4>
+                      <ul className="space-y-4 text-zinc-500 text-xs font-bold uppercase tracking-widest">
+                         <li className="hover:text-[#c28e3a] cursor-pointer transition-colors">Les Fondations</li>
+                         <li className="hover:text-[#c28e3a] cursor-pointer transition-colors">La Blockchain</li>
+                         <li className="hover:text-[#c28e3a] cursor-pointer transition-colors">Arbres de Talent</li>
+                         <li className="hover:text-[#c28e3a] cursor-pointer transition-colors">Contrats Élite</li>
+                      </ul>
+                    </div>
+                    <div>
+                      <h4 className="text-white text-[10px] font-black uppercase tracking-[0.3em] mb-8">COMMUNAUTÉ</h4>
+                      <ul className="space-y-4 text-zinc-500 text-xs font-bold uppercase tracking-widest">
+                         <li className="hover:text-[#c28e3a] cursor-pointer transition-colors">Discord Pro</li>
+                         <li className="hover:text-[#c28e3a] cursor-pointer transition-colors">Classements</li>
+                         <li className="hover:text-[#c28e3a] cursor-pointer transition-colors">Clans Émanants</li>
+                         <li className="hover:text-[#c28e3a] cursor-pointer transition-colors">Événements</li>
+                      </ul>
+                    </div>
+                    <div>
+                      <h4 className="text-white text-[10px] font-black uppercase tracking-[0.3em] mb-8">NEWSLETTER</h4>
+                      <p className="text-zinc-600 text-[10px] mb-6 leading-relaxed uppercase font-bold">Inscrivez-vous pour recevoir les mises à jour de l'Aethermoor.</p>
+                      <form className="relative group" onSubmit={(e) => e.preventDefault()}>
+                        <input type="email" placeholder="Email" className="w-full bg-black/50 border border-white/5 px-4 py-3 rounded-lg text-white text-[10px] outline-none focus:border-[#c28e3a] transition-all" />
+                        <button className="absolute right-2 top-1.5 p-1.5 bg-[#c28e3a] text-black rounded transition-all hover:brightness-110">
+                          <iconify-icon icon="lucide:arrow-right" width="14"></iconify-icon>
+                        </button>
+                      </form>
+                    </div>
+                  </div>
                 </div>
-                <p className="text-gray-500 text-sm">© 2026 The Hunt. Built for future champions.</p>
+
+                <div className="pt-12 border-t border-white/5 flex flex-col sm:flex-row justify-between items-center gap-6">
+                  <p className="text-zinc-700 text-[9px] font-black uppercase tracking-[0.3em]">© 2026 BEASTBORNE. TOUS DROITS RÉSERVÉS.</p>
+                  <div className="flex gap-8 text-zinc-700 text-[9px] font-black uppercase tracking-[0.3em]">
+                    <span className="hover:text-zinc-400 cursor-pointer transition-colors">Constitution</span>
+                    <span className="hover:text-zinc-400 cursor-pointer transition-colors">Respect de la Vie Privée</span>
+                  </div>
+                </div>
               </div>
             </footer>
           </>
@@ -445,7 +568,12 @@ export default function App() {
               )}
 
               {dashboardTab === 'rankings' && (
-                <Leaderboard currentUser={{ ...user, xp, dominant: null }} />
+                <Leaderboard currentUser={{ 
+                  ...user, 
+                  xp, 
+                  level: getLevel(xp).level,
+                  dominant: getDominantBranch(unlockedSkills) 
+                }} />
               )}
             </div>
           </section>
