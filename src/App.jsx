@@ -4,6 +4,7 @@ import Leaderboard from './components/Leaderboard';
 import Avatar from './components/Avatar';
 import SkillTree from './components/SkillTree';
 import QuestPanel from './components/quests/QuestPanel';
+import StatsPanel from './components/StatsPanel';
 import usePlayerData from './hooks/usePlayerData';
 import { getDominantBranch } from './utils/xpHelpers';
 import { getLevel } from './data/levels';
@@ -11,7 +12,7 @@ import { getLevel } from './data/levels';
 export default function App() {
   const [view, setView] = useState('landing'); // 'landing', 'setup', 'dashboard'
   const [dashboardTab, setDashboardTab] = useState('profile'); // 'profile', 'skills', 'quests', 'rankings'
-  const { user, setUser, xp, setXp, unlockedSkills, setUnlockedSkills, completedQuests, setCompletedQuests } = usePlayerData();
+  const { user, setUser, xp, setXp, unlockedSkills, setUnlockedSkills, completedQuests, setCompletedQuests, xpHistory } = usePlayerData();
   const [isLoading, setIsLoading] = useState(true);
   const [landingTab, setLandingTab] = useState(null); // 'waitlist', 'about', 'blog', 'archetypes'
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -514,6 +515,7 @@ export default function App() {
               <div className="flex bg-black/40 border border-white/10 p-1 rounded-xl">
                 {[
                   { id: 'profile', label: 'Mon Évolution', icon: 'lucide:user' },
+                  { id: 'stats', label: 'Statistiques', icon: 'lucide:bar-chart-3' },
                   { id: 'skills', label: 'Compétences', icon: 'lucide:git-branch' },
                   { id: 'quests', label: 'Défis & Quêtes', icon: 'lucide:scroll' },
                   { id: 'rankings', label: 'Classement', icon: 'lucide:trophy' }
@@ -537,14 +539,14 @@ export default function App() {
                 <div className="flex flex-col items-center gap-12">
                   <Avatar xp={xp} unlockedSkills={unlockedSkills} />
                   <div className="max-w-md w-full bg-zinc-900 border border-white/5 p-8 rounded-2xl text-center">
-                    <h3 className="text-zinc-500 text-xs font-bold uppercase tracking-[0.3em] mb-4">Progression Totale</h3>
+                    <h3 className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.3em] mb-4">Progression Totale</h3>
                     <div className="text-6xl text-white font-monda mb-2">{xp}</div>
                     <div className="text-[#c28e3a] text-xs font-bold uppercase tracking-widest">XP Cumulée</div>
 
                     <div className="mt-8 flex flex-col gap-2">
                       <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-zinc-600">
-                        <span>PROCHAINE ÉVOLUTION</span>
-                        <span>{(xp % 100)}%</span>
+                        <span>PROCHAINE ÉVOLUTION {(xp % 100)}%</span>
+                        <span>{getLevel(xp).nextXp} XP</span>
                       </div>
                       <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden">
                         <div className="h-full bg-[#c28e3a]" style={{ width: `${(xp % 100)}%` }}></div>
@@ -552,6 +554,10 @@ export default function App() {
                     </div>
                   </div>
                 </div>
+              )}
+
+              {dashboardTab === 'stats' && (
+                <StatsPanel xp={xp} unlockedSkills={unlockedSkills} xpHistory={xpHistory} />
               )}
 
               {dashboardTab === 'skills' && (
