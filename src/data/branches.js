@@ -1,53 +1,45 @@
-// --- Hexagonal Skill Tree Data ---
-
-export const SKILL_NODES = [
-    // Center
-    { id: 'core', label: 'CORE', tier: 0, angle: 0, category: 'core', xpCost: 0, icon: '✦' },
-
-    // Inner ring (6 nodes at 60° increments)
-    { id: 'sustain_1', label: 'Vitalité', tier: 1, angle: 90, category: 'sustain', xpCost: 50, req: ['core'] },
-    { id: 'burst_1', label: 'Surcharge', tier: 1, angle: 210, category: 'burst', xpCost: 50, req: ['core'] },
-    { id: 'control_1', label: 'Stase', tier: 1, angle: 330, category: 'control', xpCost: 50, req: ['core'] },
-    { id: 'sus_2', label: 'Égide', tier: 1, angle: 30, category: 'sustain', xpCost: 60, req: ['core'] },
-    { id: 'burst_2', label: 'Nova', tier: 1, angle: 150, category: 'burst', xpCost: 60, req: ['core'] },
-    { id: 'ctrl_2', label: 'Entraves', tier: 1, angle: 270, category: 'control', xpCost: 60, req: ['core'] },
-
-    // Mid ring
-    { id: 'sus_ring2_1', label: 'Volonté de Fer', tier: 2, angle: 90, category: 'sustain', xpCost: 100, req: ['sustain_1'] },
-    { id: 'sus_ring2_2', label: 'Rempart', tier: 2, angle: 60, category: 'sustain', xpCost: 100, req: ['sus_2'] },
-    { id: 'sus_ring2_3', label: 'Renouveau', tier: 2, angle: 120, category: 'sustain', xpCost: 100, req: ['sustain_1'] },
-    { id: 'burst_ring2_1', label: 'Détonation', tier: 2, angle: 210, category: 'burst', xpCost: 100, req: ['burst_1'] },
-    { id: 'burst_ring2_2', label: 'Brasier', tier: 2, angle: 180, category: 'burst', xpCost: 100, req: ['burst_2'] },
-    { id: 'burst_ring2_3', label: 'Tempête', tier: 2, angle: 240, category: 'burst', xpCost: 100, req: ['burst_1'] },
-    { id: 'ctrl_ring2_1', label: 'Enchevêtrement', tier: 2, angle: 330, category: 'control', xpCost: 100, req: ['control_1'] },
-    { id: 'ctrl_ring2_2', label: 'Domination', tier: 2, angle: 300, category: 'control', xpCost: 100, req: ['ctrl_2'] },
-    { id: 'ctrl_ring2_3', label: 'Paralysie', tier: 2, angle: 0, category: 'control', xpCost: 100, req: ['control_1'] },
-
-    // Outer specialization nodes (3 major specs)
-    { id: 'spec_duelist', label: 'DUÉLLISTE', tier: 3, angle: 150, category: 'spec', xpCost: 200, req: ['burst_ring2_2', 'burst_ring2_1'], isSpec: true },
-    { id: 'spec_saboteur', label: 'SABOTEUR', tier: 3, angle: 30, category: 'spec', xpCost: 200, req: ['sus_ring2_2', 'ctrl_ring2_2'], isSpec: true },
-    { id: 'spec_veilranger', label: 'RÔDEUR', tier: 3, angle: 270, category: 'spec', xpCost: 200, req: ['ctrl_ring2_1', 'burst_ring2_3'], isSpec: true },
-];
-
-export const CATEGORY_COLORS = {
-    core: { main: '#c28e3a', glow: '#c28e3a80', text: '#ffd080' },
-    sustain: { main: '#4ade80', glow: '#4ade8060', text: '#86efac' },
-    burst: { main: '#f87171', glow: '#f8717160', text: '#fca5a5' },
-    control: { main: '#818cf8', glow: '#818cf860', text: '#a5b4fc' },
-    spec: { main: '#e879f9', glow: '#e879f960', text: '#f0abfc' },
-};
-
-export const CATEGORY_LABELS = {
-    sustain: 'RÉSISTANCE',
-    burst: 'EXPLOSIVITÉ',
-    control: 'CONTRÔLE',
-};
-
-// Simplified map mimicking the old format for Avatar compatibility
+// src/data/branches.js
 export const BRANCHES = {
-    core: { id: 'core', label: 'CŒUR', color: '#c28e3a', icon: 'lucide:triangle' },
-    sustain: { id: 'sustain', label: 'RÉSISTANCE', color: '#4ade80', icon: 'lucide:shield-check' },
-    burst: { id: 'burst', label: 'EXPLOSIVITÉ', color: '#f87171', icon: 'lucide:flame' },
-    control: { id: 'control', label: 'CONTRÔLE', color: '#818cf8', icon: 'lucide:magnet' },
-    spec: { id: 'spec', label: 'SPÉCIALITÉ', color: '#e879f9', icon: 'lucide:star' },
+  force: {
+    id: "force",
+    label: "FORCE",
+    color: "#e55c2f",
+    icon: "⚔️",
+    nodes: [
+      { id: "f1", name: "Frappe Brute", xp: 25, tier: 0, req: [], desc: "Augmente la puissance physique de base." },
+      { id: "f2", name: "Endurance", xp: 50, tier: 1, req: ["f1"], desc: "Permet de tenir plus longtemps dans l'effort." },
+      { id: "f3a", name: "Furie", xp: 75, tier: 2, req: ["f2"], branch: "A", desc: "Attaques dévastatrices au détriment de la défense." },
+      { id: "f3b", name: "Bouclier", xp: 75, tier: 2, req: ["f2"], branch: "B", desc: "Protection supérieure et contre-attaques." },
+      { id: "f4a", name: "TITAN", xp: 100, tier: 3, req: ["f3a"], ultimate: true, desc: "La forme ultime de la puissance brute." },
+      { id: "f4b", name: "BASTION", xp: 100, tier: 3, req: ["f3b"], ultimate: true, desc: "Une forteresse inébranlable." },
+    ]
+  },
+  arcane: {
+    id: "arcane",
+    label: "ARCANE",
+    color: "#4a9eff",
+    icon: "🪄",
+    nodes: [
+      { id: "a1", name: "Étincelle", xp: 25, tier: 0, req: [], desc: "Première manifestation de l'énergie éthérée." },
+      { id: "a2", name: "Concentration", xp: 50, tier: 1, req: ["a1"], desc: "Maîtrise du flux magique." },
+      { id: "a3a", name: "Invocation", xp: 75, tier: 2, req: ["a2"], branch: "A", desc: "Appel de créatures des plans supérieurs." },
+      { id: "a3b", name: "Transmutation", xp: 75, tier: 2, req: ["a2"], branch: "B", desc: "Changement de la matière elle-même." },
+      { id: "a4a", name: "ARCHMAGE", xp: 100, tier: 3, req: ["a3a"], ultimate: true, desc: "Maître absolu des arts mystiques." },
+      { id: "a4b", name: "ALCHIMISTE", xp: 100, tier: 3, req: ["a3b"], ultimate: true, desc: "L'art ultime de la création et destruction." },
+    ]
+  },
+  ombre: {
+    id: "ombre",
+    label: "OMBRE",
+    color: "#b44fff",
+    icon: "👤",
+    nodes: [
+      { id: "o1", name: "Discrétion", xp: 25, tier: 0, req: [], desc: "L'art de ne pas être vu." },
+      { id: "o2", name: "Piège", xp: 50, tier: 1, req: ["o1"], desc: "Préparation du terrain pour surprendre l'ennemi." },
+      { id: "o3a", name: "Assassinat", xp: 75, tier: 2, req: ["o2"], branch: "A", desc: "Frappes chirurgicales et létales." },
+      { id: "o3b", name: "Évasion", xp: 75, tier: 2, req: ["o2"], branch: "B", desc: "Disparition totale et mobilité extrême." },
+      { id: "o4a", name: "FANTÔME", xp: 100, tier: 3, req: ["o3a"], ultimate: true, desc: "L'ombre qui frappe et disparaît." },
+      { id: "o4b", name: "OMBRE ÉTERNELLE", xp: 100, tier: 3, req: ["o3b"], ultimate: true, desc: "Devenir un avec les ténèbres." },
+    ]
+  }
 };

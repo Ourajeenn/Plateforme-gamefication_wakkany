@@ -1,23 +1,45 @@
+// src/utils/xpHelpers.js
 import { BRANCHES } from '../data/branches';
 
-export const getDominantBranch = (unlockedSkillIds) => {
-    if (!unlockedSkillIds || unlockedSkillIds.length === 0) return null;
+export const getDominantBranch = (unlockedSkills = []) => {
+  if (unlockedSkills.length === 0) return null;
 
-    const counts = { sustain: 0, burst: 0, control: 0 };
+  const counts = {
+    force: 0,
+    arcane: 0,
+    ombre: 0
+  };
 
-    unlockedSkillIds.forEach(id => {
-        if (id.startsWith('sus')) counts.sustain++;
-        if (id.startsWith('burst')) counts.burst++;
-        if (id.startsWith('ctrl') || id.startsWith('control')) counts.control++;
+  unlockedSkills.forEach(skillId => {
+    Object.keys(BRANCHES).forEach(branchId => {
+      if (BRANCHES[branchId].nodes.some(node => node.id === skillId)) {
+        counts[branchId]++;
+      }
     });
+  });
 
-    const max = Math.max(counts.sustain, counts.burst, counts.control);
-    if (max === 0) return null;
+  // Find branch with maximum skills
+  let dominant = null;
+  let max = 0;
 
-    return Object.keys(counts).find(key => counts[key] === max);
+  Object.keys(counts).forEach(key => {
+    if (counts[key] > max) {
+      max = counts[key];
+      dominant = key;
+    }
+  });
+
+  return dominant;
 };
 
-export const checkSkillReqs = (node, unlockedSkillIds) => {
-    if (!node.req || node.req.length === 0) return true;
-    return node.req.every(reqId => unlockedSkillIds.includes(reqId));
+export const getXpProgress = (xp) => {
+  const currentLevel = [...Object.values(LEVELS || {})].reverse().find(l => xp >= l.xp) || { xp: 0, level: 0 };
+  const nextLevel = (LEVELS || [])[currentLevel.level + 1];
+  
+  if (!nextLevel) return 100;
+  
+  const range = nextLevel.xp - currentLevel.xp;
+  const progress = xp - currentLevel.xp;
+  
+  return (progress / range) * 100;
 };
