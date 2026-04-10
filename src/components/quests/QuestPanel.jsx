@@ -1,9 +1,14 @@
-import React, { useState } from 'react';
-import { QUESTS } from '../../data/quests';
+import { SKILL_NODES } from '../../data/branches';
 import RiddleModal from './RiddleModal';
 
 export default function QuestPanel({ xp, unlockedSkills, completedQuests, onCompleteQuest }) {
     const [activeRiddle, setActiveRiddle] = useState(null);
+
+    const getReqName = (reqId) => {
+        if (reqId === 'ultimate') return '2 Spécialisations';
+        const node = SKILL_NODES.find(n => n.id === reqId);
+        return node ? node.label : reqId;
+    };
 
     const isQuestLocked = (quest) => {
         if (quest.nodeReq === 'ultimate') {
@@ -62,7 +67,7 @@ export default function QuestPanel({ xp, unlockedSkills, completedQuests, onComp
                                 {isLocked ? (
                                     <div className="flex items-center gap-2 text-zinc-600">
                                         <iconify-icon icon="lucide:lock" width="14"></iconify-icon>
-                                        <span className="text-[10px] uppercase font-bold tracking-widest">Bloqué : {quest.nodeReq} requis</span>
+                                        <span className="text-[10px] uppercase font-bold tracking-widest">Bloqué : {getReqName(quest.nodeReq)} requis</span>
                                     </div>
                                 ) : isCompleted ? (
                                     <div className="flex items-center gap-2 text-green-500">
