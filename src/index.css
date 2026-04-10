@@ -5,6 +5,17 @@
 @tailwind utilities;
 
 @layer base {
+  html, body {
+    @apply select-none overflow-x-hidden;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    overscroll-behavior-y: none;
+  }
+
+  input, textarea {
+    @apply select-text;
+  }
+
   body {
     font-family: 'Monda', sans-serif;
     background-color: #000;

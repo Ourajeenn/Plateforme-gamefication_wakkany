@@ -7,6 +7,7 @@ import QuestPanel from './components/quests/QuestPanel';
 import StatsPanel from './components/StatsPanel';
 import BadgeGallery from './components/BadgeGallery';
 import NotificationToast from './components/NotificationToast';
+import BottomNav from './components/BottomNav';
 import usePlayerData from './hooks/usePlayerData';
 import { ACHIEVEMENTS } from './data/achievements';
 import { getDominantBranch } from './utils/xpHelpers';
@@ -48,6 +49,17 @@ export default function App() {
   }, [xp, unlockedSkills, completedQuests, user]);
 
   useEffect(() => {
+    // Enregistrement du Service Worker pour la PWA
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').then(reg => {
+          console.log('SW Registered!', reg);
+        }).catch(err => {
+          console.log('SW Registration failed', err);
+        });
+      });
+    }
+
     // Initial loading simulation
     const timer = setTimeout(() => {
       setIsLoading(false);
@@ -548,8 +560,8 @@ export default function App() {
                 </p>
               </div>
 
-              {/* Dashboard Nav */}
-              <div className="flex bg-black/40 border border-white/10 p-1 rounded-xl">
+              {/* Dashboard Tabs Desktop */}
+              <div className="hidden lg:flex bg-black/40 border border-white/10 p-1 rounded-xl">
                 {[
                   { id: 'profile', label: 'Mon Évolution', icon: 'lucide:user' },
                   { id: 'stats', label: 'Statistiques', icon: 'lucide:bar-chart-3' },
@@ -623,6 +635,11 @@ export default function App() {
           </section>
         </div>
       )}
+      <BottomNav 
+        activeTab={dashboardTab} 
+        setActiveTab={setDashboardTab} 
+        hasNotifications={notifications.length > 0} 
+      />
       <NotificationToast notifications={notifications} removeNotification={removeNotification} />
     </div>
   );
