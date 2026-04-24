@@ -54,9 +54,7 @@ const SkillNode = ({ node, branch, isUnlocked, isAvailable, onUnlock, onHover })
       </div>
     </div>
   );
-};
-
-export default function SkillTree({ xp, unlockedSkills, onUnlock }) {
+};export default function SkillTree({ xp, unlockedSkills, onUnlock, onReset }) {
   const [hoveredSkill, setHoveredSkill] = useState(null);
   
   // Panning State
@@ -72,12 +70,20 @@ export default function SkillTree({ xp, unlockedSkills, onUnlock }) {
     if (checkUnlocked(node.id)) return false;
     if (xp < node.xp) return false;
     if (node.req.length === 0) return true;
-    return node.req.some(r => checkUnlocked(r));
+    return node.req.every(r => checkUnlocked(r));
   };
 
   const handleHover = (node, branch) => {
     if (!node) setHoveredSkill(null);
     else setHoveredSkill({ ...node, branchColor: branch.color, branchLabel: branch.label });
+  };
+
+  const centerTree = () => {
+    if (scrollRef.current) {
+      const { scrollWidth, scrollHeight, clientWidth, clientHeight } = scrollRef.current;
+      scrollRef.current.scrollLeft = (scrollWidth - clientWidth) / 2;
+      scrollRef.current.scrollTop = (scrollHeight - clientHeight) / 2;
+    }
   };
 
   // Panning Handlers
@@ -102,8 +108,26 @@ export default function SkillTree({ xp, unlockedSkills, onUnlock }) {
   };
 
   return (
-    <div className="w-full relative overflow-hidden bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-zinc-900/40 via-zinc-950 to-black rounded-3xl border border-white/5 py-6">
+    <div className="w-full relative overflow-hidden bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-zinc-900/40 via-zinc-950 to-black rounded-3xl border border-white/5 py-6 group/tree">
       
+      {/* Control Buttons */}
+      <div className="absolute top-6 right-6 z-50 flex flex-col gap-2">
+        <button 
+          onClick={centerTree}
+          className="p-3 bg-black/60 backdrop-blur-xl border border-white/10 rounded-xl text-white/40 hover:text-white hover:border-[#c28e3a] transition-all"
+          title="Recentrer"
+        >
+          <iconify-icon icon="lucide:maximize" width="20"></iconify-icon>
+        </button>
+        <button 
+          onClick={() => { if(window.confirm('Réinitialiser tous vos talents ?')) onReset(); }}
+          className="p-3 bg-black/60 backdrop-blur-xl border border-white/10 rounded-xl text-red-500/40 hover:text-red-500 hover:border-red-500 transition-all"
+          title="Réinitialiser"
+        >
+          <iconify-icon icon="lucide:refresh-cw" width="20"></iconify-icon>
+        </button>
+      </div>
+
       {/* Scrollable Panning Container */}
       <div 
         ref={scrollRef}
@@ -115,23 +139,26 @@ export default function SkillTree({ xp, unlockedSkills, onUnlock }) {
       >
         
         {/* Absolute Coordinate Grid */}
-        <div className="relative w-[1000px] h-[1000px] md:w-[1200px] md:h-[1200px] shrink-0 transform-gpu" style={{ userSelect: 'none' }}>
+        <div className="relative w-[1200px] h-[1200px] shrink-0 transform-gpu" style={{ userSelect: 'none' }}>
           
           {/* Background constellation grid */}
-          <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(255,255,255,0.05) 1px, transparent 0)', backgroundSize: '40px 40px' }}></div>
+          <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(255,255,255,0.03) 1px, transparent 0)', backgroundSize: '60px 60px' }}></div>
 
           {/* Central Nexus Element */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 rounded-full border-[4px] border-zinc-800 bg-black flex flex-col items-center justify-center z-0 shadow-[0_0_80px_rgba(255,255,255,0.05)]">
-             <div className="absolute inset-2 rounded-full border border-dashed border-zinc-700 animate-[spin_20s_linear_infinite]"></div>
-             <span className="text-4xl animate-pulse">🌌</span>
-             <span className="text-xs font-heading font-black text-zinc-500 uppercase mt-2 tracking-[0.3em]">NEXUS</span>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 flex items-center justify-center z-0">
+             <div className="absolute inset-0 rounded-full border border-dashed border-zinc-800 animate-[spin_30s_linear_infinite]"></div>
+             <div className="absolute inset-6 rounded-full border border-zinc-900 border-t-[#c28e3a]/40 animate-spin-slow"></div>
+             <div className="absolute inset-12 rounded-full bg-zinc-950 flex flex-col items-center justify-center border border-white/5 shadow-[0_0_100px_rgba(194,142,58,0.1)]">
+                <span className="text-5xl animate-pulse filter drop-shadow-[0_0_15px_rgba(194,142,58,0.5)]">🌌</span>
+                <span className="text-[9px] font-heading font-black text-zinc-600 uppercase mt-2 tracking-[0.5em]">Nexus Core</span>
+             </div>
           </div>
 
           {/* SVG Connection Lines Layer */}
           <svg className="absolute inset-0 w-full h-full pointer-events-none z-0">
             <defs>
                <filter id="glow">
-                 <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+                 <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
                  <feMerge>
                    <feMergeNode in="coloredBlur"/>
                    <feMergeNode in="SourceGraphic"/>
@@ -154,12 +181,12 @@ export default function SkillTree({ xp, unlockedSkills, onUnlock }) {
                       y1={`${reqNode.y}%`} 
                       x2={`${node.x}%`} 
                       y2={`${node.y}%`} 
-                      stroke={isLinkActive ? branch.color : isLinkAvailable ? `${branch.color}` : '#3f3f46'}
-                      strokeWidth={isLinkActive ? 4 : isLinkAvailable ? 2 : 1}
-                      strokeDasharray={isLinkAvailable && !isLinkActive ? '10,10' : 'none'}
-                      opacity={isLinkActive ? 0.9 : isLinkAvailable ? 0.5 : 0.2}
+                      stroke={isLinkActive ? branch.color : isLinkAvailable ? `${branch.color}` : '#18181b'}
+                      strokeWidth={isLinkActive ? 4 : 2}
+                      strokeDasharray={isLinkAvailable && !isLinkActive ? '8,8' : 'none'}
+                      opacity={isLinkActive ? 1 : isLinkAvailable ? 0.6 : 0.15}
                       filter={isLinkActive ? "url(#glow)" : "none"}
-                      className={isLinkAvailable && !isLinkActive ? 'animate-[dash_2s_linear_infinite]' : ''}
+                      className={isLinkAvailable && !isLinkActive ? 'animate-[dash_3s_linear_infinite]' : ''}
                     />
                   );
                 })
@@ -179,12 +206,12 @@ export default function SkillTree({ xp, unlockedSkills, onUnlock }) {
                     y1="50%" 
                     x2={`${tier0Node.x}%`} 
                     y2={`${tier0Node.y}%`} 
-                    stroke={isLinkActive ? branch.color : isLinkAvailable ? `${branch.color}` : '#3f3f46'}
-                    strokeWidth={isLinkActive ? 5 : isLinkAvailable ? 2 : 1}
-                    strokeDasharray={isLinkAvailable && !isLinkActive ? '10,10' : 'none'}
-                    opacity={isLinkActive ? 0.9 : isLinkAvailable ? 0.5 : 0.2}
+                    stroke={isLinkActive ? branch.color : isLinkAvailable ? `${branch.color}` : '#18181b'}
+                    strokeWidth={isLinkActive ? 4 : 2}
+                    strokeDasharray={isLinkAvailable && !isLinkActive ? '8,8' : 'none'}
+                    opacity={isLinkActive ? 1 : isLinkAvailable ? 0.6 : 0.15}
                     filter={isLinkActive ? "url(#glow)" : "none"}
-                    className={isLinkAvailable && !isLinkActive ? 'animate-[dash_2s_linear_infinite]' : ''}
+                    className={isLinkAvailable && !isLinkActive ? 'animate-[dash_3s_linear_infinite]' : ''}
                  />
                );
             })}

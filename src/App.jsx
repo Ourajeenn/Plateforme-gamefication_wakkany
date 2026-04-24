@@ -85,6 +85,11 @@ export default function App() {
     setUnlockedSkills(prev => [...prev, node.id]);
   };
 
+  const handleResetSkills = () => {
+    setUnlockedSkills([]);
+    addNotification('info', "Arbre de compétences réinitialisé.");
+  };
+
   const handleCompleteQuest = (quest) => {
     setCompletedQuests(prev => [...prev, quest.id]);
     const oldLevel = getLevel(xp).level;
@@ -102,20 +107,70 @@ export default function App() {
     if (el) el.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const Preloader = () => (
-    <div className="fixed inset-0 z-[200] bg-black flex flex-col items-center justify-center">
-      <div className="relative mb-8 animate-preloader-scale">
-        <iconify-icon icon="lucide:triangle" width="80" height="80" className="text-white rotate-180"></iconify-icon>
-        <div className="absolute inset-0 bg-[#c28e3a]/20 blur-2xl rounded-full"></div>
+  const Preloader = () => {
+    const [loreIndex, setLoreIndex] = useState(0);
+    const lores = [
+      "Synchronisation des réalités alternatives...",
+      "Chargement de la forge du Multivers...",
+      "Alignement des flux d'énergie éthérée...",
+      "Éveil du potentiel latent des champions...",
+      "Préparation de l'arène dimensionnelle..."
+    ];
+
+    useEffect(() => {
+      const loreTimer = setInterval(() => {
+        setLoreIndex(prev => (prev + 1) % lores.length);
+      }, 500);
+      return () => clearInterval(loreTimer);
+    }, []);
+
+    return (
+      <div className="fixed inset-0 z-[200] bg-black flex flex-col items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-zinc-900/20 via-black to-black opacity-60"></div>
+        
+        <div className="relative mb-12 animate-preloader-scale group">
+          <div className="absolute inset-0 bg-[#c28e3a] blur-[100px] opacity-20 group-hover:opacity-40 transition-opacity"></div>
+          <iconify-icon icon="lucide:triangle" width="100" height="100" className="text-[#c28e3a] rotate-180 drop-shadow-[0_0_20px_rgba(194,142,58,0.5)]"></iconify-icon>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+            <iconify-icon icon="lucide:loader-2" width="40" height="40" className="text-white/20 animate-spin"></iconify-icon>
+          </div>
+        </div>
+
+        <div className="w-64 h-1 bg-zinc-900 rounded-full overflow-hidden relative border border-white/5 shadow-2xl">
+          <div className="absolute inset-y-0 left-0 bg-gradient-to-r from-transparent via-[#c28e3a] to-transparent w-full animate-progress-run"></div>
+        </div>
+
+        <div className="mt-8 flex flex-col items-center gap-2">
+          <div className="text-[#c28e3a] font-heading font-black italic tracking-[0.4em] uppercase text-sm animate-pulse">
+            WAKKANY
+          </div>
+          <div className="text-zinc-500 font-monda text-[10px] uppercase tracking-widest h-4 overflow-hidden">
+             <div className="animate-fade-in key={loreIndex}">
+               {lores[loreIndex]}
+             </div>
+          </div>
+        </div>
+
+        {/* Ambient particles (CSS only) */}
+        <div className="absolute inset-0 pointer-events-none opacity-20">
+           {[...Array(20)].map((_, i) => (
+             <div 
+               key={i} 
+               className="absolute bg-white rounded-full animate-float-xp"
+               style={{ 
+                 left: `${Math.random() * 100}%`, 
+                 top: `${Math.random() * 100}%`, 
+                 width: `${Math.random() * 4}px`, 
+                 height: `${Math.random() * 4}px`,
+                 animationDelay: `${Math.random() * 5}s`,
+                 animationDuration: `${3 + Math.random() * 5}s`
+               }}
+             ></div>
+           ))}
+        </div>
       </div>
-      <div className="w-48 h-1 bg-zinc-900 rounded-full overflow-hidden relative">
-        <div className="absolute inset-0 bg-[#c28e3a] w-1/4 animate-progress-run"></div>
-      </div>
-      <div className="mt-6 text-[#c28e3a] font-heading font-bold italic tracking-[0.3em] uppercase text-xs animate-pulse">
-        Initialisation de Wakkany...
-      </div>
-    </div>
-  );
+    );
+  };
 
   const LandingNav = () => (
     <nav className="fixed top-6 left-1/2 -translate-x-1/2 w-[95%] max-w-7xl bg-black/40 backdrop-blur-2xl rounded-2xl border border-white/10 flex items-center justify-between px-8 py-4 z-[100] transition-all hover:bg-black/60 shadow-2xl shadow-black/50">
@@ -144,9 +199,19 @@ export default function App() {
             if (user) setView('dashboard');
             else handleJoinClick();
           }}
-          className="hidden md:block px-6 py-2.5 bg-[#c28e3a] text-black font-black uppercase text-[10px] tracking-widest rounded-lg hover:brightness-110 transition-all hover:scale-105 active:scale-95 shadow-lg shadow-orange-950/20"
+          className="hidden md:flex items-center gap-3 px-6 py-2 bg-zinc-900 border border-white/10 text-white font-black uppercase text-[10px] tracking-widest rounded-xl hover:bg-[#c28e3a] hover:text-black transition-all group active:scale-95 shadow-xl"
         >
-          {user ? `Tableau de Bord (${user.name})` : "Rejoindre l'élite"}
+          {user && (
+            <div className="w-8 h-8 rounded-full overflow-hidden border border-white/20 bg-black flex items-center justify-center shrink-0">
+               {user.faction === 'heroes' && <iconify-icon icon="lucide:shield" className="text-red-500"></iconify-icon>}
+               {user.faction === 'warriors' && <iconify-icon icon="lucide:sword" className="text-orange-500"></iconify-icon>}
+               {user.faction === 'dinos' && <iconify-icon icon="lucide:Zap" className="text-green-500"></iconify-icon>}
+               {user.faction === 'cars' && <iconify-icon icon="lucide:gauge" className="text-blue-500"></iconify-icon>}
+            </div>
+          )}
+          <span className="truncate max-w-[150px]">
+            {user ? `${user.name}` : "Commencer"}
+          </span>
         </button>
 
         <button
@@ -615,7 +680,7 @@ export default function App() {
               )}
 
               {dashboardTab === 'skills' && (
-                <SkillTree xp={xp} unlockedSkills={unlockedSkills} onUnlock={handleUnlockSkill} />
+                <SkillTree xp={xp} unlockedSkills={unlockedSkills} onUnlock={handleUnlockSkill} onReset={handleResetSkills} />
               )}
 
               {dashboardTab === 'quests' && (
