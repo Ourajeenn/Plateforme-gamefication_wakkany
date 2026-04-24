@@ -44,9 +44,20 @@ export default function Avatar({ xp, unlockedSkills = [] }) {
         <g className="transition-all duration-700">
           {/* Main Body */}
           <path d="M60,180 Q100,110 140,180" fill="url(#bodyGradient)" stroke="#1a1a22" strokeWidth="2" />
+          
+          {/* SKILL: d2 (Peau Écailleuse) - Scale pattern overlay */}
+          {unlockedSkills.includes('d2') && (
+            <path d="M70,170 Q100,120 130,170" fill="none" stroke={BRANCHES.dinos.color} strokeWidth="2" strokeDasharray="2,4" opacity="0.3" />
+          )}
+
           {/* Head */}
           <circle cx="100" cy="70" r="32" fill="url(#bodyGradient)" stroke="#1a1a22" strokeWidth="2" />
           
+          {/* SKILL: w2 (Rage de Kratos) - War paint */}
+          {unlockedSkills.includes('w2') && (
+            <path d="M85,50 Q100,60 115,50" fill="none" stroke="#ef4444" strokeWidth="3" strokeLinecap="round" opacity="0.8" />
+          )}
+
           {/* Eyes */}
           <g transform="translate(100, 70)">
              <circle cx="-12" cy="-2" r="3" fill={level >= 2 ? branchColor : "#fff"} opacity={level >= 2 ? 1 : 0.4} filter={level >= 3 ? "url(#glow)" : ""} />
@@ -63,6 +74,19 @@ export default function Avatar({ xp, unlockedSkills = [] }) {
             <rect x="62" y="140" width="10" height="25" rx="2" fill="#242429" stroke={branchColor} strokeWidth="0.5" />
             <rect x="128" y="140" width="10" height="25" rx="2" fill="#242429" stroke={branchColor} strokeWidth="0.5" />
           </g>
+        )}
+
+        {/* --- SKILL EFFECTS : h2 (Speed) & c2 (Jets) --- */}
+        {unlockedSkills.includes('h2') && (
+           <g stroke="#3b82f6" strokeWidth="2" fill="none" className="animate-pulse">
+             <path d="M60,185 L50,195 M140,185 L150,195" />
+             <path d="M70,188 L65,198 M130,188 L135,198" />
+           </g>
+        )}
+        {unlockedSkills.includes('c2') && (
+           <g stroke="#007aff" strokeWidth="2" fill="none" opacity="0.6">
+             <path d="M50,110 L30,100 M150,110 L170,100" className="animate-ping" />
+           </g>
         )}
 
         {/* --- LEVEL 2 : VÉTÉRAN (Helmet & Shoulders) --- */}
@@ -120,6 +144,11 @@ export default function Avatar({ xp, unlockedSkills = [] }) {
             {/* Pulsing Aura */}
             <circle cx="100" cy="90" r="70" fill="none" stroke="#fce5a1" strokeWidth="0.5" opacity="0.2" className="animate-ping" />
           </g>
+        )}
+
+        {/* --- SKILL: Ultimate Glow --- */}
+        {unlockedSkills.some(id => BRANCHES.heroes.nodes.find(n => n.id === id)?.ultimate) && (
+           <circle cx="100" cy="90" r="85" fill="none" stroke="#fff" strokeWidth="1" opacity="0.1" className="animate-pulse" />
         )}
       </svg>
 

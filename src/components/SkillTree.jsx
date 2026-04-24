@@ -64,6 +64,9 @@ const SkillNode = ({ node, branch, isUnlocked, isAvailable, onUnlock, onHover })
   const [startY, setStartY] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
   const [scrollTop, setScrollTop] = useState(0);
+  
+  // Zoom State
+  const [zoom, setZoom] = useState(1); // Range: 0.5 to 2.0
 
   const checkUnlocked = (id) => unlockedSkills.includes(id);
   const checkAvailable = (node) => {
@@ -83,6 +86,14 @@ const SkillNode = ({ node, branch, isUnlocked, isAvailable, onUnlock, onHover })
       const { scrollWidth, scrollHeight, clientWidth, clientHeight } = scrollRef.current;
       scrollRef.current.scrollLeft = (scrollWidth - clientWidth) / 2;
       scrollRef.current.scrollTop = (scrollHeight - clientHeight) / 2;
+    }
+  };
+
+  const handleWheel = (e) => {
+    if (e.ctrlKey || e.metaKey) {
+      e.preventDefault();
+      const delta = e.deltaY > 0 ? -0.1 : 0.1;
+      setZoom(prev => Math.min(Math.max(prev + delta, 0.5), 2));
     }
   };
 
@@ -108,23 +119,40 @@ const SkillNode = ({ node, branch, isUnlocked, isAvailable, onUnlock, onHover })
   };
 
   return (
-    <div className="w-full relative overflow-hidden bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-zinc-900/40 via-zinc-950 to-black rounded-3xl border border-white/5 py-6 group/tree">
-      
+    <div className="relative w-full h-[700px] md:h-[850px] bg-black border border-white/10 rounded-3xl overflow-hidden shadow-2xl group/tree" onWheel={handleWheel}>
+      {/* Zoom / Stats Overlay */}
+      <div className="absolute top-6 left-6 z-[80] flex flex-col gap-3">
+        <div className="bg-black/80 backdrop-blur-md border border-white/10 px-4 py-2 rounded-xl flex items-center gap-4">
+           <div className="flex flex-col">
+             <span className="text-[9px] text-zinc-500 font-bold uppercase tracking-widest">Grossissement</span>
+             <span className="text-white font-heading font-bold italic">{(zoom * 100).toFixed(0)}%</span>
+           </div>
+           <div className="flex gap-2">
+             <button onClick={() => setZoom(prev => Math.max(prev - 0.1, 0.5))} className="w-8 h-8 rounded-lg bg-zinc-900 border border-white/10 flex items-center justify-center hover:bg-zinc-800 transition-colors">
+               <iconify-icon icon="lucide:minus" width="14"></iconify-icon>
+             </button>
+             <button onClick={() => setZoom(prev => Math.min(prev + 0.1, 2))} className="w-8 h-8 rounded-lg bg-zinc-900 border border-white/10 flex items-center justify-center hover:bg-zinc-800 transition-colors">
+               <iconify-icon icon="lucide:plus" width="14"></iconify-icon>
+             </button>
+           </div>
+        </div>
+      </div>
+
       {/* Control Buttons */}
-      <div className="absolute top-6 right-6 z-50 flex flex-col gap-2">
+      <div className="absolute top-6 right-6 z-[80] flex gap-3">
         <button 
           onClick={centerTree}
-          className="p-3 bg-black/60 backdrop-blur-xl border border-white/10 rounded-xl text-white/40 hover:text-white hover:border-[#c28e3a] transition-all"
-          title="Recentrer"
+          className="bg-black/80 backdrop-blur-md border border-white/10 px-6 py-3 rounded-xl text-white font-black uppercase text-[10px] tracking-widest hover:bg-[#c28e3a] hover:text-black transition-all flex items-center gap-2"
         >
-          <iconify-icon icon="lucide:maximize" width="20"></iconify-icon>
+          <iconify-icon icon="lucide:target" width="16"></iconify-icon>
+          Recentrer
         </button>
         <button 
           onClick={() => { if(window.confirm('Réinitialiser tous vos talents ?')) onReset(); }}
-          className="p-3 bg-black/60 backdrop-blur-xl border border-white/10 rounded-xl text-red-500/40 hover:text-red-500 hover:border-red-500 transition-all"
-          title="Réinitialiser"
+          className="bg-black/80 backdrop-blur-md border border-red-500/20 px-6 py-3 rounded-xl text-red-500 font-black uppercase text-[10px] tracking-widest hover:bg-red-500 hover:text-white transition-all flex items-center gap-2"
         >
-          <iconify-icon icon="lucide:refresh-cw" width="20"></iconify-icon>
+          <iconify-icon icon="lucide:refresh-cw" width="16"></iconify-icon>
+          Reset
         </button>
       </div>
 
@@ -139,11 +167,13 @@ const SkillNode = ({ node, branch, isUnlocked, isAvailable, onUnlock, onHover })
       >
         
         {/* Absolute Coordinate Grid */}
-        <div className="relative w-[1200px] h-[1200px] shrink-0 transform-gpu" style={{ userSelect: 'none' }}>
+        <div 
+          className="relative min-w-[2000px] min-h-[2000px] bg-[radial-gradient(circle_at_center,_#111_0%,_#000_100%)] transition-transform duration-300 ease-out"
+          style={{ transform: `scale(${zoom})`, transformOrigin: 'center center' }}
+        >
+          {/* Animated Background Grids */}
+          <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, #333 1px, transparent 1px)', backgroundSize: '40px 40px' }}></div>
           
-          {/* Background constellation grid */}
-          <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(255,255,255,0.03) 1px, transparent 0)', backgroundSize: '60px 60px' }}></div>
-
           {/* Central Nexus Element */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 flex items-center justify-center z-0">
              <div className="absolute inset-0 rounded-full border border-dashed border-zinc-800 animate-[spin_30s_linear_infinite]"></div>

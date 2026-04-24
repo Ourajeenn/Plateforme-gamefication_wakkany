@@ -7,6 +7,7 @@ import SkillTree from './components/SkillTree';
 import LevelEvolutionMap from './components/LevelEvolutionMap';
 import QuestPanel from './components/quests/QuestPanel';
 import StatsPanel from './components/StatsPanel';
+import ClanManagement from './components/ClanManagement';
 import BadgeGallery from './components/BadgeGallery';
 import NotificationToast from './components/NotificationToast';
 import BottomNav from './components/BottomNav';
@@ -14,17 +15,22 @@ import usePlayerData from './hooks/usePlayerData';
 import { ACHIEVEMENTS } from './data/achievements';
 import { getDominantBranch } from './utils/xpHelpers';
 import { getLevel } from './data/levels';
+import { useSoundFX } from './hooks/useSoundFX';
 
 export default function App() {
   const [view, setView] = useState('landing'); // 'landing', 'setup', 'dashboard'
   const [dashboardTab, setDashboardTab] = useState('profile'); // 'profile', 'skills', 'quests', 'rankings', 'map'
   const { user, setUser, xp, setXp, unlockedSkills, setUnlockedSkills, completedQuests, setCompletedQuests, xpHistory, unlockedAchievements, setUnlockedAchievements } = usePlayerData();
   const [isLoading, setIsLoading] = useState(true);
+  const { playClick, playUnlock, playLevelUp, playError } = useSoundFX();
   const [landingTab, setLandingTab] = useState(null); // 'waitlist', 'about', 'blog', 'archetypes'
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [waitlistStatus, setWaitlistStatus] = useState('idle'); // 'idle', 'loading', 'success'
   const [notifications, setNotifications] = useState([]);
+  const [flashQuests, setFlashQuests] = useState([
+    { id: 'f1', title: 'Anomalie de l\'Aether', desc: 'Une faille s\'est ouverte dans le secteur 4. Stabilisez-la.', xpReward: 200, timeLeft: 300 }, // 5 mins
+  ]);
 
   // Gestion des notifications
   const addNotification = (type, message) => {
@@ -66,7 +72,16 @@ export default function App() {
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 3500);
-    return () => clearTimeout(timer);
+
+    // Flash Quest Timer
+    const questTimer = setInterval(() => {
+      setFlashQuests(prev => prev.map(q => ({ ...q, timeLeft: Math.max(0, q.timeLeft - 1) })).filter(q => q.timeLeft > 0));
+    }, 1000);
+
+    return () => {
+      clearTimeout(timer);
+      clearInterval(questTimer);
+    };
   }, []);
 
   const handleJoinClick = () => {
@@ -98,8 +113,15 @@ export default function App() {
     addNotification('xp', `+${quest.xpReward} XP gagnés !`);
     
     if (getLevel(newXp).level > oldLevel) {
+      playLevelUp();
       addNotification('level', `Niveau ${getLevel(newXp).level} atteint !`);
     }
+  };
+
+  const handleUpdateClan = (clanData) => {
+    setUser(prev => ({ ...prev, clan: clanData }));
+    addNotification('info', "Pacte du Clan scellé.");
+    playLevelUp();
   };
 
   const scrollToSection = (id) => {
@@ -691,14 +713,14 @@ export default function App() {
                 </p>
               </div>
 
-              {/* Dashboard Tabs Desktop */}
-              <div className="hidden lg:flex bg-black/40 border border-white/10 p-1 rounded-xl">
+                      <div className="hidden lg:flex bg-black/40 border border-white/10 p-1 rounded-xl">
                 {[
                   { id: 'profile', label: 'Mon Évolution', icon: 'lucide:user' },
                   { id: 'stats', label: 'Statistiques', icon: 'lucide:bar-chart-3' },
                   { id: 'map', label: 'Carte', icon: 'lucide:map' },
                   { id: 'skills', label: 'Compétences', icon: 'lucide:git-branch' },
                   { id: 'quests', label: 'Défis & Quêtes', icon: 'lucide:scroll' },
+                  { id: 'clans', label: 'Mon Clan', icon: 'lucide:users' },
                   { id: 'rankings', label: 'Classement', icon: 'lucide:trophy' }
                 ].map(tab => (
                   <button
@@ -729,9 +751,7 @@ export default function App() {
                 <StatsPanel xp={xp} unlockedSkills={unlockedSkills} xpHistory={xpHistory} />
               )}
               
-              {dashboardTab === 'quests' && (
-                <QuestBoard xp={xp} completedQuests={completedQuests} onComplete={handleCompleteQuest} />
-              )}
+              {/* QuestBoard block consolidated below */}
 
               {dashboardTab === 'rankings' && (
                 <RankingsBoard user={user} />
@@ -744,7 +764,12 @@ export default function App() {
               )}
 
               {dashboardTab === 'skills' && (
-                <SkillTree xp={xp} unlockedSkills={unlockedSkills} onUnlock={handleUnlockSkill} onReset={handleResetSkills} />
+                <SkillTree 
+                  xp={xp} 
+                  unlockedSkills={unlockedSkills} 
+                  onUnlock={(node) => { handleUnlockSkill(node); playUnlock(); }} 
+                  onReset={handleResetSkills} 
+                />
               )}
 
               {dashboardTab === 'quests' && (
@@ -753,7 +778,12 @@ export default function App() {
                   unlockedSkills={unlockedSkills}
                   completedQuests={completedQuests}
                   onCompleteQuest={handleCompleteQuest}
+                  flashQuests={flashQuests}
                 />
+              )}
+
+              {dashboardTab === 'clans' && (
+                <ClanManagement user={user} onUpdateClan={handleUpdateClan} />
               )}
 
               {dashboardTab === 'rankings' && (
