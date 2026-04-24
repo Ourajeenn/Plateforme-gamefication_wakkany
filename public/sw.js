@@ -1,4 +1,4 @@
-const CACHE_NAME = 'beastborne-v1';
+const CACHE_NAME = 'wakkany-v1';
 const ASSETS = [
   '/',
   '/index.html',
