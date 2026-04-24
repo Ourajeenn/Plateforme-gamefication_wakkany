@@ -77,6 +77,17 @@ export default function usePlayerData() {
         localStorage.setItem('wakkany_achievements', JSON.stringify(unlockedAchievements));
     }, [unlockedAchievements]);
 
+    useEffect(() => {
+        const handleStorage = (e) => {
+            if (e.key === 'wakkany_xp') setXp(parseInt(e.newValue, 10));
+            if (e.key === 'wakkany_skills') setUnlockedSkills(JSON.parse(e.newValue));
+            if (e.key === 'wakkany_quests') setCompletedQuests(JSON.parse(e.newValue));
+            if (e.key === 'wakkany_user') setUser(JSON.parse(e.newValue));
+        };
+        window.addEventListener('storage', handleStorage);
+        return () => window.removeEventListener('storage', handleStorage);
+    }, []);
+
     return {
         user, setUser,
         xp, setXp,

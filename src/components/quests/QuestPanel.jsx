@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { QUESTS } from '../../data/quests';
 import { BRANCHES } from '../../data/branches';
-import RiddleModal from './RiddleModal';
+import QuizModal from './QuizModal';
 
 export default function QuestPanel({ xp, unlockedSkills, completedQuests, onCompleteQuest, flashQuests = [] }) {
-    const [activeRiddle, setActiveRiddle] = useState(null);
+    const [activeQuiz, setActiveQuiz] = useState(null);
 
     const formatTime = (seconds) => {
         const mins = Math.floor(seconds / 60);
@@ -39,7 +39,7 @@ export default function QuestPanel({ xp, unlockedSkills, completedQuests, onComp
     };
 
     return (
-        <div className="space-y-12 animate-fade-in">
+        <div className="space-y-12">
             <div className="flex flex-col md:flex-row justify-between items-end gap-6 mb-8">
                 <div>
                     <h2 className="text-[#c28e3a] text-xs font-black uppercase tracking-[0.3em] mb-2">Centre de Commande</h2>
@@ -76,7 +76,7 @@ export default function QuestPanel({ xp, unlockedSkills, completedQuests, onComp
                                         <p className="text-zinc-600 text-[9px] uppercase font-bold tracking-widest">Temps Restant</p>
                                     </div>
                                     <button 
-                                        onClick={() => setActiveRiddle({ ...quest, riddle: "Quel est l'ID du Nexus Core ?", answer: "nexus" })} 
+                                        onClick={() => setActiveQuiz(quest)} 
                                         className="px-8 py-3 bg-red-500 text-white font-black uppercase text-[10px] tracking-widest rounded-xl hover:scale-105 active:scale-95 transition-all shadow-lg shadow-red-900/20"
                                     >
                                         Intervenir
@@ -139,7 +139,7 @@ export default function QuestPanel({ xp, unlockedSkills, completedQuests, onComp
                                     </div>
                                 ) : (
                                     <button
-                                        onClick={() => setActiveRiddle(quest)}
+                                        onClick={() => setActiveQuiz(quest)}
                                         className="w-full py-5 bg-white text-black font-black uppercase text-xs tracking-[0.2em] transform active:scale-95 transition-all hover:bg-[#c28e3a] hover:text-white rounded-2xl shadow-xl"
                                     >
                                         DÉMARRER LA MISSION
@@ -151,13 +151,13 @@ export default function QuestPanel({ xp, unlockedSkills, completedQuests, onComp
                 })}
             </div>
 
-            {activeRiddle && (
-                <RiddleModal
-                    quest={activeRiddle}
-                    onClose={() => setActiveRiddle(null)}
+            {activeQuiz && (
+                <QuizModal
+                    quest={activeQuiz}
+                    onClose={() => setActiveQuiz(null)}
                     onSuccess={(q) => {
                         onCompleteQuest(q);
-                        setActiveRiddle(null);
+                        setActiveQuiz(null);
                     }}
                 />
             )}

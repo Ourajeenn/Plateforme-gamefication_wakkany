@@ -45,6 +45,15 @@ export default function Avatar({ xp, unlockedSkills = [] }) {
           {/* Main Body */}
           <path d="M60,180 Q100,110 140,180" fill="url(#bodyGradient)" stroke="#1a1a22" strokeWidth="2" />
           
+          {/* Base Circuitry (Level 0+) */}
+          <g opacity="0.2" stroke="#fff" strokeWidth="0.5" fill="none">
+             <path d="M100,80 L100,110 M85,130 L115,130" />
+             <circle cx="100" cy="130" r="15" strokeDasharray="2,4" />
+          </g>
+
+          {/* Central Core (Pulsing) */}
+          <circle cx="100" cy="130" r="4" fill={branchColor} filter="url(#glow)" className="animate-pulse" />
+
           {/* SKILL: d2 (Peau Écailleuse) - Scale pattern overlay */}
           {unlockedSkills.includes('d2') && (
             <path d="M70,170 Q100,120 130,170" fill="none" stroke={BRANCHES.dinos.color} strokeWidth="2" strokeDasharray="2,4" opacity="0.3" />
@@ -65,7 +74,7 @@ export default function Avatar({ xp, unlockedSkills = [] }) {
           </g>
         </g>
 
-        {/* --- LEVEL 1 : CHASSEUR (Armor Pieces) --- */}
+        {/* --- LEVEL 1 : CHASSEUR (Armor Pieces & Simple Shield) --- */}
         {level >= 1 && (
           <g className="animate-fade-in transition-all">
             {/* Chest armor */}
@@ -73,6 +82,12 @@ export default function Avatar({ xp, unlockedSkills = [] }) {
             {/* Arm guards */}
             <rect x="62" y="140" width="10" height="25" rx="2" fill="#242429" stroke={branchColor} strokeWidth="0.5" />
             <rect x="128" y="140" width="10" height="25" rx="2" fill="#242429" stroke={branchColor} strokeWidth="0.5" />
+            
+            {/* Shield Level 1: Simple Buckler */}
+            <g transform="translate(45, 150)">
+               <circle r="12" fill="#1a1a22" stroke={branchColor} strokeWidth="2" />
+               <circle r="4" fill="none" stroke={branchColor} strokeWidth="1" opacity="0.4" />
+            </g>
           </g>
         )}
 
@@ -89,7 +104,7 @@ export default function Avatar({ xp, unlockedSkills = [] }) {
            </g>
         )}
 
-        {/* --- LEVEL 2 : VÉTÉRAN (Helmet & Shoulders) --- */}
+        {/* --- LEVEL 2 : VÉTÉRAN (Helmet, Shoulders & Reinforced Shield) --- */}
         {level >= 2 && (
           <g className="animate-fade-in">
             {/* Shoulder pads */}
@@ -97,15 +112,28 @@ export default function Avatar({ xp, unlockedSkills = [] }) {
             <path d="M150,110 Q160,90 135,95" fill="none" stroke={branchColor} strokeWidth="4" strokeLinecap="round" />
             {/* Helmet top */}
             <path d="M80,45 Q100,25 120,45" fill="none" stroke={branchColor} strokeWidth="2" />
+            
+            {/* Shield Level 2: Reinforced Hex Shield */}
+            <g transform="translate(45, 150)">
+               <path d="M0,-18 L15.5,-9 L15.5,9 L0,18 L-15.5,9 L-15.5,-9 Z" fill="#242429" stroke={branchColor} strokeWidth="2" />
+               <path d="M0,-10 L8.6,-5 L8.6,5 L0,10 L-8.6,5 L-8.6,-5 Z" fill="none" stroke={branchColor} strokeWidth="1" opacity="0.3" />
+            </g>
           </g>
         )}
 
-        {/* --- LEVEL 3 : CHAMPION (Full Set + Branch Weapon) --- */}
+        {/* --- LEVEL 3 : CHAMPION (Full Set + Branch Weapon & Heavy Shield) --- */}
         {level >= 3 && (
           <g className="animate-fade-in">
             {/* Aura effects */}
             <circle cx="100" cy="70" r="40" fill="none" stroke={branchColor} strokeWidth="1" strokeDasharray="4 8" className="animate-spin-slow" opacity="0.3" />
             
+            {/* Shield Level 3: Large Kite Shield with Pattern */}
+            <g transform="translate(45, 150)">
+               <path d="M-20,-20 L20,-20 L20,5 Q20,25 0,40 Q-20,25 -20,5 Z" fill="#1a1a22" stroke={branchColor} strokeWidth="2" filter="url(#glow)" />
+               {/* Pattern */}
+               <path d="M0,-10 L0,20 M-10,0 L10,0" stroke={branchColor} strokeWidth="1" opacity="0.5" strokeLinecap="round" />
+            </g>
+
             {/* Weapon based on branch */}
             {dominant === 'heroes' && (
               <g transform="translate(155, 120)">
@@ -136,11 +164,19 @@ export default function Avatar({ xp, unlockedSkills = [] }) {
           </g>
         )}
 
-        {/* --- LEVEL 4 : LÉGENDE (Ultimate form) --- */}
+        {/* --- LEVEL 4 : LÉGENDE (Ultimate form & Divine Shield) --- */}
         {level >= 4 && (
           <g className="animate-float">
             {/* Crown */}
             <path d="M85,35 L92.5,20 L100,35 L107.5,20 L115,35" fill="none" stroke="#fce5a1" strokeWidth="4" filter="url(#glow)" strokeLinecap="round" />
+            
+            {/* Shield Level 4: Divine Radiating Shield */}
+            <g transform="translate(45, 150)">
+               <circle r="25" fill="none" stroke="#fce5a1" strokeWidth="1" opacity="0.3" className="animate-pulse" />
+               <path d="M0,-25 L21.6,-12.5 L21.6,12.5 L0,25 L-21.6,12.5 L-21.6,-12.5 Z" fill="#242429" stroke="#fce5a1" strokeWidth="3" filter="url(#glow)" />
+               <circle r="8" fill="#fce5a1" filter="url(#glow)" className="animate-pulse" />
+            </g>
+
             {/* Pulsing Aura */}
             <circle cx="100" cy="90" r="70" fill="none" stroke="#fce5a1" strokeWidth="0.5" opacity="0.2" className="animate-ping" />
           </g>

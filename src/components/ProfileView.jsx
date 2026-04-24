@@ -14,7 +14,7 @@ export default function ProfileView({ user, xp, unlockedSkills, unlockedAchievem
   const dominantBranch = dominantBranchId ? BRANCHES[dominantBranchId] : null;
 
   return (
-    <div className="max-w-6xl mx-auto animate-fade-in">
+    <div className="max-w-6xl mx-auto">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         
         {/* Left Column - Avatar & Identity */}

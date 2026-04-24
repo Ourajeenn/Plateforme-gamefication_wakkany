@@ -10,10 +10,12 @@ import StatsPanel from './components/StatsPanel';
 import ClanManagement from './components/ClanManagement';
 import BadgeGallery from './components/BadgeGallery';
 import NotificationToast from './components/NotificationToast';
+import TrainingCenter from './components/TrainingCenter';
 import BottomNav from './components/BottomNav';
 import usePlayerData from './hooks/usePlayerData';
 import { ACHIEVEMENTS } from './data/achievements';
-import { getDominantBranch } from './utils/xpHelpers';
+import { realtime } from './utils/realtime';
+import { getDominantBranch, getTotalXp } from './utils/xpHelpers';
 import { getLevel } from './data/levels';
 import { useSoundFX } from './hooks/useSoundFX';
 
@@ -22,6 +24,8 @@ export default function App() {
   const [dashboardTab, setDashboardTab] = useState('profile'); // 'profile', 'skills', 'quests', 'rankings', 'map'
   const { user, setUser, xp, setXp, unlockedSkills, setUnlockedSkills, completedQuests, setCompletedQuests, xpHistory, unlockedAchievements, setUnlockedAchievements } = usePlayerData();
   const [isLoading, setIsLoading] = useState(true);
+  const cumulativeXp = getTotalXp(unlockedSkills) + xp;
+  const levelData = getLevel(cumulativeXp);
   const { playClick, playUnlock, playLevelUp, playError } = useSoundFX();
   const [landingTab, setLandingTab] = useState(null); // 'waitlist', 'about', 'blog', 'archetypes'
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -33,6 +37,16 @@ export default function App() {
   ]);
 
   // Gestion des notifications
+  const [showScrollTop, setShowScrollTop] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => setShowScrollTop(window.scrollY > 400);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+
   const addNotification = (type, message) => {
     const id = Date.now();
     setNotifications(prev => [...prev, { id, type, message }]);
@@ -98,6 +112,13 @@ export default function App() {
   const handleUnlockSkill = (node) => {
     setXp(prev => prev - node.xp);
     setUnlockedSkills(prev => [...prev, node.id]);
+    addNotification('success', `Talent débloqué : ${node.name} est maintenant actif !`);
+    realtime.broadcast({
+      type: 'SKILL_UNLOCK',
+      user: user.name,
+      clan: user.clan?.name,
+      message: `a acquis le talent [${node.name}]`
+    });
   };
 
   const handleResetSkills = () => {
@@ -106,16 +127,27 @@ export default function App() {
   };
 
   const handleCompleteQuest = (quest) => {
+    const oldLevel = getLevel(cumulativeXp).level;
     setCompletedQuests(prev => [...prev, quest.id]);
-    const oldLevel = getLevel(xp).level;
-    const newXp = xp + quest.xpReward;
-    setXp(newXp);
+    setXp(prev => prev + quest.xpReward);
     addNotification('xp', `+${quest.xpReward} XP gagnés !`);
     
-    if (getLevel(newXp).level > oldLevel) {
+    realtime.broadcast({
+      type: 'QUEST_COMPLETE',
+      user: user.name,
+      clan: user.clan?.name,
+      message: `a terminé la mission [${quest.title}] (+${quest.xpReward} XP)`
+    });
+
+    if (getLevel(cumulativeXp + quest.xpReward).level > oldLevel) {
       playLevelUp();
-      addNotification('level', `Niveau ${getLevel(newXp).level} atteint !`);
+      addNotification('level', `Niveau ${getLevel(cumulativeXp + quest.xpReward).level} atteint !`);
     }
+  };
+
+  const handleQuizPenalty = (amount) => {
+    setXp(prev => Math.max(0, prev - amount));
+    addNotification('error', `Erreur détectée : -${amount} XP déduits !`);
   };
 
   const handleUpdateClan = (clanData) => {
@@ -148,46 +180,41 @@ export default function App() {
 
     return (
       <div className="fixed inset-0 z-[200] bg-black flex flex-col items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-zinc-900/20 via-black to-black opacity-60"></div>
+        <div className="absolute inset-0">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_#c28e3a10_0%,_transparent_70%)] animate-pulse"></div>
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#c28e3a] to-transparent opacity-20"></div>
+        </div>
         
-        <div className="relative mb-12 animate-preloader-scale group">
-          <div className="absolute inset-0 bg-[#c28e3a] blur-[100px] opacity-20 group-hover:opacity-40 transition-opacity"></div>
-          <iconify-icon icon="lucide:triangle" width="100" height="100" className="text-[#c28e3a] rotate-180 drop-shadow-[0_0_20px_rgba(194,142,58,0.5)]"></iconify-icon>
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-            <iconify-icon icon="lucide:loader-2" width="40" height="40" className="text-white/20 animate-spin"></iconify-icon>
+        <div className="relative mb-16 group">
+          <div className="absolute inset-0 bg-[#c28e3a] blur-[120px] opacity-20 group-hover:opacity-50 transition-all duration-1000"></div>
+          <iconify-icon icon="lucide:triangle" width="120" height="120" className="text-[#c28e3a] rotate-180 drop-shadow-[0_0_30px_rgba(194,142,58,0.4)] transition-transform duration-[3s] hover:rotate-0"></iconify-icon>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
+            <iconify-icon icon="lucide:loader-2" width="48" height="48" className="text-white/10 animate-spin"></iconify-icon>
           </div>
         </div>
 
-        <div className="w-64 h-1 bg-zinc-900 rounded-full overflow-hidden relative border border-white/5 shadow-2xl">
-          <div className="absolute inset-y-0 left-0 bg-gradient-to-r from-transparent via-[#c28e3a] to-transparent w-full animate-progress-run"></div>
-        </div>
-
-        <div className="mt-8 flex flex-col items-center gap-2">
-          <div className="text-[#c28e3a] font-heading font-black italic tracking-[0.4em] uppercase text-sm animate-pulse">
+        <div className="space-y-4 flex flex-col items-center">
+          <div className="text-[#c28e3a] font-heading font-black italic tracking-[1em] uppercase text-xl animate-pulse">
             WAKKANY
           </div>
-          <div className="text-zinc-500 font-monda text-[10px] uppercase tracking-widest h-4 overflow-hidden text-center px-4">
-             <div key={loreIndex} className="animate-fade-in">
-               {lores[loreIndex]}
+          <div className="w-80 h-[2px] bg-zinc-900 rounded-full overflow-hidden relative border border-white/5 shadow-2xl">
+            <div className="absolute inset-y-0 left-0 bg-gradient-to-r from-transparent via-[#c28e3a] to-transparent w-full animate-progress-run"></div>
+          </div>
+          <div className="text-zinc-600 font-monda text-[10px] uppercase tracking-[0.4em] mt-4 h-4 overflow-hidden text-center max-w-sm px-8">
+             <div key={loreIndex} className="animate-fade-in italic">
+               "{lores[loreIndex]}"
              </div>
           </div>
         </div>
 
-        {/* Ambient particles (CSS only) */}
-        <div className="absolute inset-0 pointer-events-none opacity-20">
-           {[...Array(20)].map((_, i) => (
-             <div 
-               key={i} 
-               className="absolute bg-white rounded-full animate-float-xp"
-               style={{ 
-                 left: `${Math.random() * 100}%`, 
-                 top: `${Math.random() * 100}%`, 
-                 width: `${Math.random() * 4}px`, 
-                 height: `${Math.random() * 4}px`,
-                 animationDelay: `${Math.random() * 5}s`,
-                 animationDuration: `${3 + Math.random() * 5}s`
-               }}
-             ></div>
+        {/* Binary Rain Effect (Faint) */}
+        <div className="absolute inset-0 pointer-events-none opacity-5 font-mono text-[8px] text-[#c28e3a] grid grid-cols-12 gap-4 overflow-hidden">
+           {[...Array(12)].map((_, i) => (
+             <div key={i} className="animate-slide-down flex flex-col" style={{ animationDelay: `${Math.random() * 2}s` }}>
+               {[...Array(50)].map((_, j) => (
+                 <span key={j}>{Math.round(Math.random())}</span>
+               ))}
+             </div>
            ))}
         </div>
       </div>
@@ -246,36 +273,81 @@ export default function App() {
 
       {isMenuOpen && (
         <div className="absolute top-full left-0 w-full mt-4 bg-zinc-950/95 backdrop-blur-3xl border border-white/10 rounded-3xl p-8 flex flex-col gap-6 animate-scale-up lg:hidden">
-          <button onClick={() => { setView('landing'); setIsMenuOpen(false); }} className="text-white font-black uppercase tracking-widest text-left">Accueil</button>
-          <button onClick={() => { setLandingTab('waitlist'); setIsMenuOpen(false); }} className="text-white font-black uppercase tracking-widest text-left">Liste d'attente</button>
+          <button onClick={() => { setView('landing'); setLandingTab(null); setIsMenuOpen(false); }} className="text-white font-black uppercase tracking-widest text-left">Accueil</button>
+          <button onClick={() => { setView('landing'); setLandingTab('waitlist'); setIsMenuOpen(false); }} className="text-white font-black uppercase tracking-widest text-left">Liste d'attente</button>
           <button onClick={() => { handleJoinClick(); setIsMenuOpen(false); }} className="text-white font-black uppercase tracking-widest text-left">Commencer</button>
-          <button onClick={() => { setLandingTab('about'); setIsMenuOpen(false); }} className="text-white font-black uppercase tracking-widest text-left">À Propos</button>
+          <button onClick={() => { setView('landing'); setLandingTab('about'); setIsMenuOpen(false); }} className="text-white font-black uppercase tracking-widest text-left">À Propos</button>
         </div>
       )}
     </nav>
   );
 
-  const DashboardNav = () => (
-    <nav className="fixed top-0 left-0 w-full bg-zinc-950/80 backdrop-blur-md border-b border-white/5 flex items-center justify-between px-8 py-4 z-[60]">
-      <div className="flex items-center gap-4">
-        <iconify-icon icon="lucide:triangle" width="24" height="24" className="text-[#c28e3a] rotate-180"></iconify-icon>
-        <span className="text-white font-heading font-bold tracking-widest text-lg italic uppercase">Wakkany <span className="text-zinc-600 ml-2">// Dashboard</span></span>
-      </div>
+  const DashboardNav = () => {
+    const LiveFeed = () => {
+      const [events, setEvents] = useState(realtime.getEvents());
 
-      <div className="flex items-center gap-6">
-        <div className="hidden md:flex flex-col text-right">
-          <span className="text-white font-bold text-sm leading-none">{user?.name || 'Nomade'}</span>
-          <span className="text-[#c28e3a] text-[10px] uppercase font-bold tracking-widest">{user?.clan?.name || 'Clanless'}</span>
+      useEffect(() => {
+        const unsubscribe = realtime.subscribe((event) => {
+          setEvents(prev => [event, ...prev].slice(0, 5));
+        });
+        return unsubscribe;
+      }, []);
+
+      return (
+        <div className="hidden xl:flex items-center gap-6 bg-black/40 border border-white/5 py-2 px-6 rounded-2xl backdrop-blur-xl overflow-hidden max-w-md">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+            <span className="text-[8px] font-black uppercase tracking-widest text-zinc-500">Flux Live</span>
+          </div>
+          <div className="flex-1 h-8 overflow-hidden relative">
+            <div className="flex flex-col gap-1 transition-all duration-500">
+              {events.length > 0 ? (
+                <div key={events[0].id} className="animate-slide-up py-1">
+                  <p className="text-[10px] text-zinc-400 font-monda truncate">
+                    <span className="text-[#c28e3a] font-bold">{events[0].user}</span> {events[0].message}
+                  </p>
+                </div>
+              ) : (
+                <p className="text-[9px] text-zinc-700 italic py-2">En attente de nouvelles transmissions...</p>
+              )}
+            </div>
+          </div>
         </div>
-        <div className="w-10 h-10 rounded-full border border-[#c28e3a] overflow-hidden bg-zinc-800 pointer-events-none">
-          <img src={user?.clan?.image || '/icon.png'} className="w-full h-full object-cover" />
+      );
+    };
+
+    return (
+      <nav className="fixed top-0 left-0 w-full bg-zinc-950/80 backdrop-blur-md border-b border-white/5 flex items-center justify-between px-8 py-4 z-[60]">
+        <div className="flex items-center gap-8">
+          <div 
+            className="flex items-center gap-4 cursor-pointer group" 
+            onClick={() => { setView('landing'); setLandingTab(null); }}
+          >
+            <iconify-icon icon="lucide:triangle" width="24" height="24" className="text-[#c28e3a] rotate-180 group-hover:rotate-0 transition-transform duration-500"></iconify-icon>
+            <span className="text-white font-heading font-bold tracking-widest text-lg italic uppercase">Wakkany</span>
+          </div>
+          <LiveFeed />
         </div>
-        <button onClick={() => { setUser(null); setView('landing'); }} className="text-zinc-600 hover:text-[#c28e3a] transition-all hover:scale-110">
-          <iconify-icon icon="solar:logout-2-linear" width="24"></iconify-icon>
-        </button>
-      </div>
-    </nav>
-  );
+
+        <div className="flex items-center gap-6">
+          <div className="hidden md:flex flex-col text-right">
+            <span className="text-white font-bold text-sm leading-none">{user?.name || 'Nomade'}</span>
+            <span className="text-[#c28e3a] text-[10px] uppercase font-bold tracking-widest">{user?.clan?.name || 'Clanless'}</span>
+          </div>
+          <div className="w-10 h-10 rounded-full border border-[#c28e3a]/40 overflow-hidden bg-zinc-900 flex items-center justify-center">
+            {user?.clan?.image ? (
+              <img src={user.clan.image} className="w-full h-full object-cover" />
+            ) : (
+              <iconify-icon icon={user?.clan?.icon || 'lucide:user'} className="text-[#c28e3a] text-xl"></iconify-icon>
+            )}
+          </div>
+          <button onClick={() => { setUser(null); setView('landing'); }} className="text-zinc-600 hover:text-red-500 transition-all hover:scale-110">
+            <iconify-icon icon="solar:logout-2-linear" width="24"></iconify-icon>
+          </button>
+        </div>
+      </nav>
+    );
+  };
 
   const WaitlistPage = () => (
     <div className="min-h-screen bg-zinc-950 pt-40 px-6 pb-24">
@@ -352,7 +424,7 @@ export default function App() {
         <div className="mt-20 p-[1px] bg-gradient-to-r from-transparent via-[#c28e3a]/30 to-transparent">
           <div className="bg-black/40 backdrop-blur-md p-16 text-center rounded-3xl">
             <h2 className="text-white text-3xl font-heading italic uppercase mb-6">"History is written in blood, but the future is forged in XP."</h2>
-            <p className="text-zinc-500 max-w-2xl mx-auto font-monda">Wakkany is a unique RPG ecosystem where your visual identity evolves with your skills. Every choice in the skill tree reflects in your Evo-Avatar, making every champion unique.</p>
+            <p className="text-zinc-500 max-w-2xl mx-auto font-monda">Plateforme Wakkany est un écosystème RPG unique où votre identité visuelle évolue avec vos compétences. Chaque choix dans l'arbre de talents se reflète sur votre avatar, rendant chaque champion unique.</p>
           </div>
         </div>
       </div>
@@ -425,42 +497,38 @@ export default function App() {
     </div>
   );
 
-  const RankingsBoard = ({ user }) => (
-    <div className="bg-zinc-900/50 border border-white/5 rounded-3xl p-8 animate-fade-in">
-       <div className="flex justify-between items-center mb-8">
-          <h2 className="text-white text-2xl font-heading font-bold italic uppercase">Panthéon des Champions</h2>
-          <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest border border-white/10 px-4 py-1 rounded-full">Saison 01 // Aether Moor</div>
-       </div>
-       <div className="space-y-4">
-          {[
-            { rank: 1, name: 'NovaPrime', xp: 45200, clan: 'Alpha-X', faction: 'heroes' },
-            { rank: 2, name: 'CyberRex', xp: 41800, clan: 'Primal', faction: 'dinos' },
-            { rank: 3, name: 'DriftLord', xp: 39500, clan: 'Synchro', faction: 'cars' },
-            { rank: 4, name: 'IronBlade', xp: 37200, clan: 'Génèse', faction: 'warriors' },
-            { rank: 5, name: user?.name || 'Nomade', xp: xp, clan: user?.clan?.name || 'Clanless', faction: user?.faction, current: true }
-          ].sort((a, b) => b.xp - a.xp).map((player, idx) => (
-            <div key={idx} className={`flex items-center justify-between p-6 rounded-2xl border ${player.current ? 'bg-[#c28e3a]/10 border-[#c28e3a]' : 'bg-black/20 border-white/5 hover:border-white/10'} transition-all`}>
-               <div className="flex items-center gap-6">
-                  <span className={`text-2xl font-heading font-black italic ${player.rank <= 3 ? 'text-[#c28e3a]' : 'text-zinc-700'}`}>#{idx + 1}</span>
-                  <div>
-                    <h4 className="text-white font-bold uppercase text-sm tracking-widest">{player.name} {player.current && <span className="text-[9px] text-[#c28e3a] ml-2">(VOUS)</span>}</h4>
-                    <p className="text-zinc-600 text-[10px] font-bold uppercase tracking-widest mt-1">{player.clan}</p>
-                  </div>
-               </div>
-               <div className="flex items-center gap-8">
-                  <div className="text-right">
-                    <p className="text-white font-heading font-bold italic text-lg">{player.xp.toLocaleString()} <span className="text-[10px] text-zinc-600">XP</span></p>
-                    <p className="text-zinc-700 text-[8px] font-black uppercase tracking-widest">Niveau {Math.floor(player.xp/1000) + 1}</p>
-                  </div>
-                  <div className="w-10 h-10 rounded-full bg-zinc-800 border border-white/10 flex items-center justify-center">
-                    <iconify-icon icon={player.faction === 'heroes' ? 'lucide:shield' : player.faction === 'dinos' ? 'lucide:zap' : player.faction === 'cars' ? 'lucide:gauge' : 'lucide:sword'} className="text-white/40"></iconify-icon>
-                  </div>
-               </div>
-            </div>
-          ))}
-       </div>
-    </div>
-  );
+  const ActivityList = () => {
+    const [events, setEvents] = React.useState(realtime.getEvents());
+
+    React.useEffect(() => {
+      const unsubscribe = realtime.subscribe((event) => {
+        setEvents(prev => [event, ...prev].slice(0, 5));
+      });
+      return unsubscribe;
+    }, []);
+
+    if (events.length === 0) {
+        return <p className="text-zinc-700 text-xs italic py-4">Aucune activité récente détectée sur le Nexus...</p>;
+    }
+
+    return (
+      <div className="space-y-3">
+        {events.map((event) => (
+          <div key={event.id} className="flex items-center gap-4 bg-black/40 p-3 rounded-xl border border-white/5 animate-fade-in">
+             <div className="w-8 h-8 rounded-lg bg-[#c28e3a]/10 flex items-center justify-center border border-[#c28e3a]/20">
+                <iconify-icon icon={event.type === 'QUEST_COMPLETE' ? 'lucide:scroll' : 'lucide:git-branch'} className="text-[#c28e3a]" width="14"></iconify-icon>
+             </div>
+             <div className="flex-1 min-w-0">
+                <p className="text-[11px] text-zinc-300 truncate">
+                  <span className="text-white font-bold">{event.user}</span> {event.message}
+                </p>
+                <p className="text-[8px] text-zinc-600 font-bold uppercase tracking-widest mt-0.5">{event.timestamp}</p>
+             </div>
+          </div>
+        ))}
+      </div>
+    );
+  };
 
   if (isLoading) return <Preloader />;
 
@@ -494,7 +562,8 @@ export default function App() {
                 ></iframe>
                 <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-zinc-950/80"></div>
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_0%,_#09090b_70%)] opacity-60"></div>
-                <div className="absolute inset-0 bg-[#c28e3a]/5 mix-blend-overlay"></div>
+                <div className="absolute inset-0 bg-yellow-500/20 mix-blend-overlay"></div>
+                <div className="absolute inset-0 bg-yellow-500/5 pointer-events-none"></div>
               </div>
 
               <div className="relative z-10 w-full max-w-7xl mx-auto px-8 h-full flex flex-col pt-32 sm:pt-40">
@@ -513,7 +582,7 @@ export default function App() {
                     <h1 className="text-white text-[80px] sm:text-[140px] font-black italic leading-[0.8] tracking-tighter font-heading uppercase drop-shadow-[0_20px_20px_rgba(0,0,0,0.5)]">
                       Wak<br />kany
                     </h1>
-                    <p className="text-zinc-400 text-lg sm:text-2xl mt-6 max-w-md tracking-tight font-monda font-light italic">
+                    <p className="text-yellow-500 text-lg sm:text-2xl mt-6 max-w-md tracking-tight font-monda font-light italic">
                       "Votre évolution ne dépend pas du hasard, mais de vos choix."
                     </p>
 
@@ -529,7 +598,7 @@ export default function App() {
                 </div>
 
                 <div className="mt-auto mb-8 sm:mb-12 flex flex-col items-center gap-8">
-                  <div className="flex flex-col items-center animate-bounce-slow opacity-40">
+                  <div className="flex flex-col items-center opacity-40">
                     <span className="text-[8px] font-black uppercase tracking-[0.5em] mb-2">Défiler vers l'Aube</span>
                     <iconify-icon icon="lucide:chevron-down" width="16"></iconify-icon>
                   </div>
@@ -617,12 +686,13 @@ export default function App() {
             {/* Lore Section (Improved) */}
             <section id="lore" className="py-48 relative overflow-hidden flex items-center justify-center">
               <div className="absolute inset-0 z-0 scale-105">
-                <img src="https://i.postimg.cc/Qtjkb1QH/bg24.png" className="w-full h-full object-cover opacity-20 grayscale" />
+                <img src="https://i.postimg.cc/Qtjkb1QH/bg24.png" className="w-full h-full object-cover opacity-30" />
+                <div className="absolute inset-0 bg-yellow-500/20 mix-blend-color"></div>
                 <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black"></div>
               </div>
               <div className="max-w-4xl mx-auto px-8 relative z-10 text-center">
                  <iconify-icon icon="lucide:scroll-text" className="text-[#c28e3a] mb-12 text-6xl animate-pulse"></iconify-icon>
-                 <h2 className="text-white text-5xl sm:text-6xl font-black italic uppercase tracking-tighter mb-8 leading-tight">L'HÉRITAGE D'EIKONR</h2>
+                 <h2 className="text-white text-5xl sm:text-6xl font-black italic uppercase tracking-tighter mb-8 leading-tight">L'HÉRITAGE DE WAKKANY</h2>
                  <p className="text-zinc-400 text-xl font-monda italic leading-relaxed mb-12">
                    "Avant les chaînes. Avant le silence. Il y avait une promesse entre les bêtes — jurée par le sang, scellée par l'acier. Aujourd'hui, cette vérité est morte, enterrée sous le fer et les cendres. Les clans se sont retournés les uns contre les autres. La chasse vient de recommencer."
                  </p>
@@ -639,10 +709,10 @@ export default function App() {
                   <div className="lg:col-span-1">
                     <div className="flex items-center gap-3 text-white font-heading text-2xl font-black italic uppercase mb-8">
                        <iconify-icon icon="lucide:triangle" width="24" className="text-[#c28e3a] rotate-180"></iconify-icon>
-                       Wakkany
+                       Wakkany Plateforme
                     </div>
                     <p className="text-zinc-500 text-sm italic font-monda leading-relaxed mb-8">
-                      La plateforme de gamification next-gen qui transforme votre progression personnelle en une épopée légendaire.
+                      La plateforme Wakkany est un écosystème d'évolution personnelle conçu pour transformer vos objectifs quotidiens en une quête épique.
                     </p>
                     <div className="flex gap-4">
                       {['discord', 'twitter', 'github', 'instagram'].map(platform => (
@@ -657,19 +727,28 @@ export default function App() {
                     <div>
                       <h4 className="text-white text-[10px] font-black uppercase tracking-[0.3em] mb-8">L'UNIVERS</h4>
                       <ul className="space-y-4 text-zinc-500 text-xs font-bold uppercase tracking-widest">
-                         <li onClick={() => addNotification('info', "Bientôt : Les Fondations du Multivers")} className="hover:text-[#c28e3a] cursor-pointer transition-colors">Les Fondations</li>
-                         <li onClick={() => addNotification('info', "Bientôt : Intégration Blockchain")} className="hover:text-[#c28e3a] cursor-pointer transition-colors">La Blockchain</li>
-                         <li onClick={() => setDashboardTab('skills')} className="hover:text-[#c28e3a] cursor-pointer transition-colors">Arbres de Talent</li>
-                         <li onClick={() => addNotification('info', "Bientôt : Contrats Élite")} className="hover:text-[#c28e3a] cursor-pointer transition-colors">Contrats Élite</li>
+                         <li onClick={() => { setLandingTab('about'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-[#c28e3a] cursor-pointer transition-colors">L'Écosystème</li>
+                         <li onClick={() => addNotification('info', "La Blockchain Aethermoor est en cours de synchronisation.")} className="hover:text-[#c28e3a] cursor-pointer transition-colors">La Technologie</li>
+                         <li onClick={() => { 
+                            if (user) { setView('dashboard'); setDashboardTab('skills'); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+                            else { setLandingTab('archetypes'); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+                          }} className="hover:text-[#c28e3a] cursor-pointer transition-colors">Arbres de Talent</li>
+                         <li onClick={() => setLandingTab('waitlist')} className="hover:text-[#c28e3a] cursor-pointer transition-colors">Accès Anticipé</li>
                       </ul>
                     </div>
                     <div>
                       <h4 className="text-white text-[10px] font-black uppercase tracking-[0.3em] mb-8">COMMUNAUTÉ</h4>
                       <ul className="space-y-4 text-zinc-500 text-xs font-bold uppercase tracking-widest">
-                         <li onClick={() => window.open('https://discord.gg', '_blank')} className="hover:text-[#c28e3a] cursor-pointer transition-colors">Discord Pro</li>
-                         <li onClick={() => setDashboardTab('rankings')} className="hover:text-[#c28e3a] cursor-pointer transition-colors">Classements</li>
-                         <li onClick={() => addNotification('info', "Bientôt : Guerre des Clans")} className="hover:text-[#c28e3a] cursor-pointer transition-colors">Clans Émanants</li>
-                         <li onClick={() => addNotification('info', "Bientôt : Événements Saisonniers")} className="hover:text-[#c28e3a] cursor-pointer transition-colors">Événements</li>
+                         <li onClick={() => window.open('https://discord.gg', '_blank')} className="hover:text-[#c28e3a] cursor-pointer transition-colors">Discord</li>
+                         <li onClick={() => { 
+                            if (user) { setView('dashboard'); setDashboardTab('rankings'); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+                            else { setLandingTab('blog'); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+                          }} className="hover:text-[#c28e3a] cursor-pointer transition-colors">Classements</li>
+                         <li onClick={() => { 
+                            if (user) { setView('dashboard'); setDashboardTab('clans'); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+                            else addNotification('info', "Rejoignez la meute pour créer votre clan.");
+                          }} className="hover:text-[#c28e3a] cursor-pointer transition-colors">Clans Émanants</li>
+                         <li onClick={() => setLandingTab('blog')} className="hover:text-[#c28e3a] cursor-pointer transition-colors">Journal d'Évolution</li>
                       </ul>
                     </div>
                     <div>
@@ -677,12 +756,12 @@ export default function App() {
                       <p className="text-zinc-600 text-[10px] mb-6 leading-relaxed uppercase font-bold">Inscrivez-vous pour recevoir les mises à jour de l'Aethermoor.</p>
                       <form className="relative group" onSubmit={(e) => {
                         e.preventDefault();
-                        addNotification('info', "Inscription Newsletter réussie !");
+                        addNotification('success', "Signal capté ! Bienvenue dans l'Aethermoor.");
                         e.target.reset();
                       }}>
-                        <input type="email" placeholder="Email" required className="w-full bg-black/50 border border-white/5 px-4 py-3 rounded-lg text-white text-[10px] outline-none focus:border-[#c28e3a] transition-all" />
-                        <button className="absolute right-2 top-1.5 p-1.5 bg-[#c28e3a] text-black rounded transition-all hover:brightness-110">
-                          <iconify-icon icon="lucide:arrow-right" width="14"></iconify-icon>
+                        <input type="email" placeholder="hunter@aethermoor.com" required className="w-full bg-black/50 border border-white/5 px-4 py-4 rounded-xl text-white text-[10px] outline-none focus:border-[#c28e3a] transition-all" />
+                        <button className="absolute right-2 top-2 p-2 bg-[#c28e3a] text-black rounded-lg transition-all hover:scale-105 active:scale-95 shadow-lg shadow-orange-950/20">
+                          <iconify-icon icon="lucide:send" width="16"></iconify-icon>
                         </button>
                       </form>
                     </div>
@@ -713,15 +792,17 @@ export default function App() {
                 </p>
               </div>
 
-                      <div className="hidden lg:flex bg-black/40 border border-white/10 p-1 rounded-xl">
+              <div className="flex items-center gap-6">
+                 <div className="hidden lg:flex bg-black/40 border border-white/10 p-1 rounded-xl">
                 {[
-                  { id: 'profile', label: 'Mon Évolution', icon: 'lucide:user' },
-                  { id: 'stats', label: 'Statistiques', icon: 'lucide:bar-chart-3' },
+                  { id: 'profile', label: 'Évolution', icon: 'lucide:user' },
+                  { id: 'quests', label: 'Quêtes', icon: 'lucide:scroll' },
+                  { id: 'avatar', label: 'Avatar', icon: 'lucide:box' },
+                  { id: 'stats', label: 'Stats', icon: 'lucide:bar-chart-3' },
                   { id: 'map', label: 'Carte', icon: 'lucide:map' },
-                  { id: 'skills', label: 'Compétences', icon: 'lucide:git-branch' },
-                  { id: 'quests', label: 'Défis & Quêtes', icon: 'lucide:scroll' },
-                  { id: 'clans', label: 'Mon Clan', icon: 'lucide:users' },
-                  { id: 'rankings', label: 'Classement', icon: 'lucide:trophy' }
+                  { id: 'skills', label: 'Talents', icon: 'lucide:git-branch' },
+                  { id: 'clans', label: 'Clan', icon: 'lucide:users' },
+                  { id: 'rankings', label: 'Rang', icon: 'lucide:trophy' }
                 ].map(tab => (
                   <button
                     key={tab.id}
@@ -735,31 +816,71 @@ export default function App() {
                 ))}
               </div>
             </div>
+          </div>
 
-            {/* Tab Secret Content */}
-            <div className="animate-fade-in py-10">
+          {/* Tab Secret Content */}
+            <div className="py-10">
               {dashboardTab === 'profile' && (
-                <ProfileView 
-                  user={user} 
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                   <div className="lg:col-span-2">
+                     <ProfileView 
+                       user={user} 
+                       xp={cumulativeXp} 
+                       unlockedSkills={unlockedSkills} 
+                       unlockedAchievements={unlockedAchievements} 
+                     />
+                   </div>
+                   
+                   {/* Real-time Activity Feed */}
+                   <div className="bg-zinc-900/60 border border-white/5 rounded-3xl p-8 relative overflow-hidden">
+                      <div className="flex items-center justify-between mb-6">
+                         <h3 className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.3em]">Flux d'Activité en Temps Réel</h3>
+                         <div className="flex items-center gap-2">
+                            <div className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></div>
+                            <span className="text-[8px] font-bold text-red-500 uppercase tracking-widest">Live</span>
+                         </div>
+                      </div>
+                      
+                      <div className="space-y-4">
+                         <ActivityList />
+                      </div>
+                   </div>
+                </div>
+              )}
+
+              {dashboardTab === 'avatar' && (
+                <div className="max-w-4xl mx-auto flex flex-col items-center gap-12 py-10">
+                   <h2 className="text-white text-4xl font-heading font-black italic uppercase">VOTRE RÉALITÉ VISUELLE</h2>
+                   <div className="bg-zinc-900 border border-white/10 p-20 rounded-[60px] shadow-2xl relative group">
+                      <div className="absolute inset-0 bg-[#c28e3a]/10 blur-[120px] opacity-20 animate-pulse"></div>
+                      <div className="scale-[2.5] relative z-10">
+                        <Avatar xp={cumulativeXp} unlockedSkills={unlockedSkills} />
+                      </div>
+                   </div>
+                   <p className="text-zinc-500 text-center max-w-xl font-monda italic">
+                     L'évolution de votre avatar est liée à vos progrès. Débloquez de nouveaux talents dans l'arbre pour voir votre identité visuelle se transformer.
+                   </p>
+                </div>
+              )}
+
+              {dashboardTab === 'quests' && (
+                <TrainingCenter 
                   xp={xp} 
-                  unlockedSkills={unlockedSkills} 
-                  unlockedAchievements={unlockedAchievements} 
+                  unlockedSkills={unlockedSkills}
+                  completedQuests={completedQuests}
+                  onCompleteQuest={handleCompleteQuest} 
+                  onPenalty={handleQuizPenalty}
+                  flashQuests={flashQuests}
                 />
               )}
 
               {dashboardTab === 'stats' && (
-                <StatsPanel xp={xp} unlockedSkills={unlockedSkills} xpHistory={xpHistory} />
-              )}
-              
-              {/* QuestBoard block consolidated below */}
-
-              {dashboardTab === 'rankings' && (
-                <RankingsBoard user={user} />
+                <StatsPanel xp={cumulativeXp} unlockedSkills={unlockedSkills} xpHistory={xpHistory} />
               )}
               
               {dashboardTab === 'map' && (
                 <div className="animate-fade-in">
-                  <LevelEvolutionMap xp={xp} />
+                  <LevelEvolutionMap xp={cumulativeXp} />
                 </div>
               )}
 
@@ -772,16 +893,6 @@ export default function App() {
                 />
               )}
 
-              {dashboardTab === 'quests' && (
-                <QuestPanel
-                  xp={xp}
-                  unlockedSkills={unlockedSkills}
-                  completedQuests={completedQuests}
-                  onCompleteQuest={handleCompleteQuest}
-                  flashQuests={flashQuests}
-                />
-              )}
-
               {dashboardTab === 'clans' && (
                 <ClanManagement user={user} onUpdateClan={handleUpdateClan} />
               )}
@@ -789,8 +900,8 @@ export default function App() {
               {dashboardTab === 'rankings' && (
                 <Leaderboard currentUser={{ 
                   ...user, 
-                  xp, 
-                  level: getLevel(xp).level,
+                  xp: cumulativeXp, 
+                  level: getLevel(cumulativeXp).level,
                   dominant: getDominantBranch(unlockedSkills) 
                 }} />
               )}
@@ -804,6 +915,15 @@ export default function App() {
         hasNotifications={notifications.length > 0} 
       />
       <NotificationToast notifications={notifications} removeNotification={removeNotification} />
+
+      {/* Back to Top Button */}
+      <button
+        onClick={scrollToTop}
+        className={`fixed bottom-24 right-8 z-[100] w-14 h-14 bg-[#c28e3a] text-black rounded-2xl shadow-2xl transition-all duration-500 flex items-center justify-center hover:scale-110 active:scale-95 group ${showScrollTop ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0 pointer-events-none'}`}
+      >
+        <div className="absolute inset-0 bg-white/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+        <iconify-icon icon="lucide:arrow-up" width="24" className="relative z-10"></iconify-icon>
+      </button>
     </div>
   );
 }

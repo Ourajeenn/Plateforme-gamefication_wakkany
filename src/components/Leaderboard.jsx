@@ -18,7 +18,7 @@ export default function Leaderboard({ currentUser }) {
   };
 
   const getBranchStats = () => {
-    const stats = { force: 0, arcane: 0, ombre: 0 };
+    const stats = { warriors: 0, heroes: 0, dinos: 0, cars: 0 };
     globalPlayers.forEach(p => {
       const dom = (p.dominant || '').toLowerCase();
       if (stats[dom] !== undefined) stats[dom]++;
@@ -60,9 +60,9 @@ export default function Leaderboard({ currentUser }) {
         </div>
       </div>
 
-      <div className="animate-fade-in relative z-10">
+      <div className="relative z-10">
         {view === 'champions' && (
-          <div className="space-y-4">
+          <div className="space-y-12">
             {globalPlayers.map((player, index) => {
               const isMe = currentUser && player.name === currentUser.name;
               const branch = BRANCHES[player.dominant?.toLowerCase()];

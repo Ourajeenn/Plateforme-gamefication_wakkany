@@ -8,17 +8,20 @@ import { BRANCHES } from '../data/branches';
 export default function StatsPanel({ xp, unlockedSkills, xpHistory }) {
     // Calcul de la répartition des branches pour le Radar Chart
     const getSkillDistribution = () => {
-        const stats = { force: 0, arcane: 0, ombre: 0 };
+        const stats = { warriors: 0, heroes: 0, dinos: 0, cars: 0 };
         unlockedSkills.forEach(skillId => {
-            if (skillId.includes('force') || skillId.startsWith('str_')) stats.force += 20;
-            if (skillId.includes('arcane') || skillId.startsWith('int_')) stats.arcane += 20;
-            if (skillId.includes('ombre') || skillId.startsWith('dex_')) stats.ombre += 20;
+            Object.keys(BRANCHES).forEach(branchId => {
+                if (BRANCHES[branchId].nodes.some(n => n.id === skillId)) {
+                    stats[branchId] += 20;
+                }
+            });
         });
 
         return [
-            { subject: 'Force', A: stats.force, fullMark: 100 },
-            { subject: 'Arcane', A: stats.arcane, fullMark: 100 },
-            { subject: 'Ombre', A: stats.ombre, fullMark: 100 },
+            { subject: 'Force', A: stats.warriors, fullMark: 100 },
+            { subject: 'Arcane', A: stats.heroes, fullMark: 100 },
+            { subject: 'Instinct', A: stats.dinos, fullMark: 100 },
+            { subject: 'Technique', A: stats.cars, fullMark: 100 },
         ];
     };
 
@@ -35,7 +38,7 @@ export default function StatsPanel({ xp, unlockedSkills, xpHistory }) {
     };
 
     return (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 animate-scale-up">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* XP Progression Chart */}
             <div className="bg-zinc-900/40 border border-white/5 p-8 rounded-[32px] overflow-hidden relative group">
                 <div className="flex justify-between items-start mb-8">
@@ -109,14 +112,14 @@ export default function StatsPanel({ xp, unlockedSkills, xpHistory }) {
                     </ResponsiveContainer>
                 </div>
 
-                <div className="grid grid-cols-3 gap-4 w-full mt-auto">
-                    {['force', 'arcane', 'ombre'].map(bKey => (
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 w-full mt-auto">
+                    {Object.keys(BRANCHES).map(bKey => (
                         <div key={bKey} className="text-center">
                             <div className="text-[9px] font-black uppercase tracking-widest mb-1" style={{ color: BRANCHES[bKey]?.color }}>
                                 {BRANCHES[bKey]?.label}
                             </div>
                             <div className="text-white font-heading font-bold italic text-lg uppercase tracking-tighter">
-                                {unlockedSkills.filter(s => s.includes(bKey) || s.startsWith(bKey.slice(0,3))).length * 20}%
+                                {unlockedSkills.filter(s => BRANCHES[bKey].nodes.some(n => n.id === s)).length * 20}%
                             </div>
                         </div>
                     ))}

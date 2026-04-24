@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useRef } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { BRANCHES } from '../data/branches';
 
 // Helper to flatten and index nodes for easy coordinate lookup
@@ -97,6 +97,10 @@ const SkillNode = ({ node, branch, isUnlocked, isAvailable, onUnlock, onHover })
     }
   };
 
+  useEffect(() => {
+    centerTree();
+  }, []);
+
   // Panning Handlers
   const handleMouseDown = (e) => {
     setIsDragging(true);
@@ -159,7 +163,7 @@ const SkillNode = ({ node, branch, isUnlocked, isAvailable, onUnlock, onHover })
       {/* Scrollable Panning Container */}
       <div 
         ref={scrollRef}
-        className={`w-full overflow-hidden flex justify-center items-center min-h-[600px] md:min-h-[750px] ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
+        className={`w-full h-full overflow-hidden relative ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
         onMouseDown={handleMouseDown}
         onMouseLeave={handleMouseLeave}
         onMouseUp={handleMouseUp}
@@ -211,10 +215,10 @@ const SkillNode = ({ node, branch, isUnlocked, isAvailable, onUnlock, onHover })
                       y1={`${reqNode.y}%`} 
                       x2={`${node.x}%`} 
                       y2={`${node.y}%`} 
-                      stroke={isLinkActive ? branch.color : isLinkAvailable ? `${branch.color}` : '#18181b'}
-                      strokeWidth={isLinkActive ? 4 : 2}
-                      strokeDasharray={isLinkAvailable && !isLinkActive ? '8,8' : 'none'}
-                      opacity={isLinkActive ? 1 : isLinkAvailable ? 0.6 : 0.15}
+                      stroke={isLinkActive ? branch.color : isLinkAvailable ? `${branch.color}` : '#3f3f46'}
+                      strokeWidth={isLinkActive ? 6 : 3}
+                      strokeDasharray={isLinkAvailable && !isLinkActive ? '10,10' : 'none'}
+                      opacity={isLinkActive ? 1 : isLinkAvailable ? 0.8 : 0.2}
                       filter={isLinkActive ? "url(#glow)" : "none"}
                       className={isLinkAvailable && !isLinkActive ? 'animate-[dash_3s_linear_infinite]' : ''}
                     />
@@ -236,10 +240,10 @@ const SkillNode = ({ node, branch, isUnlocked, isAvailable, onUnlock, onHover })
                     y1="50%" 
                     x2={`${tier0Node.x}%`} 
                     y2={`${tier0Node.y}%`} 
-                    stroke={isLinkActive ? branch.color : isLinkAvailable ? `${branch.color}` : '#18181b'}
-                    strokeWidth={isLinkActive ? 4 : 2}
-                    strokeDasharray={isLinkAvailable && !isLinkActive ? '8,8' : 'none'}
-                    opacity={isLinkActive ? 1 : isLinkAvailable ? 0.6 : 0.15}
+                    stroke={isLinkActive ? branch.color : isLinkAvailable ? `${branch.color}` : '#3f3f46'}
+                    strokeWidth={isLinkActive ? 6 : 3}
+                    strokeDasharray={isLinkAvailable && !isLinkActive ? '10,10' : 'none'}
+                    opacity={isLinkActive ? 1 : isLinkAvailable ? 0.8 : 0.2}
                     filter={isLinkActive ? "url(#glow)" : "none"}
                     className={isLinkAvailable && !isLinkActive ? 'animate-[dash_3s_linear_infinite]' : ''}
                  />

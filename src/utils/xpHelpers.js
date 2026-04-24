@@ -1,5 +1,6 @@
 // src/utils/xpHelpers.js
 import { BRANCHES } from '../data/branches';
+import { LEVELS } from '../data/levels';
 
 export const getDominantBranch = (unlockedSkills = []) => {
   if (unlockedSkills.length === 0) return null;
@@ -43,4 +44,15 @@ export const getXpProgress = (xp) => {
   const progress = xp - currentLevel.xp;
   
   return (progress / range) * 100;
+};
+
+export const getTotalXp = (unlockedSkills = []) => {
+  let total = 0;
+  unlockedSkills.forEach(skillId => {
+    Object.values(BRANCHES).forEach(branch => {
+      const node = branch.nodes.find(n => n.id === skillId);
+      if (node) total += node.xp;
+    });
+  });
+  return total;
 };
