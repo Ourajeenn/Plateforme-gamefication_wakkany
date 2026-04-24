@@ -277,13 +277,28 @@ export default function App() {
             </div>
           </div>
           <div className="bg-black/40 border border-white/10 p-10 rounded-3xl backdrop-blur-md">
-            <form onSubmit={(e) => { e.preventDefault(); setWaitlistStatus('loading'); }} className="space-y-6">
-              <div>
-                <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-2 block">Aethermail Address</label>
-                <input type="email" required className="w-full bg-zinc-900 border border-white/10 px-6 py-4 rounded-xl text-white outline-none focus:border-[#c28e3a] transition-all" placeholder="hunter@aethermoor.com" />
+            {waitlistStatus === 'success' ? (
+              <div className="text-center py-12 animate-scale-up">
+                <iconify-icon icon="lucide:check-circle" width="64" className="text-[#c28e3a] mb-6"></iconify-icon>
+                <h3 className="text-white text-2xl font-bold uppercase mb-4">Transmission Reçue</h3>
+                <p className="text-zinc-500 font-monda">Votre signal a été capté. Vous serez informé dès que le portail sera stabilisé.</p>
+                <button onClick={() => setWaitlistStatus('idle')} className="mt-8 text-[#c28e3a] text-xs font-bold uppercase tracking-widest border-b border-[#c28e3a]/20 hover:border-[#c28e3a] transition-all">S'inscrire à nouveau</button>
               </div>
-              <button type="submit" className="w-full py-5 bg-[#c28e3a] text-black font-bold uppercase tracking-widest hover:brightness-110 transition-all font-monda">Apply for Access</button>
-            </form>
+            ) : (
+              <form onSubmit={(e) => { 
+                e.preventDefault(); 
+                setWaitlistStatus('loading');
+                setTimeout(() => setWaitlistStatus('success'), 1500);
+              }} className="space-y-6">
+                <div>
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-2 block">Adresse Aethermail</label>
+                  <input type="email" required className="w-full bg-zinc-900 border border-white/10 px-6 py-4 rounded-xl text-white outline-none focus:border-[#c28e3a] transition-all" placeholder="hunter@aethermoor.com" />
+                </div>
+                <button type="submit" disabled={waitlistStatus === 'loading'} className="w-full py-5 bg-[#c28e3a] text-black font-bold uppercase tracking-widest hover:brightness-110 transition-all font-monda disabled:opacity-50">
+                  {waitlistStatus === 'loading' ? 'Chiffrement...' : 'Demander l\'Accès'}
+                </button>
+              </form>
+            )}
           </div>
         </div>
       </div>
@@ -385,6 +400,43 @@ export default function App() {
           ))}
         </div>
       </div>
+    </div>
+  );
+
+  const RankingsBoard = ({ user }) => (
+    <div className="bg-zinc-900/50 border border-white/5 rounded-3xl p-8 animate-fade-in">
+       <div className="flex justify-between items-center mb-8">
+          <h2 className="text-white text-2xl font-heading font-bold italic uppercase">Panthéon des Champions</h2>
+          <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest border border-white/10 px-4 py-1 rounded-full">Saison 01 // Aether Moor</div>
+       </div>
+       <div className="space-y-4">
+          {[
+            { rank: 1, name: 'NovaPrime', xp: 45200, clan: 'Alpha-X', faction: 'heroes' },
+            { rank: 2, name: 'CyberRex', xp: 41800, clan: 'Primal', faction: 'dinos' },
+            { rank: 3, name: 'DriftLord', xp: 39500, clan: 'Synchro', faction: 'cars' },
+            { rank: 4, name: 'IronBlade', xp: 37200, clan: 'Génèse', faction: 'warriors' },
+            { rank: 5, name: user?.name || 'Nomade', xp: xp, clan: user?.clan?.name || 'Clanless', faction: user?.faction, current: true }
+          ].sort((a, b) => b.xp - a.xp).map((player, idx) => (
+            <div key={idx} className={`flex items-center justify-between p-6 rounded-2xl border ${player.current ? 'bg-[#c28e3a]/10 border-[#c28e3a]' : 'bg-black/20 border-white/5 hover:border-white/10'} transition-all`}>
+               <div className="flex items-center gap-6">
+                  <span className={`text-2xl font-heading font-black italic ${player.rank <= 3 ? 'text-[#c28e3a]' : 'text-zinc-700'}`}>#{idx + 1}</span>
+                  <div>
+                    <h4 className="text-white font-bold uppercase text-sm tracking-widest">{player.name} {player.current && <span className="text-[9px] text-[#c28e3a] ml-2">(VOUS)</span>}</h4>
+                    <p className="text-zinc-600 text-[10px] font-bold uppercase tracking-widest mt-1">{player.clan}</p>
+                  </div>
+               </div>
+               <div className="flex items-center gap-8">
+                  <div className="text-right">
+                    <p className="text-white font-heading font-bold italic text-lg">{player.xp.toLocaleString()} <span className="text-[10px] text-zinc-600">XP</span></p>
+                    <p className="text-zinc-700 text-[8px] font-black uppercase tracking-widest">Niveau {Math.floor(player.xp/1000) + 1}</p>
+                  </div>
+                  <div className="w-10 h-10 rounded-full bg-zinc-800 border border-white/10 flex items-center justify-center">
+                    <iconify-icon icon={player.faction === 'heroes' ? 'lucide:shield' : player.faction === 'dinos' ? 'lucide:zap' : player.faction === 'cars' ? 'lucide:gauge' : 'lucide:sword'} className="text-white/40"></iconify-icon>
+                  </div>
+               </div>
+            </div>
+          ))}
+       </div>
     </div>
   );
 
@@ -583,26 +635,30 @@ export default function App() {
                     <div>
                       <h4 className="text-white text-[10px] font-black uppercase tracking-[0.3em] mb-8">L'UNIVERS</h4>
                       <ul className="space-y-4 text-zinc-500 text-xs font-bold uppercase tracking-widest">
-                         <li className="hover:text-[#c28e3a] cursor-pointer transition-colors">Les Fondations</li>
-                         <li className="hover:text-[#c28e3a] cursor-pointer transition-colors">La Blockchain</li>
-                         <li className="hover:text-[#c28e3a] cursor-pointer transition-colors">Arbres de Talent</li>
-                         <li className="hover:text-[#c28e3a] cursor-pointer transition-colors">Contrats Élite</li>
+                         <li onClick={() => addNotification('info', "Bientôt : Les Fondations du Multivers")} className="hover:text-[#c28e3a] cursor-pointer transition-colors">Les Fondations</li>
+                         <li onClick={() => addNotification('info', "Bientôt : Intégration Blockchain")} className="hover:text-[#c28e3a] cursor-pointer transition-colors">La Blockchain</li>
+                         <li onClick={() => setDashboardTab('skills')} className="hover:text-[#c28e3a] cursor-pointer transition-colors">Arbres de Talent</li>
+                         <li onClick={() => addNotification('info', "Bientôt : Contrats Élite")} className="hover:text-[#c28e3a] cursor-pointer transition-colors">Contrats Élite</li>
                       </ul>
                     </div>
                     <div>
                       <h4 className="text-white text-[10px] font-black uppercase tracking-[0.3em] mb-8">COMMUNAUTÉ</h4>
                       <ul className="space-y-4 text-zinc-500 text-xs font-bold uppercase tracking-widest">
-                         <li className="hover:text-[#c28e3a] cursor-pointer transition-colors">Discord Pro</li>
-                         <li className="hover:text-[#c28e3a] cursor-pointer transition-colors">Classements</li>
-                         <li className="hover:text-[#c28e3a] cursor-pointer transition-colors">Clans Émanants</li>
-                         <li className="hover:text-[#c28e3a] cursor-pointer transition-colors">Événements</li>
+                         <li onClick={() => window.open('https://discord.gg', '_blank')} className="hover:text-[#c28e3a] cursor-pointer transition-colors">Discord Pro</li>
+                         <li onClick={() => setDashboardTab('rankings')} className="hover:text-[#c28e3a] cursor-pointer transition-colors">Classements</li>
+                         <li onClick={() => addNotification('info', "Bientôt : Guerre des Clans")} className="hover:text-[#c28e3a] cursor-pointer transition-colors">Clans Émanants</li>
+                         <li onClick={() => addNotification('info', "Bientôt : Événements Saisonniers")} className="hover:text-[#c28e3a] cursor-pointer transition-colors">Événements</li>
                       </ul>
                     </div>
                     <div>
                       <h4 className="text-white text-[10px] font-black uppercase tracking-[0.3em] mb-8">NEWSLETTER</h4>
                       <p className="text-zinc-600 text-[10px] mb-6 leading-relaxed uppercase font-bold">Inscrivez-vous pour recevoir les mises à jour de l'Aethermoor.</p>
-                      <form className="relative group" onSubmit={(e) => e.preventDefault()}>
-                        <input type="email" placeholder="Email" className="w-full bg-black/50 border border-white/5 px-4 py-3 rounded-lg text-white text-[10px] outline-none focus:border-[#c28e3a] transition-all" />
+                      <form className="relative group" onSubmit={(e) => {
+                        e.preventDefault();
+                        addNotification('info', "Inscription Newsletter réussie !");
+                        e.target.reset();
+                      }}>
+                        <input type="email" placeholder="Email" required className="w-full bg-black/50 border border-white/5 px-4 py-3 rounded-lg text-white text-[10px] outline-none focus:border-[#c28e3a] transition-all" />
                         <button className="absolute right-2 top-1.5 p-1.5 bg-[#c28e3a] text-black rounded transition-all hover:brightness-110">
                           <iconify-icon icon="lucide:arrow-right" width="14"></iconify-icon>
                         </button>
@@ -614,8 +670,8 @@ export default function App() {
                 <div className="pt-12 border-t border-white/5 flex flex-col sm:flex-row justify-between items-center gap-6">
                   <p className="text-zinc-700 text-[9px] font-black uppercase tracking-[0.3em]">© 2026 WAKKANY. TOUS DROITS RÉSERVÉS.</p>
                   <div className="flex gap-8 text-zinc-700 text-[9px] font-black uppercase tracking-[0.3em]">
-                    <span className="hover:text-zinc-400 cursor-pointer transition-colors">Constitution</span>
-                    <span className="hover:text-zinc-400 cursor-pointer transition-colors">Respect de la Vie Privée</span>
+                    <span onClick={() => addNotification('info', "Codex Wakkany en cours de rédaction")} className="hover:text-zinc-400 cursor-pointer transition-colors">Constitution</span>
+                    <span onClick={() => addNotification('info', "Vos données sont protégées par l'Aether")} className="hover:text-zinc-400 cursor-pointer transition-colors">Respect de la Vie Privée</span>
                   </div>
                 </div>
               </div>
@@ -671,6 +727,14 @@ export default function App() {
 
               {dashboardTab === 'stats' && (
                 <StatsPanel xp={xp} unlockedSkills={unlockedSkills} xpHistory={xpHistory} />
+              )}
+              
+              {dashboardTab === 'quests' && (
+                <QuestBoard xp={xp} completedQuests={completedQuests} onComplete={handleCompleteQuest} />
+              )}
+
+              {dashboardTab === 'rankings' && (
+                <RankingsBoard user={user} />
               )}
               
               {dashboardTab === 'map' && (
