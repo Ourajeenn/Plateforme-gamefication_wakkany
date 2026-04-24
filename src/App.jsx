@@ -65,7 +65,7 @@ export default function App() {
     // Initial loading simulation
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 2500);
+    }, 3500);
     return () => clearTimeout(timer);
   }, []);
 
@@ -120,7 +120,7 @@ export default function App() {
     useEffect(() => {
       const loreTimer = setInterval(() => {
         setLoreIndex(prev => (prev + 1) % lores.length);
-      }, 500);
+      }, 3000);
       return () => clearInterval(loreTimer);
     }, []);
 
@@ -144,8 +144,8 @@ export default function App() {
           <div className="text-[#c28e3a] font-heading font-black italic tracking-[0.4em] uppercase text-sm animate-pulse">
             WAKKANY
           </div>
-          <div className="text-zinc-500 font-monda text-[10px] uppercase tracking-widest h-4 overflow-hidden">
-             <div className="animate-fade-in key={loreIndex}">
+          <div className="text-zinc-500 font-monda text-[10px] uppercase tracking-widest h-4 overflow-hidden text-center px-4">
+             <div key={loreIndex} className="animate-fade-in">
                {lores[loreIndex]}
              </div>
           </div>
