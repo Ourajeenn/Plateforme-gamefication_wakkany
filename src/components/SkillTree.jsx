@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { BRANCHES } from '../data/branches';
 
 // Helper to flatten and index nodes for easy coordinate lookup
@@ -16,12 +16,15 @@ const SkillNode = ({ node, branch, isUnlocked, isAvailable, onUnlock, onHover })
   return (
     <div 
       className="absolute flex flex-col items-center justify-center group cursor-pointer -translate-x-1/2 -translate-y-1/2"
-      style={{ left: `${node.x}%`, top: `${node.y}%`, zIndex: isHovered => 10 }}
+      style={{ left: `${node.x}%`, top: `${node.y}%`, zIndex: 10 }}
       onMouseEnter={() => onHover(node, branch)}
       onMouseLeave={() => onHover(null, null)}
       onClick={() => isAvailable && onUnlock(node)}
     >
-      {/* Glow Effect for available/unlocked */}
+      {/* Outer Ring Effect */}
+      <div className={`absolute inset-0 rounded-full border border-dashed transition-all duration-[2s] ${status === 'unlocked' ? 'border-white/40 rotate-180 scale-[1.3]' : status === 'available' ? 'border-white/20 animate-[spin_10s_linear_infinite] scale-125' : 'border-transparent scale-100'}`}></div>
+
+      {/* Glow Effect */}
       {(isUnlocked || isAvailable) && (
         <div 
           className={`absolute inset-0 rounded-full blur-xl opacity-40 ${isAvailable ? 'animate-pulse' : ''}`}
@@ -31,19 +34,22 @@ const SkillNode = ({ node, branch, isUnlocked, isAvailable, onUnlock, onHover })
 
       {/* Main Node */}
       <div 
-        className={`w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center border-2 transition-all duration-500 relative z-10 
-          ${status === 'unlocked' ? 'bg-zinc-900 border-opacity-100 shadow-[0_0_20px_rgba(0,0,0,0.8)] scale-110' : 
+        className={`w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center border-[3px] transition-all duration-500 relative z-10 
+          ${status === 'unlocked' ? 'bg-zinc-900 border-opacity-100 shadow-[0_0_20px_rgba(0,0,0,0.8),inset_0_0_15px_rgba(0,0,0,0.8)] scale-110' : 
             status === 'available' ? 'bg-zinc-950 border-opacity-80 border-dashed animate-pulse scale-100' : 
             'bg-zinc-950 border-opacity-20 grayscale opacity-50 scale-90'}`}
         style={{ borderColor: color }}
       >
-        <span className="text-xl md:text-2xl" style={{ filter: isUnlocked ? `drop-shadow(0 0 5px ${color})` : 'none' }}>
+        {/* Inner dark circle for depth */}
+        <div className="absolute inset-1 rounded-full bg-black/60 pointer-events-none"></div>
+
+        <span className="text-xl md:text-2xl relative z-10" style={{ filter: isUnlocked ? `drop-shadow(0 0 5px ${color})` : 'none' }}>
           {node.ultimate ? '⭐' : branch.icon}
         </span>
         
         {/* Tier Indicator */}
-        <div className="absolute -top-1 -right-1 bg-black border border-white/20 w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold text-white/70">
-          T{node.tier}
+        <div className="absolute -bottom-2 right-0 bg-black border border-white/20 w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold text-white/70 shadow-xl">
+          {node.tier}
         </div>
       </div>
     </div>
@@ -52,13 +58,21 @@ const SkillNode = ({ node, branch, isUnlocked, isAvailable, onUnlock, onHover })
 
 export default function SkillTree({ xp, unlockedSkills, onUnlock }) {
   const [hoveredSkill, setHoveredSkill] = useState(null);
+  
+  // Panning State
+  const scrollRef = useRef(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [startY, setStartY] = useState(0);
+  const [scrollLeft, setScrollLeft] = useState(0);
+  const [scrollTop, setScrollTop] = useState(0);
 
   const checkUnlocked = (id) => unlockedSkills.includes(id);
   const checkAvailable = (node) => {
     if (checkUnlocked(node.id)) return false;
     if (xp < node.xp) return false;
     if (node.req.length === 0) return true;
-    return node.req.some(r => checkUnlocked(r)); // Changed to "some" to allow branching logic flexibility, but strict logic is "every"
+    return node.req.some(r => checkUnlocked(r));
   };
 
   const handleHover = (node, branch) => {
@@ -66,26 +80,58 @@ export default function SkillTree({ xp, unlockedSkills, onUnlock }) {
     else setHoveredSkill({ ...node, branchColor: branch.color, branchLabel: branch.label });
   };
 
+  // Panning Handlers
+  const handleMouseDown = (e) => {
+    setIsDragging(true);
+    setStartX(e.pageX - scrollRef.current.offsetLeft);
+    setStartY(e.pageY - scrollRef.current.offsetTop);
+    setScrollLeft(scrollRef.current.scrollLeft);
+    setScrollTop(scrollRef.current.scrollTop);
+  };
+  const handleMouseLeave = () => setIsDragging(false);
+  const handleMouseUp = () => setIsDragging(false);
+  const handleMouseMove = (e) => {
+    if (!isDragging) return;
+    e.preventDefault();
+    const x = e.pageX - scrollRef.current.offsetLeft;
+    const y = e.pageY - scrollRef.current.offsetTop;
+    const walkX = (x - startX) * 1.5; 
+    const walkY = (y - startY) * 1.5;
+    scrollRef.current.scrollLeft = scrollLeft - walkX;
+    scrollRef.current.scrollTop = scrollTop - walkY;
+  };
+
   return (
-    <div className="w-full relative overflow-hidden bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-zinc-900/40 via-zinc-950 to-black rounded-3xl border border-white/5 py-10">
+    <div className="w-full relative overflow-hidden bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-zinc-900/40 via-zinc-950 to-black rounded-3xl border border-white/5 py-6">
       
-      {/* Scrollable Container for Mobile/Desktop */}
-      <div className="w-full overflow-auto flex justify-center items-center min-h-[600px] md:min-h-[800px] scrollbar-hide">
+      {/* Scrollable Panning Container */}
+      <div 
+        ref={scrollRef}
+        className={`w-full overflow-hidden flex justify-center items-center min-h-[600px] md:min-h-[750px] ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
+        onMouseDown={handleMouseDown}
+        onMouseLeave={handleMouseLeave}
+        onMouseUp={handleMouseUp}
+        onMouseMove={handleMouseMove}
+      >
         
         {/* Absolute Coordinate Grid */}
-        <div className="relative w-[800px] h-[800px] md:w-[1000px] md:h-[1000px] shrink-0">
+        <div className="relative w-[1000px] h-[1000px] md:w-[1200px] md:h-[1200px] shrink-0 transform-gpu" style={{ userSelect: 'none' }}>
           
+          {/* Background constellation grid */}
+          <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(255,255,255,0.05) 1px, transparent 0)', backgroundSize: '40px 40px' }}></div>
+
           {/* Central Nexus Element */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-full border border-white/10 bg-black flex flex-col items-center justify-center z-0 shadow-[0_0_50px_rgba(255,255,255,0.05)]">
-             <span className="text-3xl animate-pulse">🌌</span>
-             <span className="text-[10px] font-heading font-black text-white/30 uppercase mt-2">NEXUS</span>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 rounded-full border-[4px] border-zinc-800 bg-black flex flex-col items-center justify-center z-0 shadow-[0_0_80px_rgba(255,255,255,0.05)]">
+             <div className="absolute inset-2 rounded-full border border-dashed border-zinc-700 animate-[spin_20s_linear_infinite]"></div>
+             <span className="text-4xl animate-pulse">🌌</span>
+             <span className="text-xs font-heading font-black text-zinc-500 uppercase mt-2 tracking-[0.3em]">NEXUS</span>
           </div>
 
           {/* SVG Connection Lines Layer */}
           <svg className="absolute inset-0 w-full h-full pointer-events-none z-0">
             <defs>
-               <filter id="lineGlow">
-                 <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+               <filter id="glow">
+                 <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
                  <feMerge>
                    <feMergeNode in="coloredBlur"/>
                    <feMergeNode in="SourceGraphic"/>
@@ -108,12 +154,12 @@ export default function SkillTree({ xp, unlockedSkills, onUnlock }) {
                       y1={`${reqNode.y}%`} 
                       x2={`${node.x}%`} 
                       y2={`${node.y}%`} 
-                      stroke={isLinkActive ? branch.color : isLinkAvailable ? `${branch.color}66` : '#3f3f46'}
-                      strokeWidth={isLinkActive ? 4 : 2}
-                      strokeDasharray={isLinkAvailable && !isLinkActive ? '5,5' : 'none'}
-                      opacity={isLinkActive ? 0.8 : isLinkAvailable ? 0.6 : 0.2}
-                      filter={isLinkActive ? "url(#lineGlow)" : "none"}
-                      className={isLinkAvailable && !isLinkActive ? 'animate-pulse' : ''}
+                      stroke={isLinkActive ? branch.color : isLinkAvailable ? `${branch.color}` : '#3f3f46'}
+                      strokeWidth={isLinkActive ? 4 : isLinkAvailable ? 2 : 1}
+                      strokeDasharray={isLinkAvailable && !isLinkActive ? '10,10' : 'none'}
+                      opacity={isLinkActive ? 0.9 : isLinkAvailable ? 0.5 : 0.2}
+                      filter={isLinkActive ? "url(#glow)" : "none"}
+                      className={isLinkAvailable && !isLinkActive ? 'animate-[dash_2s_linear_infinite]' : ''}
                     />
                   );
                 })
@@ -133,10 +179,12 @@ export default function SkillTree({ xp, unlockedSkills, onUnlock }) {
                     y1="50%" 
                     x2={`${tier0Node.x}%`} 
                     y2={`${tier0Node.y}%`} 
-                    stroke={isLinkActive ? branch.color : isLinkAvailable ? `${branch.color}66` : '#3f3f46'}
-                    strokeWidth={isLinkActive ? 4 : 2}
-                    opacity={isLinkActive ? 0.8 : isLinkAvailable ? 0.6 : 0.2}
-                    filter={isLinkActive ? "url(#lineGlow)" : "none"}
+                    stroke={isLinkActive ? branch.color : isLinkAvailable ? `${branch.color}` : '#3f3f46'}
+                    strokeWidth={isLinkActive ? 5 : isLinkAvailable ? 2 : 1}
+                    strokeDasharray={isLinkAvailable && !isLinkActive ? '10,10' : 'none'}
+                    opacity={isLinkActive ? 0.9 : isLinkAvailable ? 0.5 : 0.2}
+                    filter={isLinkActive ? "url(#glow)" : "none"}
+                    className={isLinkAvailable && !isLinkActive ? 'animate-[dash_2s_linear_infinite]' : ''}
                  />
                );
             })}
@@ -164,10 +212,10 @@ export default function SkillTree({ xp, unlockedSkills, onUnlock }) {
       {/* Floating Tooltip */}
       {hoveredSkill && (
         <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[100] animate-scale-up pointer-events-none">
-          <div className="bg-black/90 border border-white/20 p-6 rounded-2xl backdrop-blur-xl shadow-2xl min-w-[320px] max-w-md">
+          <div className="bg-black/95 border border-white/20 p-6 rounded-3xl backdrop-blur-2xl shadow-2xl min-w-[340px] max-w-md" style={{ boxShadow: `0 20px 50px ${hoveredSkill.branchColor}20` }}>
             <div className="flex justify-between items-start mb-4">
               <div>
-                <h4 className="text-white font-black uppercase text-xl tracking-tighter">{hoveredSkill.name}</h4>
+                <h4 className="text-white font-black uppercase text-xl tracking-tighter" style={{ textShadow: `0 0 10px ${hoveredSkill.branchColor}50` }}>{hoveredSkill.name}</h4>
                 <p className="text-[10px] font-bold uppercase tracking-widest mt-1" style={{ color: hoveredSkill.branchColor }}>
                   {hoveredSkill.branchLabel} // TIER {hoveredSkill.tier}
                 </p>
@@ -185,7 +233,7 @@ export default function SkillTree({ xp, unlockedSkills, onUnlock }) {
                  {hoveredSkill.req.map(r => {
                    const rNode = allNodesMap[r];
                    return (
-                     <span key={r} className={`text-[9px] font-bold px-2 py-0.5 rounded ${checkUnlocked(r) ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'}`}>
+                     <span key={r} className={`text-[9px] font-bold px-2 py-0.5 rounded border border-white/5 ${checkUnlocked(r) ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'}`}>
                        {rNode ? rNode.name.toUpperCase() : r.toUpperCase()}
                      </span>
                    )
@@ -194,11 +242,11 @@ export default function SkillTree({ xp, unlockedSkills, onUnlock }) {
             )}
             <div className="mt-5 pt-4 border-t border-white/10 text-center">
               {checkUnlocked(hoveredSkill.id) ? (
-                <span className="text-green-500 font-bold text-xs uppercase tracking-[0.2em]">Synchronisé ✓</span>
+                <span className="text-green-500 font-black text-[10px] uppercase tracking-[0.3em]">Synchronisé ✓</span>
               ) : checkAvailable(hoveredSkill) ? (
-                <span className="text-[#c28e3a] font-bold text-xs uppercase tracking-[0.2em] animate-pulse">Prêt à l'extraction →</span>
+                <span className="text-[#c28e3a] font-black text-[10px] uppercase tracking-[0.3em] animate-pulse">Prêt à l'extraction →</span>
               ) : (
-                <span className="text-red-500/50 font-bold text-xs uppercase tracking-[0.2em]">Données Verrouillées 🔒</span>
+                <span className="text-red-500/50 font-black text-[10px] uppercase tracking-[0.3em]">Données Verrouillées 🔒</span>
               )}
             </div>
           </div>

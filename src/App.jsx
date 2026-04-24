@@ -140,10 +140,13 @@ export default function App() {
 
       <div className="flex items-center gap-4">
         <button
-          onClick={handleJoinClick}
+          onClick={() => {
+            if (user) setView('dashboard');
+            else handleJoinClick();
+          }}
           className="hidden md:block px-6 py-2.5 bg-[#c28e3a] text-black font-black uppercase text-[10px] tracking-widest rounded-lg hover:brightness-110 transition-all hover:scale-105 active:scale-95 shadow-lg shadow-orange-950/20"
         >
-          Rejoindre l'élite
+          {user ? `Tableau de Bord (${user.name})` : "Rejoindre l'élite"}
         </button>
 
         <button
@@ -393,10 +396,15 @@ export default function App() {
                   </div>
                   
                   <button
-                    onClick={handleJoinClick}
+                    onClick={() => {
+                      if (user) setView('dashboard');
+                      else handleJoinClick();
+                    }}
                     className="relative group overflow-hidden px-16 py-6 bg-white text-black font-black text-xl sm:text-2xl uppercase tracking-[0.2em] font-heading italic transition-all duration-500 hover:scale-105 active:scale-95 shadow-[0_20px_50px_rgba(194,142,58,0.3)] rounded-2xl"
                   >
-                    <span className="relative z-10 transition-colors group-hover:text-white">REJOINDRE LA MEUTE</span>
+                    <span className="relative z-10 transition-colors group-hover:text-white">
+                      {user ? `RETOURNER AU COMBAT, ${user.name.toUpperCase()}` : "REJOINDRE LA MEUTE"}
+                    </span>
                     <div className="absolute inset-0 bg-[#c28e3a] -translate-x-full group-hover:translate-x-0 transition-transform duration-500 ease-out"></div>
                   </button>
                 </div>

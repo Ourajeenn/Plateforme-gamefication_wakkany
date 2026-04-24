@@ -141,6 +141,12 @@
   animation: scaleUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 
+@keyframes dash {
+  to {
+    stroke-dashoffset: -20;
+  }
+}
+
 .video-background {
   position: absolute;
   top: 50%;
