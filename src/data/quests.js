@@ -1,13 +1,14 @@
 // src/data/quests.js
 export const QUESTS = [
-  { id: "q1", title: "Épreuve du Débutant", lore: "Le forge-maître t'observe. Prouve ta valeur.", branch: "force", nodeReq: null, difficulty: "Facile", xpReward: 30, riddleTheme: "force et combat" },
-  { id: "q2", title: "Le Grimoire Perdu", lore: "Retrouve les pages de l'ancien savoir éthéré.", branch: "arcane", nodeReq: null, difficulty: "Facile", xpReward: 30, riddleTheme: "magie et grimoires" },
-  { id: "q3", title: "L'Ombre du Passé", lore: "Un écho de tes ennemis rôde dans les couloirs.", branch: "ombre", nodeReq: null, difficulty: "Moyen", xpReward: 40, riddleTheme: "discrétion et ombres" },
-  { id: "q4", title: "Duel des Champions", lore: "Affronte un adversaire digne de ton nom.", branch: "force", nodeReq: "f2", difficulty: "Difficile", xpReward: 60, riddleTheme: "honneur et duels" },
-  { id: "q5", title: "Rituel des Anciens", lore: "Connecte-toi aux flux primordiaux de l'Aether.", branch: "arcane", nodeReq: "a2", difficulty: "Difficile", xpReward: 60, riddleTheme: "rituels et constellations" },
-  { id: "q6", title: "Contrat du Fantôme", lore: "Exécute une mission sans jamais être détecté.", branch: "ombre", nodeReq: "o2", difficulty: "Expert", xpReward: 75, riddleTheme: "espionnage et infiltration" },
-  { id: "q7", title: "La Forge Maudite", lore: "Purifie l'acier corrompu du volcan d'Ebène.", branch: "force", nodeReq: "f3a", difficulty: "Expert", xpReward: 80, riddleTheme: "forge et métaux" },
-  { id: "q8", title: "Portail des Étoiles", lore: "Ouvre une brèche vers les confins du Cosmos.", branch: "arcane", nodeReq: "a3a", difficulty: "Expert", xpReward: 80, riddleTheme: "astronomie et dimensions" },
-  { id: "q9", title: "Danse de la Mort", lore: "Esquive chaque lame dans l'arène des ombres.", branch: "ombre", nodeReq: "o3a", difficulty: "Expert", xpReward: 80, riddleTheme: "agilité et lames" },
-  { id: "q10", title: "Épreuve Légendaire", lore: "L'ultime test avant l'ascension finale.", branch: "all", nodeReq: "ultimate", difficulty: "Légendaire", xpReward: 150, riddleTheme: "destinée et sacrifice" }
+  { id: "q1", title: "Appel aux Armes Cosmiques", lore: "La faille s'ouvre. Prouve ta valeur héroïque.", branch: "heroes", nodeReq: null, difficulty: "Facile", xpReward: 30, riddleTheme: "justice et super-pouvoirs" },
+  { id: "q2", title: "L'Arène de Sparte", lore: "Survis au premier assaut de l'armée perse.", branch: "warriors", nodeReq: null, difficulty: "Facile", xpReward: 30, riddleTheme: "guerre et mythes" },
+  { id: "q3", title: "L'Œuf Primordial", lore: "Protège le nid contre les prédateurs.", branch: "dinos", nodeReq: null, difficulty: "Facile", xpReward: 30, riddleTheme: "survie et instinct" },
+  { id: "q4", title: "Piste Néon", lore: "Termine la course de qualification dans le Cyber-Dôme.", branch: "cars", nodeReq: null, difficulty: "Facile", xpReward: 30, riddleTheme: "vitesse et moteurs" },
+  
+  { id: "q5", title: "Guerre de l'Infini", lore: "Récupère l'artefact avant qu'il ne tombe entre de mauvaises mains.", branch: "heroes", nodeReq: "h2", difficulty: "Moyen", xpReward: 50, riddleTheme: "espace et temps" },
+  { id: "q6", title: "Le Choc des Titans", lore: "Affronte une créature mythologique gigantesque.", branch: "warriors", nodeReq: "w2", difficulty: "Difficile", xpReward: 60, riddleTheme: "dieux et monstres" },
+  { id: "q7", title: "La Chasse du T-Rex", lore: "Traque la plus grande menace de la jungle jurassique.", branch: "dinos", nodeReq: "d2", difficulty: "Difficile", xpReward: 60, riddleTheme: "traque et prédateurs" },
+  { id: "q8", title: "Grand Prix du Multivers", lore: "Remporte la course à travers trois dimensions.", branch: "cars", nodeReq: "c2", difficulty: "Expert", xpReward: 75, riddleTheme: "ingénierie et adrénaline" },
+  
+  { id: "q9", title: "Épreuve Légendaire: La Collision", lore: "Les 4 univers entrent en collision. Seul le plus fort survivra.", branch: "all", nodeReq: "ultimate", difficulty: "Légendaire", xpReward: 150, riddleTheme: "multivers et destinée" }
 ];

@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import ProfileSetup from './components/ProfileSetup';
+import ProfileView from './components/ProfileView';
 import Leaderboard from './components/Leaderboard';
 import Avatar from './components/Avatar';
 import SkillTree from './components/SkillTree';
+import LevelEvolutionMap from './components/LevelEvolutionMap';
 import QuestPanel from './components/quests/QuestPanel';
 import StatsPanel from './components/StatsPanel';
 import BadgeGallery from './components/BadgeGallery';
@@ -15,8 +17,8 @@ import { getLevel } from './data/levels';
 
 export default function App() {
   const [view, setView] = useState('landing'); // 'landing', 'setup', 'dashboard'
-  const [dashboardTab, setDashboardTab] = useState('profile'); // 'profile', 'skills', 'quests', 'rankings'
-  const { user, setUser, xp, setXp, unlockedSkills, setUnlockedSkills, completedQuests, setCompletedQuests, xpHistory } = usePlayerData();
+  const [dashboardTab, setDashboardTab] = useState('profile'); // 'profile', 'skills', 'quests', 'rankings', 'map'
+  const { user, setUser, xp, setXp, unlockedSkills, setUnlockedSkills, completedQuests, setCompletedQuests, xpHistory, unlockedAchievements, setUnlockedAchievements } = usePlayerData();
   const [isLoading, setIsLoading] = useState(true);
   const [landingTab, setLandingTab] = useState(null); // 'waitlist', 'about', 'blog', 'archetypes'
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -110,7 +112,7 @@ export default function App() {
         <div className="absolute inset-0 bg-[#c28e3a] w-1/4 animate-progress-run"></div>
       </div>
       <div className="mt-6 text-[#c28e3a] font-heading font-bold italic tracking-[0.3em] uppercase text-xs animate-pulse">
-        Initialisation de Beastborne...
+        Initialisation de Wakkany...
       </div>
     </div>
   );
@@ -122,7 +124,7 @@ export default function App() {
           <iconify-icon icon="lucide:triangle" width="32" height="32" className="text-[#c28e3a] rotate-180 stroke-[1.5]"></iconify-icon>
           <div className="absolute inset-0 bg-[#c28e3a] blur-xl opacity-0 group-hover:opacity-40 transition-opacity"></div>
         </div>
-        <span className="text-white font-heading font-bold italic tracking-tighter uppercase text-xl hidden sm:block">Beastborne</span>
+        <span className="text-white font-heading font-bold italic tracking-tighter uppercase text-xl hidden sm:block">Wakkany</span>
       </div>
 
       <div className="hidden lg:flex items-center gap-10 text-white text-[11px] font-black uppercase tracking-[0.2em]">
@@ -167,7 +169,7 @@ export default function App() {
     <nav className="fixed top-0 left-0 w-full bg-zinc-950/80 backdrop-blur-md border-b border-white/5 flex items-center justify-between px-8 py-4 z-[60]">
       <div className="flex items-center gap-4">
         <iconify-icon icon="lucide:triangle" width="24" height="24" className="text-[#c28e3a] rotate-180"></iconify-icon>
-        <span className="text-white font-heading font-bold tracking-widest text-lg italic uppercase">Beastborne <span className="text-zinc-600 ml-2">// Dashboard</span></span>
+        <span className="text-white font-heading font-bold tracking-widest text-lg italic uppercase">Wakkany <span className="text-zinc-600 ml-2">// Dashboard</span></span>
       </div>
 
       <div className="flex items-center gap-6">
@@ -176,7 +178,7 @@ export default function App() {
           <span className="text-[#c28e3a] text-[10px] uppercase font-bold tracking-widest">{user?.clan?.name || 'Clanless'}</span>
         </div>
         <div className="w-10 h-10 rounded-full border border-[#c28e3a] overflow-hidden bg-zinc-800 pointer-events-none">
-          <img src={user?.clan?.image || 'https://i.postimg.cc/qv918NDq/hippo1.png'} className="w-full h-full object-cover" />
+          <img src={user?.clan?.image || '/icon.png'} className="w-full h-full object-cover" />
         </div>
         <button onClick={() => { setUser(null); setView('landing'); }} className="text-zinc-600 hover:text-[#c28e3a] transition-all hover:scale-110">
           <iconify-icon icon="solar:logout-2-linear" width="24"></iconify-icon>
@@ -226,13 +228,13 @@ export default function App() {
         <button onClick={() => setLandingTab(null)} className="flex items-center gap-2 text-[#c28e3a] uppercase font-bold text-xs tracking-[0.3em] mb-12 hover:gap-4 transition-all">
           <iconify-icon icon="lucide:arrow-left"></iconify-icon> Back to Home
         </button>
-        <h1 className="text-white text-6xl font-heading font-bold italic uppercase mb-16 text-center">THE WORLD OF AETHERMOOR</h1>
+        <h1 className="text-white text-6xl font-heading font-bold italic uppercase mb-16 text-center">LE MULTIVERS WAKKANY</h1>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {[
-            { title: 'The Covenant', desc: 'An ancient treaty between the three major schools of power: The Iron Legion, The Arcane Order, and the Silent Veils.', icon: 'lucide:shield-check' },
-            { title: 'Aether Essence', desc: 'The lifeblood of the world. It flows through the veins of every creature, granting power to those who can harness it.', icon: 'lucide:sparkles' },
-            { title: 'The Great Hunt', desc: 'A perpetual cycle of challenge where champions are born and legends are forged in the fires of battle.', icon: 'lucide:swords' }
+            { title: 'La Grande Faille', desc: 'Une anomalie temporelle a fusionné 4 dimensions : Légion Héroïque, Ordre Antique, Ère Primaire et Syndicat Mécanique.', icon: 'lucide:shield-check' },
+            { title: 'Énergie Cosmique', desc: 'Le flux quantique irrigue désormais toutes les entités, donnant des pouvoirs aux Héros comme aux Titans mécaniques.', icon: 'lucide:sparkles' },
+            { title: 'Le Choc des Mondes', desc: 'Un cycle infini où dinosaures, guerriers mythiques, hypercars et super-héros forgent de nouvelles légendes.', icon: 'lucide:swords' }
           ].map((item, idx) => (
             <div key={idx} className="bg-zinc-900/50 border border-white/5 p-10 rounded-3xl hover:border-[#c28e3a]/30 transition-all group">
               <iconify-icon icon={item.icon} width="48" className="text-[#c28e3a] mb-6 block group-hover:scale-110 transition-transform"></iconify-icon>
@@ -245,7 +247,7 @@ export default function App() {
         <div className="mt-20 p-[1px] bg-gradient-to-r from-transparent via-[#c28e3a]/30 to-transparent">
           <div className="bg-black/40 backdrop-blur-md p-16 text-center rounded-3xl">
             <h2 className="text-white text-3xl font-heading italic uppercase mb-6">"History is written in blood, but the future is forged in XP."</h2>
-            <p className="text-zinc-500 max-w-2xl mx-auto font-monda">Beastborne is a unique RPG ecosystem where your visual identity evolves with your skills. Every choice in the skill tree reflects in your Evo-Avatar, making every champion unique.</p>
+            <p className="text-zinc-500 max-w-2xl mx-auto font-monda">Wakkany is a unique RPG ecosystem where your visual identity evolves with your skills. Every choice in the skill tree reflects in your Evo-Avatar, making every champion unique.</p>
           </div>
         </div>
       </div>
@@ -265,9 +267,9 @@ export default function App() {
 
         <div className="space-y-12">
           {[
-            { date: 'APR 03, 2026', title: 'The Evolution Patch', desc: 'Introducing the dynamic SVG avatar system. Your progression is now visual. Branching skill trees (Force, Arcane, Ombre) are now active.' },
-            { date: 'MAR 28, 2026', title: 'Bounty Boards Open', desc: 'Solving riddles now grants Aether Essence. New NPC merchants added to the Tech Academy outskirts.' },
-            { date: 'MAR 15, 2026', title: 'The Great Betrayal', desc: 'Lore update: Why the Covenant was broken and what it means for the upcoming Iron Legion campaign.' }
+            { date: 'APR 03, 2026', title: 'The Multiverse Update', desc: 'L\'univers s\'agrandit ! Les arbres de compétences incluent désormais Héros, Guerriers, Dinosaures et Voitures.' },
+            { date: 'MAR 28, 2026', title: 'Nouvelles Quêtes Interdimensionnelles', desc: 'Résolvez les énigmes du continuum espace-temps pour débloquer des artefacts cosmiques.' },
+            { date: 'MAR 15, 2026', title: 'L\'Éveil d\'Apex', desc: 'La vérité sur la faille originelle : comment un T-Rex cybernétique a déclenché le croisement des univers.' }
           ].map((post, idx) => (
             <article key={idx} className="group cursor-pointer">
               <div className="flex flex-col md:flex-row gap-8 items-start">
@@ -367,7 +369,7 @@ export default function App() {
 
                   <div className="lg:text-right flex flex-col lg:items-end opacity-0 animate-fade-in delay-500">
                     <h1 className="text-white text-[80px] sm:text-[140px] font-black italic leading-[0.8] tracking-tighter font-heading uppercase drop-shadow-[0_20px_20px_rgba(0,0,0,0.5)]">
-                      Beast<br />borne
+                      Wak<br />kany
                     </h1>
                     <p className="text-zinc-400 text-lg sm:text-2xl mt-6 max-w-md tracking-tight font-monda font-light italic">
                       "Votre évolution ne dépend pas du hasard, mais de vos choix."
@@ -490,7 +492,7 @@ export default function App() {
                   <div className="lg:col-span-1">
                     <div className="flex items-center gap-3 text-white font-heading text-2xl font-black italic uppercase mb-8">
                        <iconify-icon icon="lucide:triangle" width="24" className="text-[#c28e3a] rotate-180"></iconify-icon>
-                       Beastborne
+                       Wakkany
                     </div>
                     <p className="text-zinc-500 text-sm italic font-monda leading-relaxed mb-8">
                       La plateforme de gamification next-gen qui transforme votre progression personnelle en une épopée légendaire.
@@ -537,7 +539,7 @@ export default function App() {
                 </div>
 
                 <div className="pt-12 border-t border-white/5 flex flex-col sm:flex-row justify-between items-center gap-6">
-                  <p className="text-zinc-700 text-[9px] font-black uppercase tracking-[0.3em]">© 2026 BEASTBORNE. TOUS DROITS RÉSERVÉS.</p>
+                  <p className="text-zinc-700 text-[9px] font-black uppercase tracking-[0.3em]">© 2026 WAKKANY. TOUS DROITS RÉSERVÉS.</p>
                   <div className="flex gap-8 text-zinc-700 text-[9px] font-black uppercase tracking-[0.3em]">
                     <span className="hover:text-zinc-400 cursor-pointer transition-colors">Constitution</span>
                     <span className="hover:text-zinc-400 cursor-pointer transition-colors">Respect de la Vie Privée</span>
@@ -565,6 +567,7 @@ export default function App() {
                 {[
                   { id: 'profile', label: 'Mon Évolution', icon: 'lucide:user' },
                   { id: 'stats', label: 'Statistiques', icon: 'lucide:bar-chart-3' },
+                  { id: 'map', label: 'Carte', icon: 'lucide:map' },
                   { id: 'skills', label: 'Compétences', icon: 'lucide:git-branch' },
                   { id: 'quests', label: 'Défis & Quêtes', icon: 'lucide:scroll' },
                   { id: 'rankings', label: 'Classement', icon: 'lucide:trophy' }
@@ -585,29 +588,22 @@ export default function App() {
             {/* Tab Secret Content */}
             <div className="animate-fade-in py-10">
               {dashboardTab === 'profile' && (
-                <div className="flex flex-col items-center gap-12">
-                  <Avatar xp={xp} unlockedSkills={unlockedSkills} />
-                  <div className="max-w-md w-full bg-zinc-900 border border-white/5 p-8 rounded-2xl text-center">
-                    <h3 className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.3em] mb-4">Progression Totale</h3>
-                    <div className="text-6xl text-white font-monda mb-2">{xp}</div>
-                    <div className="text-[#c28e3a] text-xs font-bold uppercase tracking-widest">XP Cumulée</div>
-
-                    <div className="mt-8 flex flex-col gap-2">
-                      <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-zinc-600">
-                        <span>PROCHAINE ÉVOLUTION {(xp % 100)}%</span>
-                        <span>{getLevel(xp).nextXp} XP</span>
-                      </div>
-                      <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden">
-                        <div className="h-full bg-[#c28e3a]" style={{ width: `${(xp % 100)}%` }}></div>
-                      </div>
-                    </div>
-                  </div>
-                  <BadgeGallery unlockedAchievements={unlockedAchievements} />
-                </div>
+                <ProfileView 
+                  user={user} 
+                  xp={xp} 
+                  unlockedSkills={unlockedSkills} 
+                  unlockedAchievements={unlockedAchievements} 
+                />
               )}
 
               {dashboardTab === 'stats' && (
                 <StatsPanel xp={xp} unlockedSkills={unlockedSkills} xpHistory={xpHistory} />
+              )}
+              
+              {dashboardTab === 'map' && (
+                <div className="animate-fade-in">
+                  <LevelEvolutionMap xp={xp} />
+                </div>
               )}
 
               {dashboardTab === 'skills' && (

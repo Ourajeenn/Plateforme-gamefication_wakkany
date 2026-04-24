@@ -1,7 +1,7 @@
 {
-  "name": "Beastborne - Aether RPG",
-  "short_name": "Beastborne",
-  "description": "Unissez les clans et forgez votre légende dans ce RPG de productivité.",
+  "name": "Wakkany - Multiverse RPG",
+  "short_name": "Wakkany",
+  "description": "Unissez les clans et forgez votre légende dans le multivers Wakkany.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#09090b",

@@ -1,47 +1,55 @@
 export const ACHIEVEMENTS = [
     {
         id: 'first_step',
-        title: 'Premiers Pas',
-        desc: 'Rejoindre la meute et initialiser son profil.',
+        title: 'Traversée du Portail',
+        desc: 'Rejoindre le Multivers Wakkany et initialiser son identité.',
         icon: 'lucide:sparkles',
         condition: (data) => data.user !== null,
         color: '#ffffff'
     },
     {
         id: 'contract_init',
-        title: 'Premier Contrat',
-        desc: 'Terminer votre premier contrat de mission.',
+        title: 'Première Victoire',
+        desc: 'Survivre à votre première épreuve multiverselle.',
         icon: 'lucide:scroll',
         condition: (data) => data.completedQuests.length >= 1,
         color: '#c28e3a'
     },
     {
-        id: 'specialist_force',
-        title: 'Maitre de l\'Acier',
-        desc: 'Débloquer 3 compétences dans la voie de la Force.',
+        id: 'specialist_heroes',
+        title: 'Justicier Cosmique',
+        desc: 'Débloquer 3 compétences dans la Légion Héroïque.',
+        icon: 'lucide:shield-flash',
+        condition: (data) => data.unlockedSkills.filter(s => s.startsWith('h')).length >= 3,
+        color: '#ff3b30'
+    },
+    {
+        id: 'specialist_warriors',
+        title: 'Sang de Sparte',
+        desc: 'Débloquer 3 compétences dans l\'Ordre Antique.',
         icon: 'lucide:swords',
-        condition: (data) => data.unlockedSkills.filter(s => s.includes('force') || s.startsWith('str_')).length >= 3,
-        color: '#4ade80'
+        condition: (data) => data.unlockedSkills.filter(s => s.startsWith('w')).length >= 3,
+        color: '#c28e3a'
     },
     {
-        id: 'specialist_arcane',
-        title: 'Érudit de l\'Aether',
-        desc: 'Débloquer 3 compétences dans la voie de l\'Arcane.',
-        icon: 'lucide:wand-2',
-        condition: (data) => data.unlockedSkills.filter(s => s.includes('arcane') || s.startsWith('int_')).length >= 3,
-        color: '#f87171'
+        id: 'specialist_dinos',
+        title: 'Prédateur Alpha',
+        desc: 'Débloquer 3 compétences dans l\'Ère Primaire.',
+        icon: 'lucide:bone',
+        condition: (data) => data.unlockedSkills.filter(s => s.startsWith('d')).length >= 3,
+        color: '#34c759'
     },
     {
-        id: 'specialist_ombre',
-        title: 'Spectre de Stase',
-        desc: 'Débloquer 3 compétences dans la voie de l\'Ombre.',
-        icon: 'lucide:skull',
-        condition: (data) => data.unlockedSkills.filter(s => s.includes('ombre') || s.startsWith('dex_')).length >= 3,
-        color: '#818cf8'
+        id: 'specialist_cars',
+        title: 'Pilote Suprême',
+        desc: 'Débloquer 3 compétences dans le Syndicat Mécanique.',
+        icon: 'lucide:car-front',
+        condition: (data) => data.unlockedSkills.filter(s => s.startsWith('c')).length >= 3,
+        color: '#007aff'
     },
     {
         id: 'legend_level',
-        title: 'Légende Émanante',
+        title: 'Légende du Multivers',
         desc: 'Atteindre 500 XP cumulés.',
         icon: 'lucide:trophy',
         condition: (data) => data.xp >= 500,

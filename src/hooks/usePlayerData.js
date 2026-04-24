@@ -12,32 +12,32 @@ const MOCK_HISTORY = [
 
 export default function usePlayerData() {
     const [user, setUser] = useState(() => {
-        const saved = localStorage.getItem('beastborne_user');
+        const saved = localStorage.getItem('wakkany_user');
         return saved ? JSON.parse(saved) : null;
     });
 
     const [xp, setXp] = useState(() => {
-        const saved = localStorage.getItem('beastborne_xp');
+        const saved = localStorage.getItem('wakkany_xp');
         return saved ? parseInt(saved, 10) : 0;
     });
 
     const [unlockedSkills, setUnlockedSkills] = useState(() => {
-        const saved = localStorage.getItem('beastborne_skills');
+        const saved = localStorage.getItem('wakkany_skills');
         return saved ? JSON.parse(saved) : [];
     });
 
     const [completedQuests, setCompletedQuests] = useState(() => {
-        const saved = localStorage.getItem('beastborne_quests');
+        const saved = localStorage.getItem('wakkany_quests');
         return saved ? JSON.parse(saved) : [];
     });
 
     const [unlockedAchievements, setUnlockedAchievements] = useState(() => {
-        const saved = localStorage.getItem('beastborne_achievements');
+        const saved = localStorage.getItem('wakkany_achievements');
         return saved ? JSON.parse(saved) : [];
     });
 
     const [xpHistory, setXpHistory] = useState(() => {
-        const saved = localStorage.getItem('beastborne_history');
+        const saved = localStorage.getItem('wakkany_history');
         if (saved) return JSON.parse(saved);
         // Initialisation avec historique cohérent basé sur l'XP actuelle
         return MOCK_HISTORY.map(h => ({ ...h, xp: Math.min(h.xp, xp) }));
@@ -45,14 +45,14 @@ export default function usePlayerData() {
 
     useEffect(() => {
         if (user) {
-            localStorage.setItem('beastborne_user', JSON.stringify(user));
+            localStorage.setItem('wakkany_user', JSON.stringify(user));
         } else {
-            localStorage.removeItem('beastborne_user');
+            localStorage.removeItem('wakkany_user');
         }
     }, [user]);
 
     useEffect(() => {
-        localStorage.setItem('beastborne_xp', xp.toString());
+        localStorage.setItem('wakkany_xp', xp.toString());
         // Mettre à jour le dernier jour de l'historique quand l'XP change
         setXpHistory(prev => {
             const newHistory = [...prev];
@@ -62,19 +62,19 @@ export default function usePlayerData() {
     }, [xp]);
 
     useEffect(() => {
-        localStorage.setItem('beastborne_history', JSON.stringify(xpHistory));
+        localStorage.setItem('wakkany_history', JSON.stringify(xpHistory));
     }, [xpHistory]);
 
     useEffect(() => {
-        localStorage.setItem('beastborne_skills', JSON.stringify(unlockedSkills));
+        localStorage.setItem('wakkany_skills', JSON.stringify(unlockedSkills));
     }, [unlockedSkills]);
 
     useEffect(() => {
-        localStorage.setItem('beastborne_quests', JSON.stringify(completedQuests));
+        localStorage.setItem('wakkany_quests', JSON.stringify(completedQuests));
     }, [completedQuests]);
 
     useEffect(() => {
-        localStorage.setItem('beastborne_achievements', JSON.stringify(unlockedAchievements));
+        localStorage.setItem('wakkany_achievements', JSON.stringify(unlockedAchievements));
     }, [unlockedAchievements]);
 
     return {

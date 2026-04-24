@@ -5,9 +5,10 @@ export const getDominantBranch = (unlockedSkills = []) => {
   if (unlockedSkills.length === 0) return null;
 
   const counts = {
-    force: 0,
-    arcane: 0,
-    ombre: 0
+    heroes: 0,
+    warriors: 0,
+    dinos: 0,
+    cars: 0
   };
 
   unlockedSkills.forEach(skillId => {

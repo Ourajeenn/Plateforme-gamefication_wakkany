@@ -1,45 +1,59 @@
 // src/data/branches.js
 export const BRANCHES = {
-  force: {
-    id: "force",
-    label: "FORCE",
-    color: "#e55c2f",
+  heroes: {
+    id: "heroes",
+    label: "HÉROS",
+    color: "#ff3b30",
+    icon: "🦸‍♂️",
+    nodes: [
+      { id: "h1", name: "Gène X", xp: 25, tier: 0, req: [], desc: "L'éveil d'un potentiel cosmique latent.", x: 40, y: 40 },
+      { id: "h2", name: "Vitesse Flash", xp: 50, tier: 1, req: ["h1"], desc: "Réflexes surhumains et vitesse lumière.", x: 30, y: 30 },
+      { id: "h3a", name: "Vol Stellaire", xp: 75, tier: 2, req: ["h2"], branch: "A", desc: "Défier la gravité et traverser l'espace.", x: 18, y: 35 },
+      { id: "h3b", name: "Armure Tech", xp: 75, tier: 2, req: ["h2"], branch: "B", desc: "Technologie de pointe à la Iron Man.", x: 35, y: 18 },
+      { id: "h4a", name: "AVENGER", xp: 100, tier: 3, req: ["h3a"], ultimate: true, desc: "Le défenseur suprême de la galaxie.", x: 5, y: 40 },
+      { id: "h4b", name: "KRYPTONIEN", xp: 100, tier: 3, req: ["h3b"], ultimate: true, desc: "Invulnérabilité et puissance solaire infinie.", x: 40, y: 5 },
+    ]
+  },
+  warriors: {
+    id: "warriors",
+    label: "GUERRIERS",
+    color: "#c28e3a",
     icon: "⚔️",
     nodes: [
-      { id: "f1", name: "Frappe Brute", xp: 25, tier: 0, req: [], desc: "Augmente la puissance physique de base." },
-      { id: "f2", name: "Endurance", xp: 50, tier: 1, req: ["f1"], desc: "Permet de tenir plus longtemps dans l'effort." },
-      { id: "f3a", name: "Furie", xp: 75, tier: 2, req: ["f2"], branch: "A", desc: "Attaques dévastatrices au détriment de la défense." },
-      { id: "f3b", name: "Bouclier", xp: 75, tier: 2, req: ["f2"], branch: "B", desc: "Protection supérieure et contre-attaques." },
-      { id: "f4a", name: "TITAN", xp: 100, tier: 3, req: ["f3a"], ultimate: true, desc: "La forme ultime de la puissance brute." },
-      { id: "f4b", name: "BASTION", xp: 100, tier: 3, req: ["f3b"], ultimate: true, desc: "Une forteresse inébranlable." },
+      { id: "w1", name: "Esprit Spartiate", xp: 25, tier: 0, req: [], desc: "Discipline de fer et formation au combat.", x: 60, y: 40 },
+      { id: "w2", name: "Rage de Kratos", xp: 50, tier: 1, req: ["w1"], desc: "Force destructrice dévastatrice.", x: 70, y: 30 },
+      { id: "w3a", name: "Marteau de Thor", xp: 75, tier: 2, req: ["w2"], branch: "A", desc: "Manipulation de la foudre et puissance asgardienne.", x: 82, y: 35 },
+      { id: "w3b", name: "Lame d'Achille", xp: 75, tier: 2, req: ["w2"], branch: "B", desc: "Précision mortelle et quasi-invulnérabilité.", x: 65, y: 18 },
+      { id: "w4a", name: "DIEU DE LA GUERRE", xp: 100, tier: 3, req: ["w3a"], ultimate: true, desc: "L'incarnation mythologique du carnage.", x: 95, y: 40 },
+      { id: "w4b", name: "LÉGENDE ANTIQUE", xp: 100, tier: 3, req: ["w3b"], ultimate: true, desc: "Un nom qui résonnera dans l'éternité.", x: 60, y: 5 },
     ]
   },
-  arcane: {
-    id: "arcane",
-    label: "ARCANE",
-    color: "#4a9eff",
-    icon: "🪄",
+  dinos: {
+    id: "dinos",
+    label: "PRIMITIFS",
+    color: "#34c759",
+    icon: "🦖",
     nodes: [
-      { id: "a1", name: "Étincelle", xp: 25, tier: 0, req: [], desc: "Première manifestation de l'énergie éthérée." },
-      { id: "a2", name: "Concentration", xp: 50, tier: 1, req: ["a1"], desc: "Maîtrise du flux magique." },
-      { id: "a3a", name: "Invocation", xp: 75, tier: 2, req: ["a2"], branch: "A", desc: "Appel de créatures des plans supérieurs." },
-      { id: "a3b", name: "Transmutation", xp: 75, tier: 2, req: ["a2"], branch: "B", desc: "Changement de la matière elle-même." },
-      { id: "a4a", name: "ARCHMAGE", xp: 100, tier: 3, req: ["a3a"], ultimate: true, desc: "Maître absolu des arts mystiques." },
-      { id: "a4b", name: "ALCHIMISTE", xp: 100, tier: 3, req: ["a3b"], ultimate: true, desc: "L'art ultime de la création et destruction." },
+      { id: "d1", name: "Instinct Jurassique", xp: 25, tier: 0, req: [], desc: "Retour à l'état sauvage originel.", x: 40, y: 60 },
+      { id: "d2", name: "Peau Écailleuse", xp: 50, tier: 1, req: ["d1"], desc: "Armure naturelle impénétrable.", x: 30, y: 70 },
+      { id: "d3a", name: "Croc Acéré", xp: 75, tier: 2, req: ["d2"], branch: "A", desc: "Morsure mortelle inspirée du T-Rex.", x: 18, y: 65 },
+      { id: "d3b", name: "Agilité Vélociraptor", xp: 75, tier: 2, req: ["d2"], branch: "B", desc: "Vitesse, meute et ruse primitive.", x: 35, y: 82 },
+      { id: "d4a", name: "APEX PREDATOR", xp: 100, tier: 3, req: ["d3a"], ultimate: true, desc: "Le sommet absolu de la chaîne alimentaire.", x: 5, y: 60 },
+      { id: "d4b", name: "TITANOSAURE", xp: 100, tier: 3, req: ["d3b"], ultimate: true, desc: "Une taille colossale qui fait trembler la terre.", x: 40, y: 95 },
     ]
   },
-  ombre: {
-    id: "ombre",
-    label: "OMBRE",
-    color: "#b44fff",
-    icon: "👤",
+  cars: {
+    id: "cars",
+    label: "MÉCANIQUE",
+    color: "#007aff",
+    icon: "🏎️",
     nodes: [
-      { id: "o1", name: "Discrétion", xp: 25, tier: 0, req: [], desc: "L'art de ne pas être vu." },
-      { id: "o2", name: "Piège", xp: 50, tier: 1, req: ["o1"], desc: "Préparation du terrain pour surprendre l'ennemi." },
-      { id: "o3a", name: "Assassinat", xp: 75, tier: 2, req: ["o2"], branch: "A", desc: "Frappes chirurgicales et létales." },
-      { id: "o3b", name: "Évasion", xp: 75, tier: 2, req: ["o2"], branch: "B", desc: "Disparition totale et mobilité extrême." },
-      { id: "o4a", name: "FANTÔME", xp: 100, tier: 3, req: ["o3a"], ultimate: true, desc: "L'ombre qui frappe et disparaît." },
-      { id: "o4b", name: "OMBRE ÉTERNELLE", xp: 100, tier: 3, req: ["o3b"], ultimate: true, desc: "Devenir un avec les ténèbres." },
+      { id: "c1", name: "Allumage V8", xp: 25, tier: 0, req: [], desc: "La puissance du moteur rugissant.", x: 60, y: 60 },
+      { id: "c2", name: "Aérodynamisme", xp: 50, tier: 1, req: ["c1"], desc: "Fendre l'air à des vitesses hallucinantes.", x: 70, y: 70 },
+      { id: "c3a", name: "Turbo Boost", xp: 75, tier: 2, req: ["c2"], branch: "A", desc: "Accélération nitro fulgurante.", x: 82, y: 65 },
+      { id: "c3b", name: "Châssis Renforcé", xp: 75, tier: 2, req: ["c2"], branch: "B", desc: "Robustesse blindée de type F1.", x: 65, y: 82 },
+      { id: "c4a", name: "HYPERCAR", xp: 100, tier: 3, req: ["c3a"], ultimate: true, desc: "La perfection de l'ingénierie automobile mondiale.", x: 95, y: 60 },
+      { id: "c4b", name: "CYBER-BOLIDE", xp: 100, tier: 3, req: ["c3b"], ultimate: true, desc: "Un véhicule venu tout droit du futur.", x: 60, y: 95 },
     ]
   }
 };

@@ -83,23 +83,30 @@ export default function Avatar({ xp, unlockedSkills = [] }) {
             <circle cx="100" cy="70" r="40" fill="none" stroke={branchColor} strokeWidth="1" strokeDasharray="4 8" className="animate-spin-slow" opacity="0.3" />
             
             {/* Weapon based on branch */}
-            {dominant === 'force' && (
-              <g transform="translate(155, 120) rotate(-15)">
-                <rect x="-2" y="0" width="4" height="60" fill="#242429" />
-                <path d="M-10,0 L10,0 L0,-40 Z" fill={branchColor} filter="url(#glow)" />
-              </g>
-            )}
-            {dominant === 'arcane' && (
+            {dominant === 'heroes' && (
               <g transform="translate(155, 120)">
-                <rect x="-1" y="0" width="2" height="70" fill="#242429" />
-                <circle cx="0" cy="0" r="8" fill={branchColor} filter="url(#glow)" className="animate-pulse" />
-                <circle cx="0" cy="0" r="14" fill="none" stroke={branchColor} strokeWidth="1" strokeDasharray="2 4" className="animate-spin" />
+                <circle cx="0" cy="0" r="15" fill="none" stroke={branchColor} strokeWidth="3" filter="url(#glow)" />
+                <path d="M-8,-8 L8,8 M-8,8 L8,-8" stroke={branchColor} strokeWidth="2" filter="url(#glow)" />
               </g>
             )}
-            {dominant === 'ombre' && (
-              <g transform="translate(155, 120) rotate(45)">
-                <path d="M-2,0 L2,0 L0,-35 Z" fill={branchColor} filter="url(#glow)" />
-                <path d="M-2,10 L2,10 L0,45 Z" fill={branchColor} filter="url(#glow)" />
+            {dominant === 'warriors' && (
+              <g transform="translate(155, 120) rotate(-15)">
+                <rect x="-3" y="0" width="6" height="60" fill="#242429" />
+                <path d="M-12,0 L12,0 L0,-45 Z" fill={branchColor} filter="url(#glow)" />
+              </g>
+            )}
+            {dominant === 'dinos' && (
+              <g transform="translate(155, 120) rotate(20)">
+                <path d="M-5,0 Q15,-30 25,0 Q15,10 -5,0" fill={branchColor} filter="url(#glow)" />
+                <path d="M-10,15 Q10,-15 20,15 Q10,25 -10,15" fill={branchColor} filter="url(#glow)" />
+                <path d="M0,30 Q20,0 30,30 Q20,40 0,30" fill={branchColor} filter="url(#glow)" />
+              </g>
+            )}
+            {dominant === 'cars' && (
+              <g transform="translate(155, 120)">
+                <rect x="-4" y="-10" width="8" height="60" fill="#242429" />
+                <circle cx="0" cy="-10" r="12" fill="none" stroke={branchColor} strokeWidth="4" filter="url(#glow)" className="animate-spin-slow" />
+                <circle cx="0" cy="-10" r="4" fill={branchColor} />
               </g>
             )}
           </g>
