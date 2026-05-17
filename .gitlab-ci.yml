@@ -1,0 +1,35 @@
+image: node:20-alpine
+
+stages:
+  - test
+  - deploy
+
+cache:
+  key:
+    files:
+      - package-lock.json
+  paths:
+    - node_modules/
+
+test_lint:
+  stage: test
+  script:
+    - npm ci
+    - npm run lint
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_BRANCH == "dev"
+
+pages:
+  stage: deploy
+  script:
+    - npm ci
+    - npm run build
+    - rm -rf public
+    - mv dist public
+  artifacts:
+    paths:
+      - public
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_BRANCH == "dev"

@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { storage } from '../utils/storageHelpers';
+import { supabase } from '../utils/supabaseClient';
 
 const MOCK_HISTORY = [
     { day: 'Lun', xp: 20 },
@@ -11,82 +13,110 @@ const MOCK_HISTORY = [
 ];
 
 export default function usePlayerData() {
-    const [user, setUser] = useState(() => {
-        const saved = localStorage.getItem('wakkany_user');
-        return saved ? JSON.parse(saved) : null;
-    });
+    const [user, setUser] = useState(null);
+    const [xp, setXp] = useState(0);
+    const [unlockedSkills, setUnlockedSkills] = useState([]);
+    const [completedQuests, setCompletedQuests] = useState([]);
+    const [unlockedAchievements, setUnlockedAchievements] = useState([]);
+    const [xpHistory, setXpHistory] = useState(MOCK_HISTORY);
+    const [isLoaded, setIsLoaded] = useState(false);
 
-    const [xp, setXp] = useState(() => {
-        const saved = localStorage.getItem('wakkany_xp');
-        return saved ? parseInt(saved, 10) : 0;
-    });
-
-    const [unlockedSkills, setUnlockedSkills] = useState(() => {
-        const saved = localStorage.getItem('wakkany_skills');
-        return saved ? JSON.parse(saved) : [];
-    });
-
-    const [completedQuests, setCompletedQuests] = useState(() => {
-        const saved = localStorage.getItem('wakkany_quests');
-        return saved ? JSON.parse(saved) : [];
-    });
-
-    const [unlockedAchievements, setUnlockedAchievements] = useState(() => {
-        const saved = localStorage.getItem('wakkany_achievements');
-        return saved ? JSON.parse(saved) : [];
-    });
-
-    const [xpHistory, setXpHistory] = useState(() => {
-        const saved = localStorage.getItem('wakkany_history');
-        if (saved) return JSON.parse(saved);
-        // Initialisation avec historique cohérent basé sur l'XP actuelle
-        return MOCK_HISTORY.map(h => ({ ...h, xp: Math.min(h.xp, xp) }));
-    });
-
+    // Initial load
     useEffect(() => {
-        if (user) {
-            localStorage.setItem('wakkany_user', JSON.stringify(user));
-        } else {
-            localStorage.removeItem('wakkany_user');
+        async function loadSession() {
+            const savedSession = localStorage.getItem('wakkany_active_session');
+            
+            // Fallback for previous data format migration
+            const legacyUser = localStorage.getItem('wakkany_user');
+            
+            if (savedSession || legacyUser) {
+                let username = savedSession;
+                if (!username && legacyUser) {
+                    const parsedUser = JSON.parse(legacyUser);
+                    username = parsedUser.name;
+                }
+
+                if (username) {
+                    const playerData = await storage.getItem(`player:${username.toLowerCase()}`, { shared: false });
+                    
+                    if (playerData) {
+                        setUser(playerData.user);
+                        setXp(playerData.xp || 0);
+                        setUnlockedSkills(playerData.unlockedSkills || []);
+                        setCompletedQuests(playerData.completedQuests || []);
+                        setUnlockedAchievements(playerData.unlockedAchievements || []);
+                        if (playerData.xpHistory) setXpHistory(playerData.xpHistory);
+                    } else if (legacyUser) {
+                        // Migration from old storage structure
+                        setUser(JSON.parse(legacyUser));
+                        setXp(parseInt(localStorage.getItem('wakkany_xp') || '0', 10));
+                        setUnlockedSkills(JSON.parse(localStorage.getItem('wakkany_skills') || '[]'));
+                        setCompletedQuests(JSON.parse(localStorage.getItem('wakkany_quests') || '[]'));
+                        setUnlockedAchievements(JSON.parse(localStorage.getItem('wakkany_achievements') || '[]'));
+                    }
+                }
+            }
+            setIsLoaded(true);
         }
-    }, [user]);
-
-    useEffect(() => {
-        localStorage.setItem('wakkany_xp', xp.toString());
-        // Mettre à jour le dernier jour de l'historique quand l'XP change
-        setXpHistory(prev => {
-            const newHistory = [...prev];
-            newHistory[newHistory.length - 1].xp = xp;
-            return newHistory;
-        });
-    }, [xp]);
-
-    useEffect(() => {
-        localStorage.setItem('wakkany_history', JSON.stringify(xpHistory));
-    }, [xpHistory]);
-
-    useEffect(() => {
-        localStorage.setItem('wakkany_skills', JSON.stringify(unlockedSkills));
-    }, [unlockedSkills]);
-
-    useEffect(() => {
-        localStorage.setItem('wakkany_quests', JSON.stringify(completedQuests));
-    }, [completedQuests]);
-
-    useEffect(() => {
-        localStorage.setItem('wakkany_achievements', JSON.stringify(unlockedAchievements));
-    }, [unlockedAchievements]);
-
-    useEffect(() => {
-        const handleStorage = (e) => {
-            if (e.key === 'wakkany_xp') setXp(parseInt(e.newValue, 10));
-            if (e.key === 'wakkany_skills') setUnlockedSkills(JSON.parse(e.newValue));
-            if (e.key === 'wakkany_quests') setCompletedQuests(JSON.parse(e.newValue));
-            if (e.key === 'wakkany_user') setUser(JSON.parse(e.newValue));
-        };
-        window.addEventListener('storage', handleStorage);
-        return () => window.removeEventListener('storage', handleStorage);
+        loadSession();
     }, []);
+
+    // Save on changes
+    useEffect(() => {
+        if (!isLoaded) return;
+
+        if (user) {
+            localStorage.setItem('wakkany_active_session', user.name);
+            
+            let newHistory = [...xpHistory];
+            if (newHistory.length > 0 && newHistory[newHistory.length - 1].xp !== xp) {
+                 newHistory[newHistory.length - 1] = { ...newHistory[newHistory.length - 1], xp };
+                 setXpHistory(newHistory);
+            }
+
+            const playerData = {
+                user,
+                xp,
+                unlockedSkills,
+                completedQuests,
+                unlockedAchievements,
+                xpHistory: newHistory
+            };
+            
+            storage.setItem(`player:${user.name.toLowerCase()}`, playerData, { shared: false });
+        } else {
+            localStorage.removeItem('wakkany_active_session');
+        }
+    }, [user, xp, unlockedSkills, completedQuests, unlockedAchievements, isLoaded]);
+
+    // Supabase Realtime synchronization for profile and XP updates
+    useEffect(() => {
+        if (!user) return;
+
+        const isSupabaseConfigured = 
+            import.meta.env.VITE_SUPABASE_URL && 
+            import.meta.env.VITE_SUPABASE_URL !== 'https://placeholder.supabase.co';
+
+        if (!isSupabaseConfigured) return;
+
+        const channel = supabase
+            .channel(`player-realtime-${user.name.toLowerCase()}`)
+            .on('postgres_changes', { 
+                event: 'UPDATE', 
+                schema: 'public', 
+                table: 'profiles',
+                filter: `pseudo=eq.${user.name}` 
+            }, (payload) => {
+                if (payload.new && payload.new.xp !== xp) {
+                    setXp(payload.new.xp || 0);
+                }
+            })
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
+    }, [user, xp]);
 
     return {
         user, setUser,

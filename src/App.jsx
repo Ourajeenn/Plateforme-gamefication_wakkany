@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Routes, Route, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import ProfileSetup from './components/ProfileSetup';
 import ProfileView from './components/ProfileView';
 import Leaderboard from './components/Leaderboard';
@@ -18,10 +19,41 @@ import { realtime } from './utils/realtime';
 import { getDominantBranch, getTotalXp } from './utils/xpHelpers';
 import { getLevel } from './data/levels';
 import { useSoundFX } from './hooks/useSoundFX';
+import Preloader from './components/Preloader';
+
+import QuizHome from './components/quiz/QuizHome';
+import QuizConfig from './components/quiz/QuizConfig';
+import PackProfile from './components/quiz/PackProfile';
+import FamilyGame from './components/quiz/FamilyGame';
 
 export default function App() {
-  const [view, setView] = useState('landing'); // 'landing', 'setup', 'dashboard'
-  const [dashboardTab, setDashboardTab] = useState('profile'); // 'profile', 'skills', 'quests', 'rankings', 'map'
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const isSetup = location.pathname === '/setup';
+  const isDashboard = location.pathname.startsWith('/dashboard');
+  const isQuiz = location.pathname.startsWith('/quiz');
+
+  const dashboardTab = isDashboard ? location.pathname.replace('/dashboard/', '') || 'profile' : 'profile';
+  const view = isSetup ? 'setup' : isDashboard ? 'dashboard' : isQuiz ? 'quiz' : 'landing';
+
+  const setDashboardTab = (tab) => {
+    if (tab === 'quiz') {
+      navigate('/quiz');
+    } else {
+      navigate(`/dashboard/${tab}`);
+    }
+  };
+  const setView = (v) => {
+     if (v === 'landing') navigate('/');
+     if (v === 'setup') navigate('/setup');
+     if (v === 'dashboard') navigate('/dashboard/profile');
+     if (v === 'quiz') navigate('/quiz');
+  };
+
+  const handlePreloaderComplete = useCallback(() => {
+    setIsLoading(false);
+  }, []);
   const { user, setUser, xp, setXp, unlockedSkills, setUnlockedSkills, completedQuests, setCompletedQuests, xpHistory, unlockedAchievements, setUnlockedAchievements } = usePlayerData();
   const [isLoading, setIsLoading] = useState(true);
   const cumulativeXp = getTotalXp(unlockedSkills) + xp;
@@ -82,10 +114,7 @@ export default function App() {
       });
     }
 
-    // Initial loading simulation
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 3500);
+    // Initial loading simulation removed, Preloader component handles its own timeout.
 
     // Flash Quest Timer
     const questTimer = setInterval(() => {
@@ -93,7 +122,6 @@ export default function App() {
     }, 1000);
 
     return () => {
-      clearTimeout(timer);
       clearInterval(questTimer);
     };
   }, []);
@@ -161,65 +189,7 @@ export default function App() {
     if (el) el.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const Preloader = () => {
-    const [loreIndex, setLoreIndex] = useState(0);
-    const lores = [
-      "Synchronisation des réalités alternatives...",
-      "Chargement de la forge du Multivers...",
-      "Alignement des flux d'énergie éthérée...",
-      "Éveil du potentiel latent des champions...",
-      "Préparation de l'arène dimensionnelle..."
-    ];
 
-    useEffect(() => {
-      const loreTimer = setInterval(() => {
-        setLoreIndex(prev => (prev + 1) % lores.length);
-      }, 3000);
-      return () => clearInterval(loreTimer);
-    }, []);
-
-    return (
-      <div className="fixed inset-0 z-[200] bg-black flex flex-col items-center justify-center overflow-hidden">
-        <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_#c28e3a10_0%,_transparent_70%)] animate-pulse"></div>
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#c28e3a] to-transparent opacity-20"></div>
-        </div>
-        
-        <div className="relative mb-16 group">
-          <div className="absolute inset-0 bg-[#c28e3a] blur-[120px] opacity-20 group-hover:opacity-50 transition-all duration-1000"></div>
-          <iconify-icon icon="lucide:triangle" width="120" height="120" className="text-[#c28e3a] rotate-180 drop-shadow-[0_0_30px_rgba(194,142,58,0.4)] transition-transform duration-[3s] hover:rotate-0"></iconify-icon>
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
-            <iconify-icon icon="lucide:loader-2" width="48" height="48" className="text-white/10 animate-spin"></iconify-icon>
-          </div>
-        </div>
-
-        <div className="space-y-4 flex flex-col items-center">
-          <div className="text-[#c28e3a] font-heading font-black italic tracking-[1em] uppercase text-xl animate-pulse">
-            WAKKANY
-          </div>
-          <div className="w-80 h-[2px] bg-zinc-900 rounded-full overflow-hidden relative border border-white/5 shadow-2xl">
-            <div className="absolute inset-y-0 left-0 bg-gradient-to-r from-transparent via-[#c28e3a] to-transparent w-full animate-progress-run"></div>
-          </div>
-          <div className="text-zinc-600 font-monda text-[10px] uppercase tracking-[0.4em] mt-4 h-4 overflow-hidden text-center max-w-sm px-8">
-             <div key={loreIndex} className="animate-fade-in italic">
-               "{lores[loreIndex]}"
-             </div>
-          </div>
-        </div>
-
-        {/* Binary Rain Effect (Faint) */}
-        <div className="absolute inset-0 pointer-events-none opacity-5 font-mono text-[8px] text-[#c28e3a] grid grid-cols-12 gap-4 overflow-hidden">
-           {[...Array(12)].map((_, i) => (
-             <div key={i} className="animate-slide-down flex flex-col" style={{ animationDelay: `${Math.random() * 2}s` }}>
-               {[...Array(50)].map((_, j) => (
-                 <span key={j}>{Math.round(Math.random())}</span>
-               ))}
-             </div>
-           ))}
-        </div>
-      </div>
-    );
-  };
 
   const LandingNav = () => (
     <nav className="fixed top-6 left-1/2 -translate-x-1/2 w-[95%] max-w-7xl bg-black/40 backdrop-blur-2xl rounded-2xl border border-white/10 flex items-center justify-between px-8 py-4 z-[100] transition-all hover:bg-black/60 shadow-2xl shadow-black/50">
@@ -234,6 +204,7 @@ export default function App() {
       <div className="hidden lg:flex items-center gap-10 text-white text-[11px] font-black uppercase tracking-[0.2em]">
         <button onClick={() => { setView('landing'); setLandingTab(null); scrollToSection('hero'); }} className="hover:text-[#c28e3a] transition-all hover:tracking-[0.3em]">ACCUEIL</button>
         <button onClick={() => setLandingTab('waitlist')} className={`transition-all hover:text-[#c28e3a] ${landingTab === 'waitlist' ? 'text-[#c28e3a]' : 'text-zinc-500'}`}>LISTE D'ATTENTE</button>
+        <button onClick={() => navigate('/quiz')} className="text-zinc-500 hover:text-[#c28e3a] transition-all">QUIZ SALON</button>
         <button onClick={() => {
           if (user) setView('dashboard');
           else handleJoinClick();
@@ -530,7 +501,19 @@ export default function App() {
     );
   };
 
-  if (isLoading) return <Preloader />;
+  if (isLoading) return <Preloader onComplete={handlePreloaderComplete} />;
+
+  if (view === 'quiz') {
+    return (
+      <Routes>
+        <Route path="/quiz" element={<QuizHome />} />
+        <Route path="/quiz/config" element={<QuizConfig />} />
+        <Route path="/quiz/profile" element={<PackProfile />} />
+        <Route path="/quiz/play" element={<FamilyGame />} />
+        <Route path="*" element={<Navigate to="/quiz" replace />} />
+      </Routes>
+    );
+  }
 
   if (view === 'setup') {
     return <ProfileSetup onComplete={handleProfileComplete} />;
@@ -794,9 +777,10 @@ export default function App() {
 
               <div className="flex items-center gap-6">
                  <div className="hidden lg:flex bg-black/40 border border-white/10 p-1 rounded-xl">
-                {[
+                 {[
                   { id: 'profile', label: 'Évolution', icon: 'lucide:user' },
                   { id: 'quests', label: 'Quêtes', icon: 'lucide:scroll' },
+                  { id: 'quiz', label: 'Quiz TV', icon: 'lucide:gamepad-2' },
                   { id: 'avatar', label: 'Avatar', icon: 'lucide:box' },
                   { id: 'stats', label: 'Stats', icon: 'lucide:bar-chart-3' },
                   { id: 'map', label: 'Carte', icon: 'lucide:map' },
@@ -863,13 +847,26 @@ export default function App() {
                 </div>
               )}
 
+              {dashboardTab === 'quiz' && (
+                <div className="text-center py-20 flex flex-col items-center">
+                  <iconify-icon icon="lucide:gamepad-2" width="64" className="text-[#c28e3a] mb-6 animate-bounce"></iconify-icon>
+                  <h2 className="text-3xl font-heading font-black italic uppercase mb-4">L'Arène du Savoir</h2>
+                  <p className="text-zinc-500 mb-8 max-w-md mx-auto">Jouez en famille dans le mode TV / Salon pour accumuler de l'XP collective !</p>
+                  <button 
+                    onClick={() => navigate('/quiz')}
+                    className="px-8 py-4 bg-[#c28e3a] text-black font-black uppercase tracking-widest rounded-xl hover:bg-white transition-all"
+                  >
+                    Lancer le Salon Quiz
+                  </button>
+                </div>
+              )}
+
               {dashboardTab === 'quests' && (
-                <TrainingCenter 
-                  xp={xp} 
+                <QuestPanel 
+                  xp={cumulativeXp} 
                   unlockedSkills={unlockedSkills}
                   completedQuests={completedQuests}
                   onCompleteQuest={handleCompleteQuest} 
-                  onPenalty={handleQuizPenalty}
                   flashQuests={flashQuests}
                 />
               )}
