@@ -1,4 +1,5 @@
 import { supabase } from './supabaseClient';
+import { getDominantBranch } from './xpHelpers';
 
 const isSupabaseConfigured = 
   import.meta.env.VITE_SUPABASE_URL && 
@@ -22,7 +23,8 @@ export const storage = {
               avatar_state: { faction: user.faction, academy: user.academy },
               xp: xp,
               level: Math.floor(xp / 100) + 1,
-              school: user.academy || 'Nomade'
+              school: user.academy || 'Nomade',
+              dominant_branch: getDominantBranch(unlockedSkills) || 'Novice'
             });
 
           if (profileError) console.error("Supabase Profile Sync Error:", profileError);
@@ -34,6 +36,15 @@ export const storage = {
               .from('unlocked_skills')
               .insert(unlockedSkills.map(skillId => ({ user_id: authUser.id, skill_id: skillId })));
             if (skillError) console.error("Supabase Skills Sync Error:", skillError);
+          }
+
+          // Sync completed quests
+          await supabase.from('completed_quests').delete().eq('user_id', authUser.id);
+          if (completedQuests && completedQuests.length > 0) {
+            const { error: questError } = await supabase
+              .from('completed_quests')
+              .insert(completedQuests.map(questId => ({ user_id: authUser.id, quest_id: questId })));
+            if (questError) console.error("Supabase Quests Sync Error:", questError);
           }
         }
       }
@@ -65,6 +76,11 @@ export const storage = {
             .select('skill_id')
             .eq('user_id', authUser.id);
 
+          const { data: quests, error: questsError } = await supabase
+            .from('completed_quests')
+            .select('quest_id')
+            .eq('user_id', authUser.id);
+
           if (profile && !profileError) {
             return {
               user: {
@@ -75,7 +91,7 @@ export const storage = {
               },
               xp: profile.xp || 0,
               unlockedSkills: skills ? skills.map(s => s.skill_id) : [],
-              completedQuests: [],
+              completedQuests: quests ? quests.map(q => q.quest_id) : [],
               unlockedAchievements: [],
               xpHistory: []
             };
