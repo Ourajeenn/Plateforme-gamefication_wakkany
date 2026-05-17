@@ -12,6 +12,14 @@ export default function Preloader({ onComplete }) {
   const [tipIndex, setTipIndex] = useState(0);
 
   useEffect(() => {
+    // Masquer la scrollbar globale pendant le préchargement
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, []);
+
+  useEffect(() => {
     // Rotation des astuces
     const tipInterval = setInterval(() => {
       setTipIndex(prev => (prev + 1) % TIPS.length);
