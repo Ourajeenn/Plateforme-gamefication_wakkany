@@ -305,7 +305,7 @@ Les quêtes ne sont plus de simples checkboxes : chacune contient une **énigme 
 ### Appel API Claude (prompt type)
 
 ```js
-const prompt = `Tu es un maître des énigmes dans le jeu Beastborne.
+const prompt = `Tu es un maître des énigmes dans le jeu Wakkany.
 Génère une énigme pour: "${quest.title}" (thème: ${quest.riddleTheme}, difficulté: ${quest.difficulty}).
 
 Réponds UNIQUEMENT en JSON valide:
@@ -492,5 +492,5 @@ window.storage (claude.ai artifact storage)
 
 ---
 
-*Document généré pour le projet Beastborne — Champion's Path*
+*Document généré pour le projet Wakkany — Champion's Path*
 *Dernière mise à jour : 2026*
