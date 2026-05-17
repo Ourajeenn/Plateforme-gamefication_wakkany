@@ -18,10 +18,11 @@ export const storage = {
             .from('profiles')
             .upsert({
               id: authUser.id,
-              pseudo: user.name,
+              username: user.name,
               avatar_state: { faction: user.faction, academy: user.academy },
               xp: xp,
-              level: Math.floor(xp / 100) + 1
+              level: Math.floor(xp / 100) + 1,
+              school: user.academy || 'Nomade'
             });
 
           if (profileError) console.error("Supabase Profile Sync Error:", profileError);
@@ -67,9 +68,9 @@ export const storage = {
           if (profile && !profileError) {
             return {
               user: {
-                name: profile.pseudo,
+                name: profile.username,
                 faction: profile.avatar_state?.faction || 'heroes',
-                academy: profile.avatar_state?.academy || 'Aethermoor',
+                academy: profile.school || 'Nomade',
                 clan: null
               },
               xp: profile.xp || 0,
