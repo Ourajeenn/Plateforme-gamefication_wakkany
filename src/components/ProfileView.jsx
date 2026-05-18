@@ -8,6 +8,18 @@ import { BRANCHES } from '../data/branches';
 export default function ProfileView({ user, xp, unlockedSkills, unlockedAchievements }) {
   const [scanning, setScanning] = useState(false);
   const [scanApproved, setScanApproved] = useState(false);
+  const [checkedDays, setCheckedDays] = useState([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+
+  const toggleDay = (day) => {
+    if (checkedDays.includes(day)) {
+      setCheckedDays(prev => prev.filter(d => d !== day));
+    } else {
+      setCheckedDays(prev => [...prev, day]);
+      playScanSFX();
+    }
+  };
+
+  const calendarProgressPercent = Math.round((checkedDays.length / 31) * 100);
 
   const currentLevel = getLevel(xp);
   const nextLevelXp = currentLevel.nextXp || (currentLevel.xp + 100);
@@ -348,8 +360,184 @@ export default function ProfileView({ user, xp, unlockedSkills, unlockedAchievem
         </div>
       </div>
       
+      {/* Dynamic Habit Tracker Calendar & Aesthetic Elements Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mt-10">
+        {/* Habit Tracker Calendar */}
+        <div className="lg:col-span-8 bg-zinc-950 border border-purple-500/10 rounded-3xl p-8 shadow-[inset_0_0_30px_rgba(168,85,247,0.05),0_10px_30px_rgba(0,0,0,0.8)] relative overflow-hidden flex flex-col justify-between">
+          <div className="absolute inset-0 bg-radial-gradient from-purple-900/5 via-transparent to-transparent opacity-50 pointer-events-none"></div>
+          
+          <div>
+            {/* Calendar Header matching Image 3 */}
+            <div className="text-center mb-6">
+              <h2 className="text-white text-3xl font-heading font-black italic uppercase tracking-[0.3em] filter drop-shadow-[0_0_10px_rgba(168,85,247,0.3)]">
+                MARCH
+              </h2>
+            </div>
+
+            {/* Weeks Subheader */}
+            <div className="grid grid-cols-5 gap-4 text-center border-b border-purple-500/10 pb-4 mb-4">
+              {['W-09', 'W-10', 'W-11', 'W-12', 'W-13'].map((week, idx) => (
+                <span key={idx} className="text-purple-400 text-[10px] font-black uppercase tracking-widest">
+                  {week}
+                </span>
+              ))}
+            </div>
+
+            {/* Calendar Grid matching Image 3 */}
+            <div className="space-y-4 relative z-10">
+              {/* Row 1 (Checkboxes & days 10, 11) */}
+              <div className="grid grid-cols-5 gap-4">
+                {/* W-09 Day 1 */}
+                <div className="flex justify-center">
+                  <div className="w-12 h-12 rounded-xl bg-purple-500/20 border border-purple-400/40 shadow-[0_0_10px_rgba(168,85,247,0.3)] flex items-center justify-center text-purple-300 font-bold text-lg">
+                    ✓
+                  </div>
+                </div>
+
+                {/* W-10 Day 2 */}
+                <div className="flex justify-center">
+                  <div className="w-12 h-12 rounded-xl bg-purple-500/20 border border-purple-400/40 shadow-[0_0_10px_rgba(168,85,247,0.3)] flex items-center justify-center text-purple-300 font-bold text-lg">
+                    ✓
+                  </div>
+                </div>
+
+                {/* W-11 Days 3 & 4 (side by side in column) */}
+                <div className="flex justify-center gap-2">
+                  <div className="w-8 h-12 rounded-lg bg-purple-500/20 border border-purple-400/40 shadow-[0_0_10px_rgba(168,85,247,0.3)] flex items-center justify-center text-purple-300 font-bold text-sm">✓</div>
+                  <div className="w-8 h-12 rounded-lg bg-purple-500/20 border border-purple-400/40 shadow-[0_0_10px_rgba(168,85,247,0.3)] flex items-center justify-center text-purple-300 font-bold text-sm">✓</div>
+                </div>
+
+                {/* W-12 Days 5, 6 & Day 10 */}
+                <div className="flex justify-center gap-1.5 items-center">
+                  <div className="w-6 h-10 rounded bg-purple-500/20 border border-purple-400/40 shadow-[0_0_10px_rgba(168,85,247,0.3)] flex items-center justify-center text-purple-300 font-bold text-[10px]">✓</div>
+                  <div className="w-6 h-10 rounded bg-purple-500/20 border border-purple-400/40 shadow-[0_0_10px_rgba(168,85,247,0.3)] flex items-center justify-center text-purple-300 font-bold text-[10px]">✓</div>
+                  <button 
+                    onClick={() => toggleDay(10)}
+                    className={`w-8 h-10 rounded border font-heading font-black italic text-xs transition-all duration-300 cursor-pointer 
+                      ${checkedDays.includes(10) ? 'bg-purple-500/20 border-purple-400 text-purple-300 shadow-[0_0_10px_rgba(168,85,247,0.5)]' : 'bg-zinc-900 border-purple-500/25 text-white/80 hover:border-purple-400'}`}
+                  >
+                    {checkedDays.includes(10) ? '✓' : '10'}
+                  </button>
+                </div>
+
+                {/* W-13 Day 11 */}
+                <div className="flex justify-center">
+                  <button 
+                    onClick={() => toggleDay(11)}
+                    className={`w-12 h-12 rounded-xl border font-heading font-black italic text-sm transition-all duration-300 cursor-pointer 
+                      ${checkedDays.includes(11) ? 'bg-purple-500/20 border-purple-400 text-purple-300 shadow-[0_0_10px_rgba(168,85,247,0.5)]' : 'bg-zinc-900 border-purple-500/25 text-white/80 hover:border-purple-400'}`}
+                  >
+                    {checkedDays.includes(11) ? '✓' : '11'}
+                  </button>
+                </div>
+              </div>
+
+              {/* Rows of dates (12 to 31) */}
+              <div className="grid grid-cols-7 gap-3 pt-4 border-t border-purple-500/5 text-center">
+                {[12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31].map((day) => (
+                  <button
+                    key={day}
+                    onClick={() => toggleDay(day)}
+                    className={`w-9 h-9 mx-auto rounded-lg border font-monda font-bold text-xs transition-all duration-300 cursor-pointer flex items-center justify-center
+                      ${checkedDays.includes(day) ? 'bg-purple-500/20 border-purple-400 text-purple-300 shadow-[0_0_10px_rgba(168,85,247,0.5)]' : 'bg-zinc-950 border-purple-500/10 text-zinc-500 hover:border-purple-400/50 hover:text-white'}`}
+                  >
+                    {checkedDays.includes(day) ? '✓' : day}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* GOAL PROGRESS bar at bottom of calendar */}
+          <div className="mt-6 pt-4 border-t border-purple-500/10">
+            <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-purple-400 mb-2">
+              <div className="flex items-center gap-2">
+                <iconify-icon icon="lucide:compass" className="text-purple-400 animate-spin-slow" width="14"></iconify-icon>
+                <span>GOAL PROGRESS</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span>{calendarProgressPercent}% COMPLETE</span>
+                <iconify-icon icon="lucide:scroll" className="text-purple-400 animate-pulse" width="14"></iconify-icon>
+              </div>
+            </div>
+            <div className="w-full h-3 bg-zinc-900 rounded-full overflow-hidden border border-purple-500/15 relative">
+              <div 
+                className="h-full rounded-full bg-gradient-to-r from-purple-900 via-purple-500 to-pink-500 shadow-[0_0_10px_rgba(168,85,247,0.5)] transition-all duration-500 ease-out" 
+                style={{ width: `${calendarProgressPercent}%` }}
+              ></div>
+            </div>
+          </div>
+        </div>
+
+        {/* Solo Leveling Aesthetic Elements & Item Inventory */}
+        <div className="lg:col-span-4 bg-zinc-950 border border-purple-500/10 rounded-3xl p-8 shadow-[inset_0_0_30px_rgba(168,85,247,0.05),0_10px_30px_rgba(0,0,0,0.8)] relative overflow-hidden flex flex-col justify-between">
+          <div className="absolute inset-0 bg-radial-gradient from-purple-900/5 via-transparent to-transparent opacity-50 pointer-events-none"></div>
+          
+          <div>
+            <h3 className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.3em] mb-6 text-center">
+              Aesthetic Elements
+            </h3>
+
+            {/* Top row of 4 circular RPG runes */}
+            <div className="grid grid-cols-4 gap-2 mb-6">
+              {['lucide:activity', 'lucide:swords', 'lucide:flame', 'lucide:gem'].map((icon, idx) => (
+                <div key={idx} className="aspect-square rounded-full border border-purple-500/20 bg-zinc-900/50 flex items-center justify-center text-purple-400/80 hover:border-purple-400 hover:text-white transition-all shadow-[0_0_10px_rgba(168,85,247,0.1)] hover:shadow-[0_0_15px_rgba(168,85,247,0.3)]">
+                  <iconify-icon icon={icon} width="16"></iconify-icon>
+                </div>
+              ))}
+            </div>
+
+            {/* Divider 1 */}
+            <div className="flex items-center justify-center gap-3 my-4">
+              <div className="h-[1px] bg-purple-500/20 flex-1"></div>
+              <span className="text-[10px] text-purple-500/60 font-black tracking-widest">❖</span>
+              <div className="h-[1px] bg-purple-500/20 flex-1"></div>
+            </div>
+
+            {/* Faction Runes Grid / Cute game items matching Image 3 */}
+            <div className="grid grid-cols-3 gap-3 mb-6">
+              {[
+                { icon: 'game-icons:potion-ball', color: '#ff3b30', name: 'HP POTION' },
+                { icon: 'game-icons:crystal-wand', color: '#a855f7', name: 'AETHER' },
+                { icon: 'game-icons:dragon-shield', color: '#c28e3a', name: 'LEGION' }
+              ].map((item, idx) => (
+                <div key={idx} className="bg-black/50 border border-purple-500/10 p-3 rounded-xl flex flex-col items-center justify-center text-center hover:border-purple-500/30 transition-all group">
+                  <iconify-icon icon={item.icon} width="24" style={{ color: item.color }} className="group-hover:scale-110 transition-transform filter drop-shadow-[0_0_5px_rgba(255,255,255,0.1)]"></iconify-icon>
+                  <span className="text-[7px] text-zinc-500 font-bold uppercase tracking-widest mt-2">{item.name}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Divider 2 */}
+            <div className="flex items-center justify-center gap-3 my-4">
+              <div className="h-[1px] bg-purple-500/20 flex-1"></div>
+              <span className="text-[10px] text-purple-500/60 font-black tracking-widest">✦</span>
+              <div className="h-[1px] bg-purple-500/20 flex-1"></div>
+            </div>
+
+            {/* Cute Pixel RPG Monsters/Items row */}
+            <div className="grid grid-cols-4 gap-2">
+              {[
+                { icon: 'game-icons:crown', color: '#eab308' },
+                { icon: 'game-icons:elixir', color: '#3b82f6' },
+                { icon: 'game-icons:dinosaur-bones', color: '#34c759' },
+                { icon: 'game-icons:crystal-growth', color: '#ec4899' }
+              ].map((item, idx) => (
+                <div key={idx} className="aspect-square rounded-xl bg-zinc-900/50 border border-purple-500/15 flex items-center justify-center hover:border-purple-400 transition-all">
+                  <iconify-icon icon={item.icon} width="20" style={{ color: item.color }}></iconify-icon>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="text-center text-[8px] text-zinc-600 font-bold tracking-[0.2em] mt-8 uppercase">
+            Wakkany Gear Collection v2.0
+          </div>
+        </div>
+      </div>
+
       {/* Badge Gallery */}
-      <div className="mt-6">
+      <div className="mt-8">
         <BadgeGallery unlockedAchievements={unlockedAchievements} />
       </div>
     </div>
