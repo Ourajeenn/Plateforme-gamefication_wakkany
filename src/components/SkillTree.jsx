@@ -164,21 +164,31 @@ export default function SkillTree({ xp, unlockedSkills, onUnlock, onReset }) {
                   
                   const isLinkActive = checkUnlocked(node.id) && checkUnlocked(reqId);
                   const isLinkAvailable = checkAvailable(node) && checkUnlocked(reqId);
+                  const isLineHovered = hoveredSkill && (node.id === hoveredSkill.id || reqId === hoveredSkill.id);
                   
                   return (
-                    <line 
-                      key={`${reqId}-${node.id}`}
-                      x1={`${reqNode.x}%`} 
-                      y1={`${reqNode.y}%`} 
-                      x2={`${node.x}%`} 
-                      y2={`${node.y}%`} 
-                      stroke={isLinkActive ? branch.color : isLinkAvailable ? `${branch.color}` : '#3f3f46'}
-                      strokeWidth={isLinkActive ? 6 : 3}
-                      strokeDasharray={isLinkAvailable && !isLinkActive ? '10,10' : 'none'}
-                      opacity={isLinkActive ? 1 : isLinkAvailable ? 0.8 : 0.2}
-                      filter={isLinkActive ? "url(#glow)" : "none"}
-                      className={isLinkAvailable && !isLinkActive ? 'animate-[dash_3s_linear_infinite]' : ''}
-                    />
+                    <React.Fragment key={`${reqId}-${node.id}`}>
+                      {/* Connection Line */}
+                      <line 
+                        x1={`${reqNode.x}%`} 
+                        y1={`${reqNode.y}%`} 
+                        x2={`${node.x}%`} 
+                        y2={`${node.y}%`} 
+                        stroke={isLineHovered ? '#fff' : isLinkActive ? branch.color : isLinkAvailable ? `${branch.color}` : '#3f3f46'}
+                        strokeWidth={isLineHovered ? 8 : isLinkActive ? 5 : 3}
+                        strokeDasharray={isLinkAvailable && !isLinkActive ? '10,10' : 'none'}
+                        opacity={isLineHovered ? 1 : isLinkActive ? 0.9 : isLinkAvailable ? 0.7 : 0.15}
+                        filter={isLinkActive || isLineHovered ? "url(#glow)" : "none"}
+                        className={`transition-all duration-300 ${isLinkAvailable && !isLinkActive ? 'animate-[dash_3s_linear_infinite]' : ''}`}
+                      />
+                      {/* Interactive Energy Flow Orb */}
+                      {isLinkActive && (
+                        <circle r="4" fill="#fff" filter="url(#glow)" opacity="0.8">
+                          <animate attributeName="cx" from={`${reqNode.x}%`} to={`${node.x}%`} dur="4s" repeatCount="indefinite" />
+                          <animate attributeName="cy" from={`${reqNode.y}%`} to={`${node.y}%`} dur="4s" repeatCount="indefinite" />
+                        </circle>
+                      )}
+                    </React.Fragment>
                   );
                 })
               )
@@ -190,20 +200,31 @@ export default function SkillTree({ xp, unlockedSkills, onUnlock, onReset }) {
                if(!tier0Node) return null;
                const isLinkActive = checkUnlocked(tier0Node.id);
                const isLinkAvailable = checkAvailable(tier0Node);
+               const isLineHovered = hoveredSkill && (tier0Node.id === hoveredSkill.id);
+               
                return (
-                 <line 
-                    key={`center-${tier0Node.id}`}
-                    x1="50%" 
-                    y1="50%" 
-                    x2={`${tier0Node.x}%`} 
-                    y2={`${tier0Node.y}%`} 
-                    stroke={isLinkActive ? branch.color : isLinkAvailable ? `${branch.color}` : '#3f3f46'}
-                    strokeWidth={isLinkActive ? 6 : 3}
-                    strokeDasharray={isLinkAvailable && !isLinkActive ? '10,10' : 'none'}
-                    opacity={isLinkActive ? 1 : isLinkAvailable ? 0.8 : 0.2}
-                    filter={isLinkActive ? "url(#glow)" : "none"}
-                    className={isLinkAvailable && !isLinkActive ? 'animate-[dash_3s_linear_infinite]' : ''}
-                 />
+                 <React.Fragment key={`center-${tier0Node.id}`}>
+                   {/* Center Link Line */}
+                   <line 
+                      x1="50%" 
+                      y1="50%" 
+                      x2={`${tier0Node.x}%`} 
+                      y2={`${tier0Node.y}%`} 
+                      stroke={isLineHovered ? '#fff' : isLinkActive ? branch.color : isLinkAvailable ? `${branch.color}` : '#3f3f46'}
+                      strokeWidth={isLineHovered ? 8 : isLinkActive ? 5 : 3}
+                      strokeDasharray={isLinkAvailable && !isLinkActive ? '10,10' : 'none'}
+                      opacity={isLineHovered ? 1 : isLinkActive ? 0.9 : isLinkAvailable ? 0.7 : 0.15}
+                      filter={isLinkActive || isLineHovered ? "url(#glow)" : "none"}
+                      className={`transition-all duration-300 ${isLinkAvailable && !isLinkActive ? 'animate-[dash_3s_linear_infinite]' : ''}`}
+                   />
+                   {/* Interactive Energy Flow Orb from Nexus */}
+                   {isLinkActive && (
+                      <circle r="4" fill="#fff" filter="url(#glow)" opacity="0.8">
+                        <animate attributeName="cx" from="50%" to={`${tier0Node.x}%`} dur="4s" repeatCount="indefinite" />
+                        <animate attributeName="cy" from="50%" to={`${tier0Node.y}%`} dur="4s" repeatCount="indefinite" />
+                      </circle>
+                   )}
+                 </React.Fragment>
                );
             })}
           </svg>
