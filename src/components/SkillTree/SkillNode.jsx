@@ -10,7 +10,14 @@ export default function SkillNode({ node, branch, isUnlocked, isAvailable, onUnl
       style={{ left: `${node.x}%`, top: `${node.y}%`, zIndex: 10 }}
       onMouseEnter={() => onHover(node, branch)}
       onMouseLeave={() => onHover(null, null)}
-      onClick={() => isAvailable && onUnlock(node)}
+      onClick={() => {
+        if (isUnlocked) return;
+        if (isAvailable) {
+          onUnlock(node, branch);
+        } else {
+          onUnlock(null, null); // Signal error/locked click
+        }
+      }}
     >
       {/* Outer Ring Effect */}
       <div className={`absolute inset-0 rounded-full border border-dashed transition-all duration-[2s] ${status === 'unlocked' ? 'border-white/40 rotate-180 scale-[1.3]' : status === 'available' ? 'border-white/20 animate-[spin_10s_linear_infinite] scale-125' : 'border-transparent scale-100'}`}></div>

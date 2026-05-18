@@ -13,6 +13,7 @@ const allNodesMap = Object.values(BRANCHES).reduce((acc, branch) => {
 
 export default function SkillTree({ xp, unlockedSkills, onUnlock, onReset }) {
   const [hoveredSkill, setHoveredSkill] = useState(null);
+  const [particles, setParticles] = useState([]);
   
   // Panning State
   const scrollRef = useRef(null);
@@ -33,9 +34,127 @@ export default function SkillTree({ xp, unlockedSkills, onUnlock, onReset }) {
     return node.req.every(r => checkUnlocked(r));
   };
 
+  // Synthesized Web Audio API sound generator (Futuristic gaming-grade sounds)
+  const playSynthSFX = (type) => {
+    try {
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContext) return;
+      const ctx = new AudioContext();
+      
+      if (type === 'hover') {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(800, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(1300, ctx.currentTime + 0.04);
+        gain.gain.setValueAtTime(0.012, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.04);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.04);
+      } else if (type === 'unlock') {
+        // Futuristic RPG celestial arpeggio chime
+        const now = ctx.currentTime;
+        const notes = [261.63, 329.63, 392.00, 523.25, 659.25]; // C major chord
+        notes.forEach((freq, i) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, now + i * 0.05);
+          osc.frequency.exponentialRampToValueAtTime(freq * 1.5, now + i * 0.05 + 0.2);
+          gain.gain.setValueAtTime(0.08, now + i * 0.05);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + i * 0.05 + 0.2);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now + i * 0.05);
+          osc.stop(now + i * 0.05 + 0.2);
+        });
+      } else if (type === 'error') {
+        // Retro low pitch warning buzzer
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(130, ctx.currentTime);
+        osc.frequency.linearRampToValueAtTime(70, ctx.currentTime + 0.15);
+        gain.gain.setValueAtTime(0.05, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.15);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.15);
+      } else if (type === 'reset') {
+        // Wind sweep
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(600, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(150, ctx.currentTime + 0.5);
+        gain.gain.setValueAtTime(0.06, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.5);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.5);
+      }
+    } catch (e) {
+      console.warn("Synth audio error:", e);
+    }
+  };
+
+  // Particle Physics Animation Loop
+  useEffect(() => {
+    if (particles.length === 0) return;
+    
+    let frameId;
+    const update = () => {
+      setParticles(prev => prev
+        .map(p => ({
+          ...p,
+          x: p.x + p.vx * 0.1,
+          y: p.y + p.vy * 0.1,
+          life: p.life - 0.035
+        }))
+        .filter(p => p.life > 0)
+      );
+      frameId = requestAnimationFrame(update);
+    };
+    frameId = requestAnimationFrame(update);
+    return () => cancelAnimationFrame(frameId);
+  }, [particles]);
+
   const handleHover = (node, branch) => {
     if (!node) setHoveredSkill(null);
-    else setHoveredSkill({ ...node, branchColor: branch.color, branchLabel: branch.label });
+    else {
+      playSynthSFX('hover');
+      setHoveredSkill({ ...node, branchColor: branch.color, branchLabel: branch.label });
+    }
+  };
+
+  const handleUnlock = (node, branch) => {
+    if (!node) {
+      playSynthSFX('error');
+      return;
+    }
+    
+    playSynthSFX('unlock');
+    
+    // Spawn 16 high-speed exploding particles
+    const newParticles = Array.from({ length: 16 }).map((_, i) => {
+      const angle = (i * 2 * Math.PI) / 16 + (Math.random() - 0.5) * 0.2;
+      const speed = 1.5 + Math.random() * 3.5;
+      return {
+        id: Math.random(),
+        x: node.x,
+        y: node.y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        life: 1.0,
+        color: branch.color
+      };
+    });
+    setParticles(prev => [...prev, ...newParticles]);
+    onUnlock(node);
   };
 
   const centerTree = () => {
@@ -109,7 +228,7 @@ export default function SkillTree({ xp, unlockedSkills, onUnlock, onReset }) {
           Recentrer
         </button>
         <button 
-          onClick={() => { if(window.confirm('Réinitialiser tous vos talents ?')) onReset(); }}
+          onClick={() => { if(window.confirm('Réinitialiser tous vos talents ?')) { playSynthSFX('reset'); onReset(); } }}
           className="bg-black/80 backdrop-blur-md border border-red-500/20 px-6 py-3 rounded-xl text-red-500 font-black uppercase text-[10px] tracking-widest hover:bg-red-500 hover:text-white transition-all flex items-center gap-2"
         >
           <iconify-icon icon="lucide:refresh-cw" width="16"></iconify-icon>
@@ -227,6 +346,19 @@ export default function SkillTree({ xp, unlockedSkills, onUnlock, onReset }) {
                  </React.Fragment>
                );
             })}
+
+            {/* Draw active particles */}
+            {particles.map(p => (
+              <circle 
+                key={p.id}
+                cx={`${p.x}%`}
+                cy={`${p.y}%`}
+                r={3 * p.life + 1}
+                fill={p.color}
+                filter="url(#glow)"
+                opacity={p.life}
+              />
+            ))}
           </svg>
 
           {/* Render All Nodes */}
@@ -239,7 +371,7 @@ export default function SkillTree({ xp, unlockedSkills, onUnlock, onReset }) {
                   branch={branch}
                   isUnlocked={checkUnlocked(node.id)}
                   isAvailable={checkAvailable(node)}
-                  onUnlock={onUnlock}
+                  onUnlock={handleUnlock}
                   onHover={handleHover}
                 />
               ))}
