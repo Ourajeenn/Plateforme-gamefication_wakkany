@@ -9,6 +9,19 @@ export default function ProfileView({ user, xp, unlockedSkills, unlockedAchievem
   const [scanning, setScanning] = useState(false);
   const [scanApproved, setScanApproved] = useState(false);
   const [checkedDays, setCheckedDays] = useState([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+  
+  // Tasks state for Task Management panel
+  const [tasks, setTasks] = useState({
+    quest: true,
+    plan: false,
+    meditate: true,
+    read: false
+  });
+
+  const toggleTask = (key) => {
+    setTasks(prev => ({ ...prev, [key]: !prev[key] }));
+    playScanSFX();
+  };
 
   const toggleDay = (day) => {
     if (checkedDays.includes(day)) {
@@ -20,7 +33,6 @@ export default function ProfileView({ user, xp, unlockedSkills, unlockedAchievem
   };
 
   const calendarProgressPercent = Math.round((checkedDays.length / 31) * 100);
-
   const currentLevel = getLevel(xp);
   const nextLevelXp = currentLevel.nextXp || (currentLevel.xp + 100);
   const progressPercent = Math.min(100, Math.max(0, ((xp - currentLevel.xp) / (nextLevelXp - currentLevel.xp)) * 100)) || (xp % 100);
@@ -110,6 +122,7 @@ export default function ProfileView({ user, xp, unlockedSkills, unlockedAchievem
 
   return (
     <div className="max-w-6xl mx-auto space-y-10">
+      
       {/* Title block matching Image 3 (SOLO LEVELING SYSTEM / HABIT TRACKER) */}
       <div className="flex flex-col md:flex-row md:items-end justify-between border-b border-purple-500/20 pb-6">
         <div>
@@ -134,11 +147,11 @@ export default function ProfileView({ user, xp, unlockedSkills, unlockedAchievem
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         
-        {/* Left Column - Glowing Runic Ring Avatar Frame */}
-        <div className="lg:col-span-5 flex flex-col gap-6">
+        {/* Left Column - Avatar Scan & Task Management (col-span-6) */}
+        <div className="lg:col-span-6 flex flex-col gap-8">
+          
+          {/* Holographic Target Scanning Panel */}
           <div className="bg-zinc-950 border border-purple-500/10 rounded-3xl p-8 relative overflow-hidden group shadow-[inset_0_0_30px_rgba(168,85,247,0.05),0_10px_30px_rgba(0,0,0,0.8)]">
-            
-            {/* Ambient Background Aura */}
             <div className="absolute inset-0 bg-radial-gradient from-purple-900/10 via-transparent to-transparent opacity-60 pointer-events-none"></div>
             
             <div className="flex justify-between items-start mb-8 relative z-10">
@@ -158,21 +171,17 @@ export default function ProfileView({ user, xp, unlockedSkills, unlockedAchievem
 
             {/* Avatar Frame with Rotating Cyber Rings */}
             <div className="py-10 flex justify-center items-center relative z-10">
-              
-              {/* Spinning SVG Ring Frame (Solo Leveling crosshair overlay) */}
               <div className="absolute w-[240px] h-[240px] flex items-center justify-center">
                 <svg className="w-full h-full animate-[spin_25s_linear_infinite]" viewBox="0 0 100 100">
                   <circle cx="50" cy="50" r="46" fill="none" stroke="rgba(168, 85, 247, 0.12)" strokeWidth="1" strokeDasharray="3,3" />
                   <circle cx="50" cy="50" r="40" fill="none" stroke="rgba(168, 85, 247, 0.2)" strokeWidth="0.5" />
                   <line x1="50" y1="2" x2="50" y2="98" stroke="rgba(168, 85, 247, 0.1)" strokeWidth="0.5" />
                   <line x1="2" y1="50" x2="98" y2="50" stroke="rgba(168, 85, 247, 0.1)" strokeWidth="0.5" />
-                  {/* Glowing segments */}
                   <path d="M 50 4 A 46 46 0 0 1 96 50" fill="none" stroke="#a855f7" strokeWidth="1.5" opacity="0.6" strokeDasharray="12,12" />
                   <path d="M 50 96 A 46 46 0 0 1 4 50" fill="none" stroke="#a855f7" strokeWidth="1.5" opacity="0.6" strokeDasharray="12,12" />
                 </svg>
               </div>
 
-              {/* Laser Scanning Line Overlay */}
               {scanning && (
                 <div className="absolute w-[210px] h-1 bg-gradient-to-r from-transparent via-purple-400 to-transparent shadow-[0_0_15px_#a855f7] animate-scan-line pointer-events-none z-30"></div>
               )}
@@ -218,76 +227,196 @@ export default function ProfileView({ user, xp, unlockedSkills, unlockedAchievem
               )}
             </div>
           </div>
-        </div>
 
-        {/* Right Column - Stats & Dynamic Radar chart */}
-        <div className="lg:col-span-7 flex flex-col gap-6">
-          
-          {/* Level & XP Progression HUD */}
-          <div className="bg-zinc-950 border border-purple-500/10 rounded-3xl p-8 relative overflow-hidden shadow-[inset_0_0_30px_rgba(168,85,247,0.05),0_10px_30px_rgba(0,0,0,0.8)]">
-            <div className="flex flex-col md:flex-row justify-between md:items-end gap-6 mb-8 border-b border-purple-500/10 pb-6">
-              <div>
-                <h3 className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.3em] mb-2">Titre de Puissance</h3>
-                <div className="flex items-baseline gap-3">
-                  <span className={`text-3xl font-heading font-black italic uppercase filter drop-shadow-[0_0_5px_rgba(255,255,255,0.1)] ${currentLevel.color}`}>{currentLevel.name}</span>
-                  <span className="text-purple-400 text-xs font-bold uppercase tracking-widest border border-purple-500/30 px-2 py-0.5 rounded-md">LVL {currentLevel.level}</span>
-                </div>
-                <p className="text-zinc-500 text-xs font-monda italic mt-2">"{currentLevel.desc}"</p>
-              </div>
-              
-              <div className="text-right">
-                <div className="text-purple-400 text-[10px] font-black uppercase tracking-[0.3em] mb-1">XP Totale</div>
-                <div className="text-4xl text-white font-heading font-bold italic filter drop-shadow-[0_0_5px_rgba(168,85,247,0.2)]">{xp}</div>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-zinc-400">
-                <span>Statut Progression</span>
-                <span className="text-purple-400">{xp} / {currentLevel.level >= 4 ? '∞' : nextLevelXp} XP</span>
-              </div>
-              
-              <div className="w-full h-4 bg-zinc-900 rounded-full overflow-hidden border border-purple-500/15 relative">
-                {/* Glowing neon progress line */}
-                <div 
-                  className="h-full relative z-10 transition-all duration-1000 ease-out rounded-full bg-gradient-to-r from-purple-900 via-purple-500 to-pink-500 shadow-[0_0_15px_rgba(168,85,247,0.7)]" 
-                  style={{ width: `${progressPercent}%` }}
-                >
-                  <div className="absolute inset-0 bg-white/20 w-full overflow-hidden">
-                    <div className="w-[200%] h-full bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full animate-progress-shine"></div>
-                  </div>
-                </div>
-              </div>
-            </div>
+          {/* TASK MANAGEMENT Panel matching Image 1 */}
+          <div className="bg-zinc-950 border border-purple-500/10 rounded-3xl p-8 pt-10 relative overflow-hidden shadow-[inset_0_0_30px_rgba(168,85,247,0.05),0_10px_30px_rgba(0,0,0,0.8)] group">
             
-            {/* Micro Stats Grid */}
-            <div className="grid grid-cols-3 gap-4 mt-8">
-              <div className="bg-black/50 border border-purple-500/10 p-4 rounded-2xl text-center">
-                <span className="text-zinc-600 text-[8px] font-black uppercase tracking-widest block">Talents</span>
-                <span className="text-2xl text-white font-heading font-bold filter drop-shadow-[0_0_5px_rgba(255,255,255,0.1)]">{unlockedSkills.length}</span>
-              </div>
-              <div className="bg-black/50 border border-purple-500/10 p-4 rounded-2xl text-center">
-                <span className="text-zinc-600 text-[8px] font-black uppercase tracking-widest block">Succès</span>
-                <span className="text-2xl text-white font-heading font-bold filter drop-shadow-[0_0_5px_rgba(255,255,255,0.1)]">{unlockedAchievements.length}</span>
-              </div>
-              <div className="bg-black/50 border border-purple-500/10 p-4 rounded-2xl text-center">
-                <span className="text-zinc-600 text-[8px] font-black uppercase tracking-widest block">Statut</span>
-                <span className="text-xs font-black text-purple-400 block mt-2 tracking-wider">SYSTEM OK</span>
-              </div>
+            {/* Trapezoid title tab */}
+            <div className="absolute -top-0.5 left-1/2 -translate-x-1/2 bg-zinc-950 border-x border-b border-purple-500/30 px-8 py-2 rounded-b-2xl shadow-lg z-20">
+              <span className="text-[10px] font-heading font-black tracking-[0.25em] text-white uppercase">TASK MANAGEMENT</span>
+            </div>
+
+            {/* Glowing neon chain effect decoration (matching screenshot) */}
+            <div className="absolute top-4 right-4 opacity-25 pointer-events-none text-purple-400 flex flex-col items-center">
+              <iconify-icon icon="lucide:link-2" width="24" className="rotate-45"></iconify-icon>
+            </div>
+            <div className="absolute bottom-4 left-4 opacity-25 pointer-events-none text-purple-400 flex flex-col items-center">
+              <iconify-icon icon="lucide:link-2" width="24" className="rotate-45"></iconify-icon>
+            </div>
+
+            {/* Task list */}
+            <div className="space-y-4 mt-4 relative z-10">
+              {[
+                { label: 'Complete Daily Quests', key: 'quest' },
+                { label: 'Plan Week', key: 'plan' },
+                { label: 'Meditate (15 min)', key: 'meditate' },
+                { label: 'Read 10 Pages', key: 'read' }
+              ].map((task) => (
+                <button
+                  key={task.key}
+                  onClick={() => toggleTask(task.key)}
+                  className="w-full flex items-center justify-between p-4 bg-black/40 border border-purple-500/5 hover:border-purple-500/20 rounded-2xl transition-all cursor-pointer group"
+                >
+                  <div className="flex items-center gap-4">
+                    {/* Glowing Neon Purple Checkbox */}
+                    <div className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all duration-300
+                      ${tasks[task.key] ? 'bg-purple-500/20 border-purple-400 shadow-[0_0_10px_rgba(168,85,247,0.5)] text-purple-300' : 'bg-transparent border-zinc-700 text-transparent'}`}>
+                      <span className="text-sm font-black">✓</span>
+                    </div>
+                    <span className={`text-xs font-bold transition-all ${tasks[task.key] ? 'text-zinc-300 line-through' : 'text-white'}`}>
+                      {task.label}
+                    </span>
+                  </div>
+
+                  {/* Secondary checked indicator circle on the right side */}
+                  <div className={`w-5 h-5 rounded-full border flex items-center justify-center transition-all duration-300
+                    ${tasks[task.key] ? 'bg-purple-500/10 border-purple-400/40 text-purple-300 shadow-[0_0_8px_rgba(168,85,247,0.3)]' : 'bg-transparent border-zinc-800 text-transparent'}`}>
+                    <span className="text-[10px] font-black">✓</span>
+                  </div>
+                </button>
+              ))}
             </div>
           </div>
 
-          {/* Goal Tracker (Radar Chart) & Branch stats */}
-          <div className="bg-zinc-950 border border-purple-500/10 rounded-3xl p-8 shadow-[inset_0_0_30px_rgba(168,85,247,0.05),0_10px_30px_rgba(0,0,0,0.8)]">
-            <h3 className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.3em] mb-6">
-              Distribution de la Force (Radar Stats)
-            </h3>
+        </div>
+
+        {/* Right Column - Daily Quests, Level Up, Goal Tracking (col-span-6) */}
+        <div className="lg:col-span-6 flex flex-col gap-8">
+          
+          {/* DAILY QUESTS Panel matching Image 2 */}
+          <div className="bg-zinc-950 border border-purple-500/10 rounded-3xl p-8 pt-10 relative overflow-hidden shadow-[inset_0_0_30px_rgba(168,85,247,0.05),0_10px_30px_rgba(0,0,0,0.8)]">
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+            {/* Trapezoid title tab */}
+            <div className="absolute -top-0.5 left-1/2 -translate-x-1/2 bg-zinc-950 border-x border-b border-purple-500/30 px-8 py-2 rounded-b-2xl shadow-lg z-20">
+              <span className="text-[10px] font-heading font-black tracking-[0.25em] text-white uppercase">DAILY QUESTS</span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center mt-4">
               
-              {/* Dynamic SVG Radar Chart (Matches Image 3) */}
-              <div className="flex justify-center relative py-4">
-                <svg viewBox="0 0 200 200" className="w-full max-w-[190px] mx-auto filter drop-shadow-[0_0_15px_rgba(168,85,247,0.15)] pointer-events-none">
+              {/* Crossed Swords Shield Emblem (Left) */}
+              <div className="md:col-span-5 flex justify-center">
+                <div className="relative w-28 h-28 flex items-center justify-center bg-purple-500/5 border border-purple-500/20 rounded-full shadow-[0_0_20px_rgba(168,85,247,0.1)]">
+                  {/* Glowing Shield Ring */}
+                  <div className="absolute inset-2 rounded-full border border-dashed border-purple-500/10 animate-[spin_40s_linear_infinite]"></div>
+                  
+                  {/* Emblem */}
+                  <iconify-icon icon="game-icons:crossed-swords" width="48" style={{ color: '#a855f7' }} className="filter drop-shadow-[0_0_10px_rgba(168,85,247,0.5)] animate-pulse"></iconify-icon>
+                </div>
+              </div>
+
+              {/* Progress bars (Right) */}
+              <div className="md:col-span-7 space-y-4">
+                {[
+                  { name: 'Morning Training', progress: 80 },
+                  { name: 'Focus Session (2 hrs)', progress: 60 },
+                  { name: 'Skill Practice', progress: 40 }
+                ].map((q, idx) => (
+                  <div key={idx} className="space-y-1">
+                    <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-wider">
+                      <span className="text-zinc-400 flex items-center gap-1.5">
+                        <iconify-icon icon="lucide:swords" width="10" className="text-purple-400"></iconify-icon>
+                        {q.name}
+                      </span>
+                    </div>
+                    <div className="w-full h-2 bg-zinc-900 rounded-full overflow-hidden border border-purple-500/10 relative">
+                      <div 
+                        className="h-full rounded-full bg-gradient-to-r from-purple-800 to-purple-500 shadow-[0_0_10px_rgba(168,85,247,0.4)] transition-all duration-1000" 
+                        style={{ width: `${q.progress}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+            </div>
+          </div>
+
+          {/* LEVEL UP PROGRESSION Panel matching Image 2 */}
+          <div className="bg-zinc-950 border border-purple-500/10 rounded-3xl p-8 pt-10 relative overflow-hidden shadow-[inset_0_0_30px_rgba(168,85,247,0.05),0_10px_30px_rgba(0,0,0,0.8)]">
+            
+            {/* Trapezoid title tab */}
+            <div className="absolute -top-0.5 left-1/2 -translate-x-1/2 bg-zinc-950 border-x border-b border-purple-500/30 px-8 py-2 rounded-b-2xl shadow-lg z-20">
+              <span className="text-[10px] font-heading font-black tracking-[0.25em] text-white uppercase">LEVEL UP PROGRESSION</span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center mt-4">
+              
+              {/* Glowing SVG Silhouette Portal Gateway (Left) */}
+              <div className="md:col-span-5 flex justify-center">
+                <div className="relative w-32 h-32 flex items-center justify-center bg-black/60 rounded-2xl overflow-hidden border border-purple-500/10 shadow-[0_0_20px_rgba(168,85,247,0.05)]">
+                  {/* Ambient aura inside gateway */}
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(168,85,247,0.18)_0%,_transparent_70%)] animate-pulse"></div>
+                  
+                  {/* High-end SVG arch & walking hero silhouette */}
+                  <svg className="h-[90%] w-auto aspect-square drop-shadow-[0_0_15px_#a855f7]" viewBox="0 0 100 100">
+                    <defs>
+                      <filter id="portalGlow">
+                        <feGaussianBlur stdDeviation="3.5" result="blur" />
+                        <feMerge>
+                          <feMergeNode in="blur" />
+                          <feMergeNode in="SourceGraphic" />
+                        </feMerge>
+                      </filter>
+                    </defs>
+                    {/* Arch */}
+                    <path d="M15,90 C15,15 85,15 85,90" fill="none" stroke="#a855f7" strokeWidth="3" filter="url(#portalGlow)" />
+                    <path d="M22,90 C22,22 78,22 78,90" fill="none" stroke="#e9d5ff" strokeWidth="0.75" strokeDasharray="3,3" opacity="0.6" />
+                    
+                    {/* Hero Silhouette */}
+                    <path d="M47,56 Q50,56 53,56 L55,62 Q59,82 56,90 L44,90 Q41,82 45,62 Z" fill="#030712" />
+                    <circle cx="50" cy="51" r="3" fill="#030712" />
+                    <circle cx="49" cy="51" r="0.5" fill="#c084fc" />
+                    <circle cx="51" cy="51" r="0.5" fill="#c084fc" />
+                    
+                    <line x1="5" y1="90" x2="95" y2="90" stroke="rgba(168, 85, 247, 0.4)" strokeWidth="1.5" />
+                  </svg>
+                </div>
+              </div>
+
+              {/* Progress and Level status (Right) */}
+              <div className="md:col-span-7 flex flex-col justify-center gap-3">
+                <div className="flex items-center gap-3">
+                  <span className="text-white text-3xl font-heading font-black italic uppercase filter drop-shadow-[0_0_5px_rgba(255,255,255,0.1)]">
+                    LEVEL {currentLevel.level}
+                  </span>
+                  
+                  {/* Upward Rank Arrow Badge */}
+                  <div className="w-7 h-7 rounded-lg bg-purple-500/20 border border-purple-400/40 flex items-center justify-center text-purple-300 animate-bounce">
+                    <span className="text-sm font-black">↑</span>
+                  </div>
+                </div>
+
+                {/* Level Up progress bar */}
+                <div className="space-y-1">
+                  <div className="flex justify-between text-[9px] font-bold tracking-widest text-zinc-500 uppercase">
+                    <span>PROGRESSION</span>
+                    <span>{xp} / {nextLevelXp} XP</span>
+                  </div>
+                  <div className="w-full h-3 bg-zinc-900 rounded-full overflow-hidden border border-purple-500/10 relative">
+                    <div 
+                      className="h-full rounded-full bg-gradient-to-r from-purple-800 to-purple-400 shadow-[0_0_10px_rgba(168,85,247,0.5)] transition-all duration-1000 ease-out" 
+                      style={{ width: `${progressPercent}%` }}
+                    ></div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          {/* GOAL TRACKING Panel matching Image 2 */}
+          <div className="bg-zinc-950 border border-purple-500/10 rounded-3xl p-8 pt-10 relative overflow-hidden shadow-[inset_0_0_30px_rgba(168,85,247,0.05),0_10px_30px_rgba(0,0,0,0.8)]">
+            
+            {/* Trapezoid title tab */}
+            <div className="absolute -top-0.5 left-1/2 -translate-x-1/2 bg-zinc-950 border-x border-b border-purple-500/30 px-8 py-2 rounded-b-2xl shadow-lg z-20">
+              <span className="text-[10px] font-heading font-black tracking-[0.25em] text-white uppercase">GOAL TRACKING</span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center mt-4">
+              
+              {/* Dynamic SVG Radar Chart */}
+              <div className="flex justify-center relative py-2">
+                <svg viewBox="0 0 200 200" className="w-full max-w-[170px] mx-auto filter drop-shadow-[0_0_15px_rgba(168,85,247,0.15)] pointer-events-none">
                   {/* Background grid concentric octagons */}
                   <polygon points="100,20 180,100 100,180 20,100" fill="none" stroke="rgba(168, 85, 247, 0.12)" strokeWidth="0.75" />
                   <polygon points="100,40 160,100 100,160 40,100" fill="none" stroke="rgba(168, 85, 247, 0.18)" strokeWidth="0.75" />
@@ -334,10 +463,10 @@ export default function ProfileView({ user, xp, unlockedSkills, unlockedAchievem
               {/* Faction lists and bars */}
               <div className="space-y-4">
                 {[
-                  { name: 'Command (Héros)', val: branchProgress.raw.heroes, color: '#ff3b30', label: 'heroes' },
-                  { name: 'Combat (Guerriers)', val: branchProgress.raw.warriors, color: '#c28e3a', label: 'warriors' },
-                  { name: 'Cyber (Primitifs)', val: branchProgress.raw.dinos, color: '#34c759', label: 'dinos' },
-                  { name: 'Speed (Mécanique)', val: branchProgress.raw.cars, color: '#007aff', label: 'cars' }
+                  { name: 'Command (Héros)', val: branchProgress.raw.heroes, color: '#ff3b30' },
+                  { name: 'Combat (Guerriers)', val: branchProgress.raw.warriors, color: '#c28e3a' },
+                  { name: 'Cyber (Primitifs)', val: branchProgress.raw.dinos, color: '#34c759' },
+                  { name: 'Speed (Mécanique)', val: branchProgress.raw.cars, color: '#007aff' }
                 ].map((item, idx) => (
                   <div key={idx} className="space-y-1 bg-black/40 p-3 rounded-xl border border-white/5 hover:border-purple-500/10 transition-all">
                     <div className="flex justify-between text-[10px] font-bold uppercase tracking-wider">
@@ -359,7 +488,7 @@ export default function ProfileView({ user, xp, unlockedSkills, unlockedAchievem
 
         </div>
       </div>
-      
+
       {/* Dynamic Habit Tracker Calendar & Aesthetic Elements Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mt-10">
         {/* Habit Tracker Calendar */}
