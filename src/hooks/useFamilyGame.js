@@ -3,7 +3,7 @@ import { FAMILY_QUESTIONS } from '../data/familyQuizzes';
 
 export function useFamilyGame() {
   const [gameState, setGameState] = useState('home'); // 'home', 'profile', 'setup', 'starting', 'playing', 'results'
-  const [gameConfig, setGameConfig] = useState({ theme: null, mode: 'coop', players: [] });
+  const [gameConfig, setGameConfig] = useState({ theme: null, mode: 'coop', players: [], difficulty: 'hunter', timerLimit: 8 });
   const [questions, setQuestions] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   
@@ -11,6 +11,11 @@ export function useFamilyGame() {
   const [streak, setStreak] = useState(0);
   const [playerScores, setPlayerScores] = useState({});
   
+  // Boss Raid Mode states
+  const [bossHp, setBossHp] = useState(100);
+  const [teamHp, setTeamHp] = useState(100);
+  const [bossName, setBossName] = useState("Golem de Faille");
+
   // Timer state
   const [startCountdown, setStartCountdown] = useState(3);
   const [timeLeft, setTimeLeft] = useState(8);
@@ -23,7 +28,7 @@ export function useFamilyGame() {
     if (config.theme && config.theme !== 'general') {
       availableQuestions = availableQuestions.filter(q => q.theme === config.theme);
     }
-    // Shuffle and pick 5 questions (or whatever available)
+    // Shuffle and pick 5 questions
     const shuffled = [...availableQuestions].sort(() => 0.5 - Math.random());
     setQuestions(shuffled.slice(0, 5));
     
@@ -34,12 +39,18 @@ export function useFamilyGame() {
     }
     setPlayerScores(initialScores);
 
+    // Initialize Boss HP & Name
+    const bossNames = ["Golem de Faille d'Aéther", "Loup Légendaire des Ombres", "Monarque de Croc Cosmique", "Kargas le Destructeur"];
+    setBossName(bossNames[Math.floor(Math.random() * bossNames.length)]);
+    setBossHp(100);
+    setTeamHp(100);
+
     setCurrentQuestionIndex(0);
     setScore(0);
     setStreak(0);
     setStartCountdown(3);
     setGameState('starting');
-    setTimeLeft(8);
+    setTimeLeft(config.timerLimit || 8);
     setIsTimerRunning(false);
   }, []);
 
@@ -61,8 +72,21 @@ export function useFamilyGame() {
     setIsTimerRunning(false);
     const currentQ = questions[currentQuestionIndex];
     
+    let nextBossHp = bossHp;
+    let nextTeamHp = teamHp;
+
     if (selectedAnswer === currentQ.answer) {
-      const pointsEarned = 10 + (streak * 2);
+      // Deal damage to Boss
+      if (gameConfig.mode === 'boss') {
+        nextBossHp = Math.max(bossHp - 25, 0);
+        setBossHp(nextBossHp);
+      }
+
+      let multiplier = 1.0;
+      if (gameConfig.difficulty === 'rookie') multiplier = 0.7;
+      if (gameConfig.difficulty === 'monarch') multiplier = 1.5;
+      
+      const pointsEarned = Math.round((10 + (streak * 2)) * multiplier);
       setScore(prev => prev + pointsEarned);
       setStreak(prev => prev + 1);
 
@@ -74,34 +98,64 @@ export function useFamilyGame() {
         }));
       }
     } else {
+      // Receive damage from Boss
+      if (gameConfig.mode === 'boss') {
+        nextTeamHp = Math.max(teamHp - 25, 0);
+        setTeamHp(nextTeamHp);
+      }
       setStreak(0);
     }
 
-    // Wait a bit to show feedback before moving to next question
+    // Wait a bit to show feedback before moving to next question or ending
     setTimeout(() => {
-      if (currentQuestionIndex < questions.length - 1) {
-        setCurrentQuestionIndex(prev => prev + 1);
-        setTimeLeft(8);
-        setIsTimerRunning(true);
-      } else {
+      if (nextBossHp <= 0 || nextTeamHp <= 0 || currentQuestionIndex >= questions.length - 1) {
         setGameState('results');
-        // Save XP and stats to profile (with safety checks)
+        
+        // Save XP, stats, and achievements to profile
         try {
           const currentXP = parseInt(localStorage.getItem('wakkany_family_xp') || '0', 10);
           const gamesPlayed = parseInt(localStorage.getItem('wakkany_family_games') || '0', 10);
           const wins = parseInt(localStorage.getItem('wakkany_family_wins') || '0', 10);
           
-          localStorage.setItem('wakkany_family_xp', (currentXP + score + 10).toString());
+          localStorage.setItem('wakkany_family_xp', (currentXP + score + 15).toString());
           localStorage.setItem('wakkany_family_games', (gamesPlayed + 1).toString());
-          if (score >= 30) {
+          
+          if (score >= 30 || nextBossHp <= 0) {
             localStorage.setItem('wakkany_family_wins', (wins + 1).toString());
           }
+
+          // Trigger achievement trackers
+          const unlocked = JSON.parse(localStorage.getItem('wakkany_achievements') || '[]');
+          
+          // Achievement 1: Premier Sang (First quiz game finished)
+          if (!unlocked.includes('first_game')) {
+            unlocked.push('first_game');
+          }
+          // Achievement 2: Maître du Temps (Quick timer 5s)
+          if (gameConfig.timerLimit === 5 && !unlocked.includes('speedrun')) {
+            unlocked.push('speedrun');
+          }
+          // Achievement 3: Monarque Suprême (Monarch difficulty victory)
+          if (gameConfig.difficulty === 'monarch' && (score >= 30 || nextBossHp <= 0) && !unlocked.includes('monarch')) {
+            unlocked.push('monarch');
+          }
+          // Achievement 4: Fléau des Failles (Defeated Boss in Boss Mode)
+          if (gameConfig.mode === 'boss' && nextBossHp <= 0 && !unlocked.includes('boss_slayer')) {
+            unlocked.push('boss_slayer');
+          }
+
+          localStorage.setItem('wakkany_achievements', JSON.stringify(unlocked));
+
         } catch (e) {
           console.error("Failed to update family stats", e);
         }
+      } else {
+        setCurrentQuestionIndex(prev => prev + 1);
+        setTimeLeft(gameConfig.timerLimit || 8);
+        setIsTimerRunning(true);
       }
     }, 2000);
-  }, [currentQuestionIndex, questions, streak, score, gameConfig]);
+  }, [currentQuestionIndex, questions, streak, score, gameConfig, bossHp, teamHp]);
 
   // Timer logic
   useEffect(() => {
@@ -118,7 +172,7 @@ export function useFamilyGame() {
 
   const resetGame = useCallback(() => {
     setGameState('home');
-    setGameConfig({ theme: null, mode: 'coop', players: [] });
+    setGameConfig({ theme: null, mode: 'coop', players: [], difficulty: 'hunter', timerLimit: 8 });
   }, []);
 
   return {
@@ -136,6 +190,9 @@ export function useFamilyGame() {
     handleAnswer,
     resetGame,
     isTimerRunning,
-    setGameState
+    setGameState,
+    bossHp,
+    teamHp,
+    bossName
   };
 }

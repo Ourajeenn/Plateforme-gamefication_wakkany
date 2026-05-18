@@ -15,6 +15,21 @@ export default function SkillTree({ xp, unlockedSkills, onUnlock, onReset }) {
   const [hoveredSkill, setHoveredSkill] = useState(null);
   const [particles, setParticles] = useState([]);
   
+  // Jokers & Help state for family gaming
+  const [jokers, setJokers] = useState(() => {
+    const saved = localStorage.getItem('wakkany_jokers');
+    return saved !== null ? parseInt(saved, 10) : 2;
+  });
+  const [selectedNode, setSelectedNode] = useState(null);
+  const [selectedBranch, setSelectedBranch] = useState(null);
+  const [activeHelpRequest, setActiveHelpRequest] = useState(false);
+  const [helpCountdown, setHelpCountdown] = useState(3);
+  const [helpSender, setHelpSender] = useState('');
+
+  useEffect(() => {
+    localStorage.setItem('wakkany_jokers', jokers);
+  }, [jokers]);
+
   // Panning State
   const scrollRef = useRef(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -26,7 +41,7 @@ export default function SkillTree({ xp, unlockedSkills, onUnlock, onReset }) {
   // Zoom State
   const [zoom, setZoom] = useState(1); // Range: 0.5 to 2.0
 
-  const checkUnlocked = (id) => unlockedSkills.includes(id);
+  const checkUnlocked = (id) => id === 'root' || unlockedSkills.includes(id);
   const checkAvailable = (node) => {
     if (checkUnlocked(node.id)) return false;
     if (xp < node.xp) return false;
@@ -137,24 +152,116 @@ export default function SkillTree({ xp, unlockedSkills, onUnlock, onReset }) {
       return;
     }
     
+    // Check if available normally
+    if (checkAvailable(node)) {
+      playSynthSFX('unlock');
+      
+      // Spawn 16 high-speed exploding particles
+      const newParticles = Array.from({ length: 16 }).map((_, i) => {
+        const angle = (i * 2 * Math.PI) / 16 + (Math.random() - 0.5) * 0.2;
+        const speed = 1.5 + Math.random() * 3.5;
+        return {
+          id: Math.random(),
+          x: node.x,
+          y: node.y,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          life: 1.0,
+          color: branch.color
+        };
+      });
+      setParticles(prev => [...prev, ...newParticles]);
+      onUnlock(node);
+    } else {
+      // Locked click - Open Help & Joker Modal!
+      playSynthSFX('hover');
+      setSelectedNode(node);
+      setSelectedBranch(branch);
+    }
+  };
+
+  const handleUseJoker = () => {
+    if (jokers <= 0 || !selectedNode || !selectedBranch) {
+      playSynthSFX('error');
+      return;
+    }
+    
+    // Consume Joker
+    setJokers(prev => prev - 1);
     playSynthSFX('unlock');
     
-    // Spawn 16 high-speed exploding particles
-    const newParticles = Array.from({ length: 16 }).map((_, i) => {
-      const angle = (i * 2 * Math.PI) / 16 + (Math.random() - 0.5) * 0.2;
-      const speed = 1.5 + Math.random() * 3.5;
+    // Spawn epic purple particles at the node
+    const newParticles = Array.from({ length: 24 }).map((_, i) => {
+      const angle = (i * 2 * Math.PI) / 24 + (Math.random() - 0.5) * 0.2;
+      const speed = 2.0 + Math.random() * 5.0;
       return {
         id: Math.random(),
-        x: node.x,
-        y: node.y,
+        x: selectedNode.x,
+        y: selectedNode.y,
         vx: Math.cos(angle) * speed,
         vy: Math.sin(angle) * speed,
-        life: 1.0,
-        color: branch.color
+        life: 1.2,
+        color: '#a855f7' // Intense purple joker color!
       };
     });
     setParticles(prev => [...prev, ...newParticles]);
-    onUnlock(node);
+    
+    // Unlock and close
+    onUnlock(selectedNode); 
+    setSelectedNode(null);
+    setSelectedBranch(null);
+  };
+
+  const handleDemandeAide = () => {
+    if (activeHelpRequest || !selectedNode || !selectedBranch) return;
+    
+    setActiveHelpRequest(true);
+    setHelpCountdown(3);
+    
+    const senders = ["Papa", "Maman", "Grand-Frère", "Grande-Sœur"];
+    const randomSender = senders[Math.floor(Math.random() * senders.length)];
+    setHelpSender(randomSender);
+    
+    playSynthSFX('hover');
+    
+    // Count down interval
+    const interval = setInterval(() => {
+      setHelpCountdown(prev => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          
+          // Complete the unlock!
+          playSynthSFX('unlock');
+          const newParticles = Array.from({ length: 24 }).map((_, i) => {
+            const angle = (i * 2 * Math.PI) / 24 + (Math.random() - 0.5) * 0.2;
+            const speed = 2.0 + Math.random() * 4.5;
+            return {
+              id: Math.random(),
+              x: selectedNode.x,
+              y: selectedNode.y,
+              vx: Math.cos(angle) * speed,
+              vy: Math.sin(angle) * speed,
+              life: 1.2,
+              color: '#34c759' // Family green color!
+            };
+          });
+          setParticles(prev => [...prev, ...newParticles]);
+          
+          onUnlock(selectedNode);
+          
+          // Show completion state for 1.5 seconds, then close modal
+          setTimeout(() => {
+            setActiveHelpRequest(false);
+            setSelectedNode(null);
+            setSelectedBranch(null);
+          }, 1500);
+          
+          return 0;
+        }
+        playSynthSFX('hover');
+        return prev - 1;
+      });
+    }, 1000);
   };
 
   const centerTree = () => {
@@ -199,185 +306,146 @@ export default function SkillTree({ xp, unlockedSkills, onUnlock, onReset }) {
   };
 
   return (
-    <div className="relative w-full h-[700px] md:h-[850px] bg-black border border-white/10 rounded-3xl overflow-hidden shadow-2xl group/tree" onWheel={handleWheel}>
-      {/* Zoom / Stats Overlay */}
-      <div className="absolute top-6 left-6 z-[80] flex flex-col gap-3">
-        <div className="bg-black/80 backdrop-blur-md border border-white/10 px-4 py-2 rounded-xl flex items-center gap-4">
-           <div className="flex flex-col">
-             <span className="text-[9px] text-zinc-500 font-bold uppercase tracking-widest">Grossissement</span>
-             <span className="text-white font-heading font-bold italic">{(zoom * 100).toFixed(0)}%</span>
-           </div>
-           <div className="flex gap-2">
-             <button onClick={() => setZoom(prev => Math.max(prev - 0.1, 0.5))} className="w-8 h-8 rounded-lg bg-zinc-900 border border-white/10 flex items-center justify-center hover:bg-zinc-800 transition-colors">
-               <iconify-icon icon="lucide:minus" width="14"></iconify-icon>
-             </button>
-             <button onClick={() => setZoom(prev => Math.min(prev + 0.1, 2))} className="w-8 h-8 rounded-lg bg-zinc-900 border border-white/10 flex items-center justify-center hover:bg-zinc-800 transition-colors">
-               <iconify-icon icon="lucide:plus" width="14"></iconify-icon>
-             </button>
-           </div>
+    <div className="relative w-full h-[700px] md:h-[800px] group/tree">
+      {/* Top Header Indicators (Borderless, Sleek glassmorphism) */}
+      <div className="absolute top-6 left-6 right-6 z-[80] flex justify-between items-center pointer-events-none">
+        
+        {/* Left Side: Clan Info & Jokers */}
+        <div className="flex gap-4 items-center pointer-events-auto">
+          <div className="bg-black/50 backdrop-blur-md px-4 py-2 rounded-xl flex items-center gap-3 border border-white/5">
+            <span className="text-xl">🃏</span>
+            <div className="flex flex-col">
+              <span className="text-[8px] text-purple-400 font-black uppercase tracking-widest">JOKERS DISPONIBLES</span>
+              <span className="text-white font-heading font-black text-xs">{jokers} RESTANT{jokers > 1 ? 'S' : ''}</span>
+            </div>
+            {jokers < 2 && (
+              <button 
+                onClick={() => { setJokers(2); playSynthSFX('unlock'); }}
+                className="text-[8px] text-purple-300 border border-purple-500/20 px-2 py-0.5 rounded hover:bg-purple-500/20 transition-all font-bold cursor-pointer ml-2"
+              >
+                RECHARGER
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Right Side: Sleek Reset Link */}
+        <div className="pointer-events-auto">
+          <button 
+            onClick={() => { if(window.confirm('Réinitialiser tous vos talents ?')) { playSynthSFX('reset'); onReset(); } }}
+            className="bg-black/50 backdrop-blur-md border border-red-500/10 px-5 py-2.5 rounded-xl text-red-500 hover:text-white hover:bg-red-500/20 hover:border-red-500/30 font-black uppercase text-[9px] tracking-[0.2em] transition-all flex items-center gap-2"
+          >
+            <iconify-icon icon="lucide:refresh-cw" width="12"></iconify-icon>
+            Réinitialiser l'Arbre
+          </button>
         </div>
       </div>
 
-      {/* Control Buttons */}
-      <div className="absolute top-6 right-6 z-[80] flex gap-3">
-        <button 
-          onClick={centerTree}
-          className="bg-black/80 backdrop-blur-md border border-white/10 px-6 py-3 rounded-xl text-white font-black uppercase text-[10px] tracking-widest hover:bg-[#c28e3a] hover:text-black transition-all flex items-center gap-2"
-        >
-          <iconify-icon icon="lucide:target" width="16"></iconify-icon>
-          Recentrer
-        </button>
-        <button 
-          onClick={() => { if(window.confirm('Réinitialiser tous vos talents ?')) { playSynthSFX('reset'); onReset(); } }}
-          className="bg-black/80 backdrop-blur-md border border-red-500/20 px-6 py-3 rounded-xl text-red-500 font-black uppercase text-[10px] tracking-widest hover:bg-red-500 hover:text-white transition-all flex items-center gap-2"
-        >
-          <iconify-icon icon="lucide:refresh-cw" width="16"></iconify-icon>
-          Reset
-        </button>
-      </div>
-
-      {/* Scrollable Panning Container */}
-      <div 
-        ref={scrollRef}
-        className={`w-full h-full overflow-hidden relative ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
-        onMouseDown={handleMouseDown}
-        onMouseLeave={handleMouseLeave}
-        onMouseUp={handleMouseUp}
-        onMouseMove={handleMouseMove}
-      >
+      {/* Main Coordinate Grid (Fully transparent, floating on the page) */}
+      <div className="w-full h-full relative transition-all duration-500 animate-fade-in">
+        {/* Animated Grid Dots Overlay */}
+        <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, #333 1.5px, transparent 1.5px)', backgroundSize: '40px 40px' }}></div>
         
-        {/* Absolute Coordinate Grid */}
-        <div 
-          className="relative min-w-[2000px] min-h-[2000px] bg-[radial-gradient(circle_at_center,_#111_0%,_#000_100%)] transition-transform duration-300 ease-out"
-          style={{ transform: `scale(${zoom})`, transformOrigin: 'center center' }}
-        >
-          {/* Animated Background Grids */}
-          <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, #333 1px, transparent 1px)', backgroundSize: '40px 40px' }}></div>
-          
-          {/* Central Nexus Element */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 flex items-center justify-center z-0">
-             <div className="absolute inset-0 rounded-full border border-dashed border-zinc-800 animate-[spin_30s_linear_infinite]"></div>
-             <div className="absolute inset-6 rounded-full border border-zinc-900 border-t-[#c28e3a]/40 animate-spin-slow"></div>
-             <div className="absolute inset-12 rounded-full bg-zinc-950 flex flex-col items-center justify-center border border-white/5 shadow-[0_0_100px_rgba(194,142,58,0.1)]">
-                <span className="text-5xl animate-pulse filter drop-shadow-[0_0_15px_rgba(194,142,58,0.5)]">🌌</span>
-                <span className="text-[9px] font-heading font-black text-zinc-600 uppercase mt-2 tracking-[0.5em]">Nexus Core</span>
-             </div>
-          </div>
+        {/* Branch Section Title Labels */}
+        <div className="absolute left-[12%] top-[20%] -translate-y-1/2 pointer-events-none select-none z-10">
+           <span className="text-[10px] font-heading font-black tracking-[0.3em] text-[#ff5a1f] filter drop-shadow-[0_0_8px_rgba(255,90,31,0.5)]">CLAN DES HÉROS</span>
+        </div>
+        <div className="absolute left-[12%] top-[50%] -translate-y-1/2 pointer-events-none select-none z-10">
+           <span className="text-[10px] font-heading font-black tracking-[0.3em] text-[#c28e3a] filter drop-shadow-[0_0_8px_rgba(194,142,58,0.5)]">CLAN DES GUERRIERS</span>
+        </div>
+        <div className="absolute left-[12%] top-[80%] -translate-y-1/2 pointer-events-none select-none z-10">
+           <span className="text-[10px] font-heading font-black tracking-[0.3em] text-[#34c759] filter drop-shadow-[0_0_8px_rgba(52,199,89,0.5)]">CLAN DES PRIMITIFS</span>
+        </div>
 
-          {/* SVG Connection Lines Layer */}
-          <svg className="absolute inset-0 w-full h-full pointer-events-none z-0">
-            <defs>
-               <filter id="glow">
-                 <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
-                 <feMerge>
-                   <feMergeNode in="coloredBlur"/>
-                   <feMergeNode in="SourceGraphic"/>
-                 </feMerge>
-               </filter>
-            </defs>
-            {Object.values(BRANCHES).flatMap(branch => 
-              branch.nodes.flatMap(node => 
-                node.req.map(reqId => {
-                  const reqNode = allNodesMap[reqId];
-                  if (!reqNode) return null;
-                  
-                  const isLinkActive = checkUnlocked(node.id) && checkUnlocked(reqId);
-                  const isLinkAvailable = checkAvailable(node) && checkUnlocked(reqId);
-                  const isLineHovered = hoveredSkill && (node.id === hoveredSkill.id || reqId === hoveredSkill.id);
-                  
-                  return (
-                    <React.Fragment key={`${reqId}-${node.id}`}>
-                      {/* Connection Line */}
-                      <line 
-                        x1={`${reqNode.x}%`} 
-                        y1={`${reqNode.y}%`} 
-                        x2={`${node.x}%`} 
-                        y2={`${node.y}%`} 
-                        stroke={isLineHovered ? '#fff' : isLinkActive ? branch.color : isLinkAvailable ? `${branch.color}` : '#3f3f46'}
-                        strokeWidth={isLineHovered ? 8 : isLinkActive ? 5 : 3}
-                        strokeDasharray={isLinkAvailable && !isLinkActive ? '10,10' : 'none'}
-                        opacity={isLineHovered ? 1 : isLinkActive ? 0.9 : isLinkAvailable ? 0.7 : 0.15}
-                        filter={isLinkActive || isLineHovered ? "url(#glow)" : "none"}
-                        className={`transition-all duration-300 ${isLinkAvailable && !isLinkActive ? 'animate-[dash_3s_linear_infinite]' : ''}`}
-                      />
-                      {/* Interactive Energy Flow Orb */}
-                      {isLinkActive && (
-                        <circle r="4" fill="#fff" filter="url(#glow)" opacity="0.8">
-                          <animate attributeName="cx" from={`${reqNode.x}%`} to={`${node.x}%`} dur="4s" repeatCount="indefinite" />
-                          <animate attributeName="cy" from={`${reqNode.y}%`} to={`${node.y}%`} dur="4s" repeatCount="indefinite" />
-                        </circle>
-                      )}
-                    </React.Fragment>
-                  );
-                })
-              )
-            )}
-            
-            {/* Draw lines from center to tier 0 nodes */}
-            {Object.values(BRANCHES).map(branch => {
-               const tier0Node = branch.nodes.find(n => n.tier === 0);
-               if(!tier0Node) return null;
-               const isLinkActive = checkUnlocked(tier0Node.id);
-               const isLinkAvailable = checkAvailable(tier0Node);
-               const isLineHovered = hoveredSkill && (tier0Node.id === hoveredSkill.id);
-               
-               return (
-                 <React.Fragment key={`center-${tier0Node.id}`}>
-                   {/* Center Link Line */}
-                   <line 
-                      x1="50%" 
-                      y1="50%" 
-                      x2={`${tier0Node.x}%`} 
-                      y2={`${tier0Node.y}%`} 
-                      stroke={isLineHovered ? '#fff' : isLinkActive ? branch.color : isLinkAvailable ? `${branch.color}` : '#3f3f46'}
-                      strokeWidth={isLineHovered ? 8 : isLinkActive ? 5 : 3}
-                      strokeDasharray={isLinkAvailable && !isLinkActive ? '10,10' : 'none'}
-                      opacity={isLineHovered ? 1 : isLinkActive ? 0.9 : isLinkAvailable ? 0.7 : 0.15}
+        {/* SVG Connection Lines Layer */}
+        <svg className="absolute inset-0 w-full h-full pointer-events-none z-0" viewBox="0 0 100 100" preserveAspectRatio="none">
+          <defs>
+             <filter id="glow">
+               <feGaussianBlur stdDeviation="0.8" result="coloredBlur"/>
+               <feMerge>
+                 <feMergeNode in="coloredBlur"/>
+                 <feMergeNode in="SourceGraphic"/>
+               </feMerge>
+             </filter>
+          </defs>
+          {Object.values(BRANCHES).flatMap(branch => 
+            branch.nodes.flatMap(node => 
+              node.req.map(reqId => {
+                const reqNode = allNodesMap[reqId];
+                if (!reqNode) return null;
+                
+                const isLinkActive = checkUnlocked(node.id) && checkUnlocked(reqId);
+                const isLinkAvailable = checkAvailable(node) && checkUnlocked(reqId);
+                const isLineHovered = hoveredSkill && (node.id === hoveredSkill.id || reqId === hoveredSkill.id);
+                const lineColor = node.isSpecialColor || branch.color;
+
+                const x1 = reqNode.x;
+                const y1 = reqNode.y;
+                const x2 = node.x;
+                const y2 = node.y;
+
+                // Draw elegant cubic bezier curves for curved organic linkages
+                const pathData = `M ${x1} ${y1} C ${(x1 + x2) / 2} ${y1}, ${(x1 + x2) / 2} ${y2}, ${x2} ${y2}`;
+
+                return (
+                  <React.Fragment key={`${reqId}-${node.id}`}>
+                    {/* Connection Curved Path */}
+                    <path 
+                      d={pathData}
+                      fill="none"
+                      stroke={isLineHovered ? '#fff' : isLinkActive ? lineColor : isLinkAvailable ? `${lineColor}` : '#27272a'}
+                      strokeWidth={isLineHovered ? 0.6 : isLinkActive ? 0.4 : 0.2}
+                      strokeDasharray={isLinkAvailable && !isLinkActive ? '1,1' : 'none'}
+                      opacity={isLineHovered ? 1 : isLinkActive ? 0.95 : isLinkAvailable ? 0.7 : 0.1}
                       filter={isLinkActive || isLineHovered ? "url(#glow)" : "none"}
-                      className={`transition-all duration-300 ${isLinkAvailable && !isLinkActive ? 'animate-[dash_3s_linear_infinite]' : ''}`}
-                   />
-                   {/* Interactive Energy Flow Orb from Nexus */}
-                   {isLinkActive && (
-                      <circle r="4" fill="#fff" filter="url(#glow)" opacity="0.8">
-                        <animate attributeName="cx" from="50%" to={`${tier0Node.x}%`} dur="4s" repeatCount="indefinite" />
-                        <animate attributeName="cy" from="50%" to={`${tier0Node.y}%`} dur="4s" repeatCount="indefinite" />
+                      className="transition-all duration-300"
+                    />
+                    {/* Interactive Energy Flow Orb along the bezier path */}
+                    {isLinkActive && (
+                      <circle r="0.3" fill="#fff" filter="url(#glow)" opacity="0.9">
+                        <animateMotion 
+                          path={pathData} 
+                          dur="4s" 
+                          repeatCount="indefinite" 
+                        />
                       </circle>
-                   )}
-                 </React.Fragment>
-               );
-            })}
+                    )}
+                  </React.Fragment>
+                );
+              })
+            )
+          )}
 
-            {/* Draw active particles */}
-            {particles.map(p => (
-              <circle 
-                key={p.id}
-                cx={`${p.x}%`}
-                cy={`${p.y}%`}
-                r={3 * p.life + 1}
-                fill={p.color}
-                filter="url(#glow)"
-                opacity={p.life}
+          {/* Draw active particles */}
+          {particles.map(p => (
+            <circle 
+              key={p.id}
+              cx={p.x}
+              cy={p.y}
+              r={(3 * p.life + 1) * 0.08}
+              fill={p.color}
+              filter="url(#glow)"
+              opacity={p.life}
+            />
+          ))}
+        </svg>
+
+        {/* Render All Nodes */}
+        {Object.values(BRANCHES).map(branch => (
+          <React.Fragment key={branch.id}>
+            {branch.nodes.map(node => (
+              <SkillNode 
+                key={node.id}
+                node={node}
+                branch={branch}
+                isUnlocked={checkUnlocked(node.id)}
+                isAvailable={checkAvailable(node)}
+                onUnlock={handleUnlock}
+                onHover={handleHover}
               />
             ))}
-          </svg>
-
-          {/* Render All Nodes */}
-          {Object.values(BRANCHES).map(branch => (
-            <React.Fragment key={branch.id}>
-              {branch.nodes.map(node => (
-                <SkillNode 
-                  key={node.id}
-                  node={node}
-                  branch={branch}
-                  isUnlocked={checkUnlocked(node.id)}
-                  isAvailable={checkAvailable(node)}
-                  onUnlock={handleUnlock}
-                  onHover={handleHover}
-                />
-              ))}
-            </React.Fragment>
-          ))}
-        </div>
+          </React.Fragment>
+        ))}
       </div>
 
       <SkillTooltip 
@@ -386,6 +454,109 @@ export default function SkillTree({ xp, unlockedSkills, onUnlock, onReset }) {
         checkAvailable={checkAvailable} 
         allNodesMap={allNodesMap} 
       />
+
+      {/* Holographic Family / Joker Action Modal */}
+      {selectedNode && selectedBranch && (
+        <div className="absolute inset-0 bg-black/75 backdrop-blur-sm z-[90] flex items-center justify-center animate-fade-in p-6">
+          <div className="bg-zinc-950 border border-purple-500/30 rounded-[32px] p-8 max-w-md w-full relative overflow-hidden shadow-[0_0_50px_rgba(168,85,247,0.25)]">
+            
+            {/* Holographic scanner line inside modal */}
+            <div className="absolute inset-x-0 h-0.5 bg-purple-500/30 shadow-[0_0_10px_#a855f7] animate-[scanLine_4s_linear_infinite] pointer-events-none"></div>
+
+            <div className="flex justify-between items-start mb-6">
+              <div>
+                <span className="text-[9px] text-purple-400 font-black uppercase tracking-[0.3em] block">🛡️ SYSTEM MULTI-COGNITIF</span>
+                <h3 className="text-white text-2xl font-heading font-black uppercase tracking-wide mt-1">
+                  TALENT VERROUILLÉ
+                </h3>
+              </div>
+              <button 
+                onClick={() => { setSelectedNode(null); setSelectedBranch(null); }}
+                className="text-zinc-500 hover:text-white transition-colors cursor-pointer"
+                disabled={activeHelpRequest}
+              >
+                <iconify-icon icon="lucide:x" width="24"></iconify-icon>
+              </button>
+            </div>
+
+            {/* Node Info Box */}
+            <div className="bg-black/50 border border-purple-500/10 p-5 rounded-2xl mb-6 relative">
+              <div className="flex items-center gap-4 mb-3">
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center border font-bold text-xl" style={{ backgroundColor: `${selectedBranch.color}15`, borderColor: `${selectedBranch.color}30`, color: selectedBranch.color }}>
+                  {selectedBranch.icon}
+                </div>
+                <div>
+                  <h4 className="text-white font-black uppercase tracking-wider text-sm">{selectedNode.name}</h4>
+                  <span className="text-[9px] font-bold uppercase tracking-widest text-zinc-500" style={{ color: selectedBranch.color }}>
+                    {selectedBranch.label} // TIER {selectedNode.tier}
+                  </span>
+                </div>
+              </div>
+              <p className="text-zinc-400 text-xs italic font-monda leading-relaxed">
+                "{selectedNode.desc}"
+              </p>
+              <div className="mt-4 flex gap-3 text-[10px] font-bold text-zinc-500">
+                <span>REQUIS: {selectedNode.xp} XP</span>
+                {selectedNode.req.length > 0 && (
+                  <span className="text-red-400">🔒 LIEN NEURAL REQUIS</span>
+                )}
+              </div>
+            </div>
+
+            {/* Help Request Loader Overlay */}
+            {activeHelpRequest ? (
+              <div className="py-6 flex flex-col items-center justify-center text-center animate-fade-in">
+                {helpCountdown > 0 ? (
+                  <>
+                    <div className="w-12 h-12 rounded-full border-2 border-t-purple-500 border-r-transparent border-b-transparent border-l-transparent animate-spin mb-4"></div>
+                    <span className="text-[10px] font-black uppercase tracking-[0.25em] text-purple-400 animate-pulse">TRANSMISSION DU SIGNAL MEUTE...</span>
+                    <p className="text-zinc-500 text-xs mt-2 font-monda">
+                      Demande d'aide envoyée. Attente de validation familiale dans <span className="text-purple-400 font-bold">{helpCountdown}s</span>...
+                    </p>
+                  </>
+                ) : (
+                  <div className="animate-scale-up">
+                    <iconify-icon icon="lucide:check-circle-2" width="48" className="text-green-400 mb-4 animate-bounce"></iconify-icon>
+                    <span className="text-[10px] font-black uppercase tracking-[0.25em] text-green-400">SIGNAL APPROUVÉ PAR LA MEUTE !</span>
+                    <p className="text-zinc-300 text-xs mt-2 font-bold font-monda">
+                      🔑 <span className="text-green-400 font-black">{helpSender}</span> a validé votre accès au talent !
+                    </p>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <p className="text-zinc-500 text-[11px] leading-relaxed text-center font-monda italic mb-2">
+                  "Dans le jeu en famille, contournez les exigences en utilisant un Joker ou en appelant la Meute à l'aide."
+                </p>
+
+                {/* Button 1: Joker */}
+                <button
+                  onClick={handleUseJoker}
+                  disabled={jokers <= 0}
+                  className={`w-full py-4 rounded-xl border flex items-center justify-center gap-3 font-heading font-black text-xs uppercase tracking-widest transition-all duration-300
+                    ${jokers > 0 
+                      ? 'bg-purple-500/10 border-purple-500/40 text-purple-300 hover:bg-purple-500 hover:text-black cursor-pointer shadow-[0_0_15px_rgba(168,85,247,0.2)]' 
+                      : 'bg-zinc-900/50 border-zinc-800 text-zinc-600 cursor-not-allowed'}`}
+                >
+                  <span>🃏</span>
+                  <span>Utiliser un Joker (Jokers : {jokers})</span>
+                </button>
+
+                {/* Button 2: Ask Family for Help */}
+                <button
+                  onClick={handleDemandeAide}
+                  className="w-full py-4 bg-emerald-500/10 border border-emerald-500/40 text-emerald-300 hover:bg-emerald-500 hover:text-black rounded-xl flex items-center justify-center gap-3 font-heading font-black text-xs uppercase tracking-widest transition-all duration-300 cursor-pointer shadow-[0_0_15px_rgba(52,199,89,0.2)]"
+                >
+                  <span>👥</span>
+                  <span>Demander de l'aide à la Famille</span>
+                </button>
+              </div>
+            )}
+
+          </div>
+        </div>
+      )}
     </div>
   );
 }

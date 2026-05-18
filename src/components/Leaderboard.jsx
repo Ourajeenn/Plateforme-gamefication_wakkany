@@ -27,7 +27,7 @@ export default function Leaderboard({ currentUser }) {
   };
 
   return (
-    <div className="bg-zinc-900/30 rounded-3xl border border-white/5 p-8 backdrop-blur-xl relative overflow-hidden">
+    <div className="bg-zinc-900/30 rounded-3xl border border-white/5 p-4 sm:p-8 backdrop-blur-xl relative overflow-hidden">
       {/* Background Decor */}
       <div className="absolute top-0 right-0 w-64 h-64 bg-[#c28e3a]/5 blur-[100px] pointer-events-none"></div>
       
@@ -37,7 +37,7 @@ export default function Leaderboard({ currentUser }) {
           <h1 className="text-white text-4xl font-heading font-bold italic uppercase tracking-tighter">CLASSEMENT GLOBAL</h1>
         </div>
 
-        <div className="flex flex-wrap gap-4 items-center">
+        <div className="flex flex-wrap gap-3 sm:gap-4 items-center">
           <div className="flex bg-black/60 p-1.5 rounded-2xl border border-white/10 shadow-inner">
             {['champions', 'academies', 'branches'].map(v => (
               <button
@@ -71,7 +71,7 @@ export default function Leaderboard({ currentUser }) {
               return (
                 <div 
                   key={index}
-                  className={`group flex items-center gap-6 p-5 rounded-3xl border transition-all duration-500
+                  className={`group flex items-center gap-3 sm:gap-6 p-3 sm:p-5 rounded-3xl border transition-all duration-500
                     ${isMe ? 'bg-[#c28e3a]/10 border-[#c28e3a]/50 scale-[1.02] shadow-2xl shadow-orange-950/20' : 'bg-black/40 border-white/5 hover:border-white/20'}`}
                 >
                   {/* Rank */}
@@ -81,7 +81,7 @@ export default function Leaderboard({ currentUser }) {
 
                   {/* Info */}
                   <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-1">
+                    <div className="flex items-center gap-2 mb-1 flex-wrap">
                       <span className="text-white font-black uppercase tracking-tighter text-lg">{player.name}</span>
                       {isMe && <span className="text-[8px] bg-white text-black px-2 py-0.5 rounded-md font-black">VOUS</span>}
                       {branch && (

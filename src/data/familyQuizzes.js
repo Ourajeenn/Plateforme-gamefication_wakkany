@@ -3,7 +3,8 @@ export const FAMILY_THEMES = [
   { id: 'cinema', name: 'Films & Séries', icon: 'lucide:film', color: 'bg-purple-500' },
   { id: 'animaux', name: 'Animaux', icon: 'lucide:cat', color: 'bg-green-500' },
   { id: 'sport', name: 'Sport', icon: 'lucide:trophy', color: 'bg-orange-500' },
-  { id: 'musique', name: 'Musique', icon: 'lucide:music', color: 'bg-pink-500' }
+  { id: 'musique', name: 'Musique', icon: 'lucide:music', color: 'bg-pink-500' },
+  { id: 'rpg', name: 'Hunter & RPG (Wakkany)', icon: 'lucide:swords', color: 'bg-indigo-600' }
 ];
 
 export const FAMILY_QUESTIONS = [
@@ -116,5 +117,41 @@ export const FAMILY_QUESTIONS = [
     question: 'Quel instrument joue Ludwig van Beethoven ?',
     options: ['Violon', 'Flûte', 'Piano', 'Guitare'],
     answer: 'Piano'
+  },
+  // Hunter & RPG (Wakkany)
+  {
+    id: 'rpg1',
+    theme: 'rpg',
+    question: 'Qui est le protagoniste principal de Solo Leveling ?',
+    options: ['Sung Jinwoo', 'Cha Hae-in', 'Thomas Andre', 'Yoo Jinho'],
+    answer: 'Sung Jinwoo'
+  },
+  {
+    id: 'rpg2',
+    theme: 'rpg',
+    question: 'Quel rang est historiquement le plus faible pour un Chasseur ?',
+    options: ['Rang S', 'Rang A', 'Rang D', 'Rang E'],
+    answer: 'Rang E'
+  },
+  {
+    id: 'rpg3',
+    theme: 'rpg',
+    question: 'Quel animal fantastique représente la Meute Sacrée dans Wakkany ?',
+    options: ['Le Dinosaure', 'Le Loup Cosmique', 'Le Dragon de Feu', 'Le Lion Doré'],
+    answer: 'Le Loup Cosmique'
+  },
+  {
+    id: 'rpg4',
+    theme: 'rpg',
+    question: "Comment s'appelle l'épée légendaire dans les récits de fantasy arthurienne ?",
+    options: ['Excalibur', 'Murasame', 'Ragnarok', 'Gungnir'],
+    answer: 'Excalibur'
+  },
+  {
+    id: 'rpg5',
+    theme: 'rpg',
+    question: 'Quel type de classe dans un RPG excelle dans les soins et le soutien ?',
+    options: ['Guerrier', 'Assassin', 'Prêtre', 'Mage de Feu'],
+    answer: 'Prêtre'
   }
 ];

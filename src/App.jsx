@@ -192,13 +192,13 @@ export default function App() {
 
 
   const LandingNav = () => (
-    <nav className="fixed top-0 left-0 w-full bg-black/40 backdrop-blur-2xl border-b border-white/10 flex items-center justify-between px-8 py-4 z-[100] transition-all hover:bg-black/60 shadow-2xl">
+    <nav className="fixed top-0 left-0 w-full bg-black/40 backdrop-blur-2xl border-b border-white/10 flex items-center justify-between px-4 sm:px-8 py-3 sm:py-4 z-[100] transition-all hover:bg-black/60 shadow-2xl">
       <div className="flex items-center gap-3 group cursor-pointer" onClick={() => { setView('landing'); setLandingTab(null); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
         <div className="relative">
           <iconify-icon icon="lucide:triangle" width="32" height="32" className="text-[#c28e3a] rotate-180 stroke-[1.5]"></iconify-icon>
           <div className="absolute inset-0 bg-[#c28e3a] blur-xl opacity-0 group-hover:opacity-40 transition-opacity"></div>
         </div>
-        <span className="text-white font-heading font-bold italic tracking-tighter uppercase text-xl hidden sm:block">Wakkany</span>
+        <span className="text-white font-heading font-bold italic tracking-tighter uppercase text-lg sm:text-xl">Wakkany</span>
       </div>
 
       <div className="hidden lg:flex items-center gap-10 text-white text-[11px] font-black uppercase tracking-[0.2em]">
@@ -288,7 +288,7 @@ export default function App() {
     };
 
     return (
-      <nav className="fixed top-0 left-0 w-full bg-zinc-950/80 backdrop-blur-md border-b border-white/5 flex items-center justify-between px-8 py-4 z-[60]">
+      <nav className="fixed top-0 left-0 w-full bg-zinc-950/80 backdrop-blur-md border-b border-white/5 flex items-center justify-between px-4 sm:px-8 py-3 sm:py-4 z-[60]">
         <div className="flex items-center gap-8">
           <div 
             className="flex items-center gap-4 cursor-pointer group" 
@@ -535,7 +535,7 @@ export default function App() {
         ) : (
           <>
             {/* Hero Section */}
-            <header id="hero" className="relative w-full h-screen min-h-[850px] overflow-hidden flex flex-col justify-end pb-12 sm:pb-24">
+            <header id="hero" className="relative w-full min-h-screen overflow-hidden flex flex-col justify-end pb-12 sm:pb-24">
               <div className="absolute inset-0 z-0 bg-zinc-950 overflow-hidden">
                 <iframe
                   className="video-background opacity-85 w-full h-full object-cover scale-[1.3] brightness-125"
@@ -556,13 +556,13 @@ export default function App() {
                       <div className="h-px w-8 bg-[#c28e3a]"></div>
                       <span className="text-[10px] font-black uppercase tracking-[0.4em]">Propulsé par l'Aether</span>
                     </div>
-                    <h2 className="text-white text-4xl sm:text-6xl font-black italic tracking-tighter font-heading uppercase leading-none">
+                    <h2 className="text-white text-3xl sm:text-5xl lg:text-6xl font-black italic tracking-tighter font-heading uppercase leading-none">
                       TRANSFORMEZ<br />VOTRE <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#c28e3a] to-white">POTENTIEL</span>
                     </h2>
                   </div>
 
                   <div className="lg:text-right flex flex-col lg:items-end opacity-0 animate-fade-in delay-500">
-                    <h1 className="text-white text-[80px] sm:text-[140px] font-black italic leading-[0.8] tracking-tighter font-heading uppercase drop-shadow-[0_20px_20px_rgba(0,0,0,0.5)]">
+                    <h1 className="text-white text-[60px] sm:text-[100px] lg:text-[140px] font-black italic leading-[0.8] tracking-tighter font-heading uppercase drop-shadow-[0_20px_20px_rgba(0,0,0,0.5)]">
                       Wak<br />kany
                     </h1>
                     <p className="text-yellow-500 text-lg sm:text-2xl mt-6 max-w-md tracking-tight font-monda font-light italic">
@@ -763,8 +763,8 @@ export default function App() {
           </>
         )
       ) : (
-        <div className="pt-24 min-h-screen bg-zinc-950">
-          <section className="max-w-7xl mx-auto px-6 pt-12 pb-12">
+        <div className="pt-20 min-h-screen bg-zinc-950">
+          <section className="max-w-7xl mx-auto px-4 sm:px-6 pt-8 pb-28 lg:pb-12">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-white/5 pb-8 mb-8">
               <div>
                 <h1 className="text-white text-5xl font-heading font-bold italic uppercase mb-2">
@@ -812,6 +812,8 @@ export default function App() {
                        xp={cumulativeXp} 
                        unlockedSkills={unlockedSkills} 
                        unlockedAchievements={unlockedAchievements} 
+                       setXp={setXp}
+                       setUnlockedAchievements={setUnlockedAchievements}
                      />
                    </div>
                    

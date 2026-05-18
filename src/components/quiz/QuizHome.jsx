@@ -1,5 +1,12 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { BOSS_ENCOUNTERS } from '../../data/bossEncounters';
+
+const STORAGE_KEY = 'wakkany_boss_progress';
+function getBossProgress() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{"defeated":[]}'); }
+  catch { return { defeated: [] }; }
+}
 
 export default function QuizHome() {
   const navigate = useNavigate();
@@ -41,17 +48,21 @@ export default function QuizHome() {
           </button>
 
           <button 
-            className="group relative bg-zinc-900/80 border-2 border-white/10 p-8 rounded-[40px] hover:border-white/50 transition-all duration-300 transform hover:scale-105 active:scale-95 opacity-80"
+            onClick={() => navigate('/quiz/config')}
+            className="group relative bg-zinc-900/80 border-2 border-white/10 p-10 rounded-[40px] hover:border-[#c28e3a] hover:bg-[#c28e3a]/5 transition-all duration-300 transform hover:scale-105 active:scale-95"
           >
-            <iconify-icon icon="lucide:library" width="40" className="text-white mb-4"></iconify-icon>
-            <h2 className="text-2xl font-heading font-black italic uppercase">Thèmes</h2>
+            <iconify-icon icon="lucide:library" width="50" className="text-[#c28e3a] mb-4"></iconify-icon>
+            <h2 className="text-3xl font-heading font-black italic uppercase">Thèmes</h2>
+            <p className="text-zinc-500 text-sm mt-2">6 catégories de Chasseurs</p>
           </button>
 
           <button 
-            className="group relative bg-zinc-900/80 border-2 border-white/10 p-8 rounded-[40px] hover:border-white/50 transition-all duration-300 transform hover:scale-105 active:scale-95 opacity-80"
+            onClick={() => navigate('/quiz/config')}
+            className="group relative bg-zinc-900/80 border-2 border-white/10 p-10 rounded-[40px] hover:border-[#c28e3a] hover:bg-[#c28e3a]/5 transition-all duration-300 transform hover:scale-105 active:scale-95"
           >
-            <iconify-icon icon="lucide:settings" width="40" className="text-white mb-4"></iconify-icon>
-            <h2 className="text-2xl font-heading font-black italic uppercase">Paramètres</h2>
+            <iconify-icon icon="lucide:settings" width="50" className="text-[#c28e3a] mb-4"></iconify-icon>
+            <h2 className="text-3xl font-heading font-black italic uppercase">Paramètres</h2>
+            <p className="text-zinc-500 text-sm mt-2">Difficulté & Temps Limite</p>
           </button>
         </div>
 
