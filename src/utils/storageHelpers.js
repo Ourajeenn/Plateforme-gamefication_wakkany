@@ -131,9 +131,16 @@ export const storage = {
         const items = [];
         for (let i = 0; i < localStorage.length; i++) {
           const key = localStorage.key(i);
+          const rawValue = localStorage.getItem(key);
+          let parsedValue = rawValue;
+          try {
+            parsedValue = JSON.parse(rawValue);
+          } catch (e) {
+            // Keep raw string if it is not valid JSON
+          }
           items.push({
             key,
-            value: JSON.parse(localStorage.getItem(key))
+            value: parsedValue
           });
         }
         return items;

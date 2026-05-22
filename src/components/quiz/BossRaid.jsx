@@ -229,7 +229,7 @@ export default function BossRaid() {
     const isFinal   = enc?.type === 'final';
 
     return (
-      <div className={`min-h-screen bg-zinc-950 flex flex-col p-4 sm:p-8 font-monda text-white relative select-none overflow-hidden
+      <div className={`min-h-screen bg-zinc-950 flex flex-col p-4 sm:p-8 font-monda text-white relative select-none overflow-y-auto
         ${shakeScreen ? 'animate-[shake_0.4s_ease]' : ''}`}>
 
         {/* BG glow per boss color */}

@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { BRANCHES } from '../data/branches';
 import SkillNode from './SkillTree/SkillNode';
 import SkillTooltip from './SkillTree/SkillTooltip';
@@ -33,10 +34,10 @@ export default function SkillTree({ xp, unlockedSkills, onUnlock, onReset }) {
   // Panning State
   const scrollRef = useRef(null);
   const [isDragging, setIsDragging] = useState(false);
-  const [startX, setStartX] = useState(0);
-  const [startY, setStartY] = useState(0);
-  const [scrollLeft, setScrollLeft] = useState(0);
-  const [scrollTop, setScrollTop] = useState(0);
+  const startXRef = useRef(0);
+  const startYRef = useRef(0);
+  const scrollLeftRef = useRef(0);
+  const scrollTopRef = useRef(0);
   
   // Zoom State
   const [zoom, setZoom] = useState(1); // Range: 0.5 to 2.0
@@ -287,10 +288,10 @@ export default function SkillTree({ xp, unlockedSkills, onUnlock, onReset }) {
   // Panning Handlers
   const handleMouseDown = (e) => {
     setIsDragging(true);
-    setStartX(e.pageX - scrollRef.current.offsetLeft);
-    setStartY(e.pageY - scrollRef.current.offsetTop);
-    setScrollLeft(scrollRef.current.scrollLeft);
-    setScrollTop(scrollRef.current.scrollTop);
+    startXRef.current = e.pageX - scrollRef.current.offsetLeft;
+    startYRef.current = e.pageY - scrollRef.current.offsetTop;
+    scrollLeftRef.current = scrollRef.current.scrollLeft;
+    scrollTopRef.current = scrollRef.current.scrollTop;
   };
   const handleMouseLeave = () => setIsDragging(false);
   const handleMouseUp = () => setIsDragging(false);
@@ -299,11 +300,52 @@ export default function SkillTree({ xp, unlockedSkills, onUnlock, onReset }) {
     e.preventDefault();
     const x = e.pageX - scrollRef.current.offsetLeft;
     const y = e.pageY - scrollRef.current.offsetTop;
-    const walkX = (x - startX) * 1.5; 
-    const walkY = (y - startY) * 1.5;
-    scrollRef.current.scrollLeft = scrollLeft - walkX;
-    scrollRef.current.scrollTop = scrollTop - walkY;
+    const walkX = (x - startXRef.current) * 1.5; 
+    const walkY = (y - startYRef.current) * 1.5;
+    scrollRef.current.scrollLeft = scrollLeftRef.current - walkX;
+    scrollRef.current.scrollTop = scrollTopRef.current - walkY;
   };
+
+  // Touch Handlers for Mobile Panning (using native events to bypass React passive limitation)
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    const onTouchStart = (e) => {
+      setIsDragging(true);
+      const touch = e.touches[0];
+      startXRef.current = touch.pageX - el.offsetLeft;
+      startYRef.current = touch.pageY - el.offsetTop;
+      scrollLeftRef.current = el.scrollLeft;
+      scrollTopRef.current = el.scrollTop;
+    };
+
+    const onTouchMove = (e) => {
+      if (!isDragging) return;
+      if (e.cancelable) e.preventDefault(); // prevent default scroll and bouncing
+      const touch = e.touches[0];
+      const x = touch.pageX - el.offsetLeft;
+      const y = touch.pageY - el.offsetTop;
+      const walkX = (x - startXRef.current) * 1.5; 
+      const walkY = (y - startYRef.current) * 1.5;
+      el.scrollLeft = scrollLeftRef.current - walkX;
+      el.scrollTop = scrollTopRef.current - walkY;
+    };
+
+    const onTouchEnd = () => {
+      setIsDragging(false);
+    };
+
+    el.addEventListener('touchstart', onTouchStart, { passive: true });
+    el.addEventListener('touchmove', onTouchMove, { passive: false });
+    el.addEventListener('touchend', onTouchEnd, { passive: true });
+
+    return () => {
+      el.removeEventListener('touchstart', onTouchStart);
+      el.removeEventListener('touchmove', onTouchMove);
+      el.removeEventListener('touchend', onTouchEnd);
+    };
+  }, [isDragging]);
 
   return (
     <div className="relative w-full h-[700px] md:h-[800px] group/tree">
@@ -341,111 +383,148 @@ export default function SkillTree({ xp, unlockedSkills, onUnlock, onReset }) {
         </div>
       </div>
 
-      {/* Main Coordinate Grid (Fully transparent, floating on the page) */}
-      <div className="w-full h-full relative transition-all duration-500 animate-fade-in">
-        {/* Animated Grid Dots Overlay */}
-        <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, #333 1.5px, transparent 1.5px)', backgroundSize: '40px 40px' }}></div>
-        
-        {/* Branch Section Title Labels */}
-        <div className="absolute left-[12%] top-[20%] -translate-y-1/2 pointer-events-none select-none z-10">
-           <span className="text-[10px] font-heading font-black tracking-[0.3em] text-[#ff5a1f] filter drop-shadow-[0_0_8px_rgba(255,90,31,0.5)]">CLAN DES HÉROS</span>
-        </div>
-        <div className="absolute left-[12%] top-[50%] -translate-y-1/2 pointer-events-none select-none z-10">
-           <span className="text-[10px] font-heading font-black tracking-[0.3em] text-[#c28e3a] filter drop-shadow-[0_0_8px_rgba(194,142,58,0.5)]">CLAN DES GUERRIERS</span>
-        </div>
-        <div className="absolute left-[12%] top-[80%] -translate-y-1/2 pointer-events-none select-none z-10">
-           <span className="text-[10px] font-heading font-black tracking-[0.3em] text-[#34c759] filter drop-shadow-[0_0_8px_rgba(52,199,89,0.5)]">CLAN DES PRIMITIFS</span>
-        </div>
+      {/* Main Coordinate Grid (Fully transparent, floating on the page with mouse/touch drag) */}
+      <div 
+        ref={scrollRef}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseLeave}
+        className="w-full h-full overflow-hidden cursor-grab active:cursor-grabbing relative animate-fade-in scrollbar-none"
+      >
+        <div 
+          className={`w-[1400px] lg:w-full h-full relative origin-top-left ${isDragging ? '' : 'transition-transform duration-200'}`}
+          style={{ transform: `scale(${zoom})` }}
+        >
+          {/* Animated Grid Dots Overlay */}
+          <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, #333 1.5px, transparent 1.5px)', backgroundSize: '40px 40px' }}></div>
+          
+          {/* Branch Section Title Labels */}
+          <div className="absolute left-[12%] top-[20%] -translate-y-1/2 pointer-events-none select-none z-10">
+             <span className="text-[10px] font-heading font-black tracking-[0.3em] text-[#ff5a1f] filter drop-shadow-[0_0_8px_rgba(255,90,31,0.5)]">CLAN DES HÉROS</span>
+          </div>
+          <div className="absolute left-[12%] top-[50%] -translate-y-1/2 pointer-events-none select-none z-10">
+             <span className="text-[10px] font-heading font-black tracking-[0.3em] text-[#c28e3a] filter drop-shadow-[0_0_8px_rgba(194,142,58,0.5)]">CLAN DES GUERRIERS</span>
+          </div>
+          <div className="absolute left-[12%] top-[80%] -translate-y-1/2 pointer-events-none select-none z-10">
+             <span className="text-[10px] font-heading font-black tracking-[0.3em] text-[#34c759] filter drop-shadow-[0_0_8px_rgba(52,199,89,0.5)]">CLAN DES PRIMITIFS</span>
+          </div>
 
-        {/* SVG Connection Lines Layer */}
-        <svg className="absolute inset-0 w-full h-full pointer-events-none z-0" viewBox="0 0 100 100" preserveAspectRatio="none">
-          <defs>
-             <filter id="glow">
-               <feGaussianBlur stdDeviation="0.8" result="coloredBlur"/>
-               <feMerge>
-                 <feMergeNode in="coloredBlur"/>
-                 <feMergeNode in="SourceGraphic"/>
-               </feMerge>
-             </filter>
-          </defs>
-          {Object.values(BRANCHES).flatMap(branch => 
-            branch.nodes.flatMap(node => 
-              node.req.map(reqId => {
-                const reqNode = allNodesMap[reqId];
-                if (!reqNode) return null;
-                
-                const isLinkActive = checkUnlocked(node.id) && checkUnlocked(reqId);
-                const isLinkAvailable = checkAvailable(node) && checkUnlocked(reqId);
-                const isLineHovered = hoveredSkill && (node.id === hoveredSkill.id || reqId === hoveredSkill.id);
-                const lineColor = node.isSpecialColor || branch.color;
+          {/* SVG Connection Lines Layer */}
+          <svg className="absolute inset-0 w-full h-full pointer-events-none z-0" viewBox="0 0 100 100" preserveAspectRatio="none">
+            <defs>
+               <filter id="glow">
+                 <feGaussianBlur stdDeviation="0.8" result="coloredBlur"/>
+                 <feMerge>
+                   <feMergeNode in="coloredBlur"/>
+                   <feMergeNode in="SourceGraphic"/>
+                 </feMerge>
+               </filter>
+            </defs>
+            {Object.values(BRANCHES).flatMap(branch => 
+              branch.nodes.flatMap(node => 
+                node.req.map(reqId => {
+                  const reqNode = allNodesMap[reqId];
+                  if (!reqNode) return null;
+                  
+                  const isLinkActive = checkUnlocked(node.id) && checkUnlocked(reqId);
+                  const isLinkAvailable = checkAvailable(node) && checkUnlocked(reqId);
+                  const isLineHovered = hoveredSkill && (node.id === hoveredSkill.id || reqId === hoveredSkill.id);
+                  const lineColor = node.isSpecialColor || branch.color;
 
-                const x1 = reqNode.x;
-                const y1 = reqNode.y;
-                const x2 = node.x;
-                const y2 = node.y;
+                  const x1 = reqNode.x;
+                  const y1 = reqNode.y;
+                  const x2 = node.x;
+                  const y2 = node.y;
 
-                // Draw elegant cubic bezier curves for curved organic linkages
-                const pathData = `M ${x1} ${y1} C ${(x1 + x2) / 2} ${y1}, ${(x1 + x2) / 2} ${y2}, ${x2} ${y2}`;
+                  // Draw elegant cubic bezier curves for curved organic linkages
+                  const pathData = `M ${x1} ${y1} C ${(x1 + x2) / 2} ${y1}, ${(x1 + x2) / 2} ${y2}, ${x2} ${y2}`;
 
-                return (
-                  <React.Fragment key={`${reqId}-${node.id}`}>
-                    {/* Connection Curved Path */}
-                    <path 
-                      d={pathData}
-                      fill="none"
-                      stroke={isLineHovered ? '#fff' : isLinkActive ? lineColor : isLinkAvailable ? `${lineColor}` : '#27272a'}
-                      strokeWidth={isLineHovered ? 0.6 : isLinkActive ? 0.4 : 0.2}
-                      strokeDasharray={isLinkAvailable && !isLinkActive ? '1,1' : 'none'}
-                      opacity={isLineHovered ? 1 : isLinkActive ? 0.95 : isLinkAvailable ? 0.7 : 0.1}
-                      filter={isLinkActive || isLineHovered ? "url(#glow)" : "none"}
-                      className="transition-all duration-300"
-                    />
-                    {/* Interactive Energy Flow Orb along the bezier path */}
-                    {isLinkActive && (
-                      <circle r="0.3" fill="#fff" filter="url(#glow)" opacity="0.9">
-                        <animateMotion 
-                          path={pathData} 
-                          dur="4s" 
-                          repeatCount="indefinite" 
-                        />
-                      </circle>
-                    )}
-                  </React.Fragment>
-                );
-              })
-            )
-          )}
+                  return (
+                    <React.Fragment key={`${reqId}-${node.id}`}>
+                      {/* Connection Curved Path */}
+                      <path 
+                        d={pathData}
+                        fill="none"
+                        stroke={isLineHovered ? '#fff' : isLinkActive ? lineColor : isLinkAvailable ? `${lineColor}` : '#27272a'}
+                        strokeWidth={isLineHovered ? 0.6 : isLinkActive ? 0.4 : 0.2}
+                        strokeDasharray={isLinkAvailable && !isLinkActive ? '1,1' : 'none'}
+                        opacity={isLineHovered ? 1 : isLinkActive ? 0.95 : isLinkAvailable ? 0.7 : 0.1}
+                        filter={isLinkActive || isLineHovered ? "url(#glow)" : "none"}
+                        className="transition-all duration-300"
+                      />
+                      {/* Interactive Energy Flow Orb along the bezier path */}
+                      {isLinkActive && (
+                        <circle r="0.3" fill="#fff" filter="url(#glow)" opacity="0.9">
+                          <animateMotion 
+                            path={pathData} 
+                            dur="4s" 
+                            repeatCount="indefinite" 
+                          />
+                        </circle>
+                      )}
+                    </React.Fragment>
+                  );
+                })
+              )
+            )}
 
-          {/* Draw active particles */}
-          {particles.map(p => (
-            <circle 
-              key={p.id}
-              cx={p.x}
-              cy={p.y}
-              r={(3 * p.life + 1) * 0.08}
-              fill={p.color}
-              filter="url(#glow)"
-              opacity={p.life}
-            />
-          ))}
-        </svg>
-
-        {/* Render All Nodes */}
-        {Object.values(BRANCHES).map(branch => (
-          <React.Fragment key={branch.id}>
-            {branch.nodes.map(node => (
-              <SkillNode 
-                key={node.id}
-                node={node}
-                branch={branch}
-                isUnlocked={checkUnlocked(node.id)}
-                isAvailable={checkAvailable(node)}
-                onUnlock={handleUnlock}
-                onHover={handleHover}
+            {/* Draw active particles */}
+            {particles.map(p => (
+              <circle 
+                key={p.id}
+                cx={p.x}
+                cy={p.y}
+                r={(3 * p.life + 1) * 0.08}
+                fill={p.color}
+                filter="url(#glow)"
+                opacity={p.life}
               />
             ))}
-          </React.Fragment>
-        ))}
+          </svg>
+
+          {/* Render All Nodes */}
+          {Object.values(BRANCHES).map(branch => (
+            <React.Fragment key={branch.id}>
+              {branch.nodes.map(node => (
+                <SkillNode 
+                  key={node.id}
+                  node={node}
+                  branch={branch}
+                  isUnlocked={checkUnlocked(node.id)}
+                  isAvailable={checkAvailable(node)}
+                  onUnlock={handleUnlock}
+                  onHover={handleHover}
+                />
+              ))}
+            </React.Fragment>
+          ))}
+        </div>
+      </div>
+
+      {/* Floating Zoom Controls */}
+      <div className="absolute bottom-6 right-6 z-[80] flex flex-col gap-2 pointer-events-auto">
+        <button 
+          onClick={() => setZoom(z => Math.min(z + 0.1, 2.0))}
+          className="w-10 h-10 bg-black/60 border border-white/10 hover:border-purple-500/40 text-white rounded-xl flex items-center justify-center backdrop-blur-md transition-all active:scale-95 cursor-pointer shadow-lg"
+          title="Zoom In"
+        >
+          <iconify-icon icon="lucide:plus" width="20"></iconify-icon>
+        </button>
+        <button 
+          onClick={() => setZoom(z => Math.max(z - 0.1, 0.5))}
+          className="w-10 h-10 bg-black/60 border border-white/10 hover:border-purple-500/40 text-white rounded-xl flex items-center justify-center backdrop-blur-md transition-all active:scale-95 cursor-pointer shadow-lg"
+          title="Zoom Out"
+        >
+          <iconify-icon icon="lucide:minus" width="20"></iconify-icon>
+        </button>
+        <button 
+          onClick={() => { setZoom(1); centerTree(); }}
+          className="w-10 h-10 bg-black/60 border border-white/10 hover:border-purple-500/40 text-white rounded-xl flex items-center justify-center backdrop-blur-md transition-all active:scale-95 cursor-pointer shadow-lg text-xs font-bold uppercase tracking-tighter"
+          title="Reset Zoom"
+        >
+          1:1
+        </button>
       </div>
 
       <SkillTooltip 
@@ -456,14 +535,14 @@ export default function SkillTree({ xp, unlockedSkills, onUnlock, onReset }) {
       />
 
       {/* Holographic Family / Joker Action Modal */}
-      {selectedNode && selectedBranch && (
-        <div className="absolute inset-0 bg-black/75 backdrop-blur-sm z-[90] flex items-center justify-center animate-fade-in p-6">
-          <div className="bg-zinc-950 border border-purple-500/30 rounded-[32px] p-8 max-w-md w-full relative overflow-hidden shadow-[0_0_50px_rgba(168,85,247,0.25)]">
+      {selectedNode && selectedBranch && createPortal(
+        <div className="fixed inset-0 bg-black/75 backdrop-blur-sm z-[250] flex items-center justify-center animate-fade-in p-6">
+          <div className="bg-zinc-950 border border-purple-500/30 rounded-[32px] p-6 sm:p-8 max-w-md w-full max-h-[90%] flex flex-col relative overflow-hidden shadow-[0_0_50px_rgba(168,85,247,0.25)]">
             
             {/* Holographic scanner line inside modal */}
             <div className="absolute inset-x-0 h-0.5 bg-purple-500/30 shadow-[0_0_10px_#a855f7] animate-[scanLine_4s_linear_infinite] pointer-events-none"></div>
 
-            <div className="flex justify-between items-start mb-6">
+            <div className="flex justify-between items-start mb-4 shrink-0">
               <div>
                 <span className="text-[9px] text-purple-400 font-black uppercase tracking-[0.3em] block">🛡️ SYSTEM MULTI-COGNITIF</span>
                 <h3 className="text-white text-2xl font-heading font-black uppercase tracking-wide mt-1">
@@ -479,83 +558,87 @@ export default function SkillTree({ xp, unlockedSkills, onUnlock, onReset }) {
               </button>
             </div>
 
-            {/* Node Info Box */}
-            <div className="bg-black/50 border border-purple-500/10 p-5 rounded-2xl mb-6 relative">
-              <div className="flex items-center gap-4 mb-3">
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center border font-bold text-xl" style={{ backgroundColor: `${selectedBranch.color}15`, borderColor: `${selectedBranch.color}30`, color: selectedBranch.color }}>
-                  {selectedBranch.icon}
+            {/* Scrollable Container */}
+            <div className="overflow-y-auto pr-1 space-y-4 scrollbar-thin">
+              {/* Node Info Box */}
+              <div className="bg-black/50 border border-purple-500/10 p-5 rounded-2xl relative">
+                <div className="flex items-center gap-4 mb-3">
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center border font-bold text-xl" style={{ backgroundColor: `${selectedBranch.color}15`, borderColor: `${selectedBranch.color}30`, color: selectedBranch.color }}>
+                    {selectedBranch.icon}
+                  </div>
+                  <div>
+                    <h4 className="text-white font-black uppercase tracking-wider text-sm">{selectedNode.name}</h4>
+                    <span className="text-[9px] font-bold uppercase tracking-widest text-zinc-500" style={{ color: selectedBranch.color }}>
+                      {selectedBranch.label} // TIER {selectedNode.tier}
+                    </span>
+                  </div>
                 </div>
-                <div>
-                  <h4 className="text-white font-black uppercase tracking-wider text-sm">{selectedNode.name}</h4>
-                  <span className="text-[9px] font-bold uppercase tracking-widest text-zinc-500" style={{ color: selectedBranch.color }}>
-                    {selectedBranch.label} // TIER {selectedNode.tier}
-                  </span>
+                <p className="text-zinc-400 text-xs italic font-monda leading-relaxed">
+                  "{selectedNode.desc}"
+                </p>
+                <div className="mt-4 flex gap-3 text-[10px] font-bold text-zinc-500">
+                  <span>REQUIS: {selectedNode.xp} XP</span>
+                  {selectedNode.req.length > 0 && (
+                    <span className="text-red-400">🔒 LIEN NEURAL REQUIS</span>
+                  )}
                 </div>
               </div>
-              <p className="text-zinc-400 text-xs italic font-monda leading-relaxed">
-                "{selectedNode.desc}"
-              </p>
-              <div className="mt-4 flex gap-3 text-[10px] font-bold text-zinc-500">
-                <span>REQUIS: {selectedNode.xp} XP</span>
-                {selectedNode.req.length > 0 && (
-                  <span className="text-red-400">🔒 LIEN NEURAL REQUIS</span>
-                )}
-              </div>
+
+              {/* Help Request Loader Overlay */}
+              {activeHelpRequest ? (
+                <div className="py-6 flex flex-col items-center justify-center text-center animate-fade-in">
+                  {helpCountdown > 0 ? (
+                    <>
+                      <div className="w-12 h-12 rounded-full border-2 border-t-purple-500 border-r-transparent border-b-transparent border-l-transparent animate-spin mb-4"></div>
+                      <span className="text-[10px] font-black uppercase tracking-[0.25em] text-purple-400 animate-pulse">TRANSMISSION DU SIGNAL MEUTE...</span>
+                      <p className="text-zinc-500 text-xs mt-2 font-monda">
+                        Demande d'aide envoyée. Attente de validation familiale dans <span className="text-purple-400 font-bold">{helpCountdown}s</span>...
+                      </p>
+                    </>
+                  ) : (
+                    <div className="animate-scale-up">
+                      <iconify-icon icon="lucide:check-circle-2" width="48" className="text-green-400 mb-4 animate-bounce"></iconify-icon>
+                      <span className="text-[10px] font-black uppercase tracking-[0.25em] text-green-400">SIGNAL APPROUVÉ PAR LA MEUTE !</span>
+                      <p className="text-zinc-300 text-xs mt-2 font-bold font-monda">
+                        🔑 <span className="text-green-400 font-black">{helpSender}</span> a validé votre accès au talent !
+                      </p>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <p className="text-zinc-500 text-[11px] leading-relaxed text-center font-monda italic mb-2">
+                    "Dans le jeu en famille, contournez les exigences en utilisant un Joker ou en appelant la Meute à l'aide."
+                  </p>
+
+                  {/* Button 1: Joker */}
+                  <button
+                    onClick={handleUseJoker}
+                    disabled={jokers <= 0}
+                    className={`w-full py-4 rounded-xl border flex items-center justify-center gap-3 font-heading font-black text-xs uppercase tracking-widest transition-all duration-300
+                      ${jokers > 0 
+                        ? 'bg-purple-500/10 border-purple-500/40 text-purple-300 hover:bg-purple-500 hover:text-black cursor-pointer shadow-[0_0_15px_rgba(168,85,247,0.2)]' 
+                        : 'bg-zinc-900/50 border-zinc-800 text-zinc-600 cursor-not-allowed'}`}
+                  >
+                    <span>🃏</span>
+                    <span>Utiliser un Joker (Jokers : {jokers})</span>
+                  </button>
+
+                  {/* Button 2: Ask Family for Help */}
+                  <button
+                    onClick={handleDemandeAide}
+                    className="w-full py-4 bg-emerald-500/10 border border-emerald-500/40 text-emerald-300 hover:bg-emerald-500 hover:text-black rounded-xl flex items-center justify-center gap-3 font-heading font-black text-xs uppercase tracking-widest transition-all duration-300 cursor-pointer shadow-[0_0_15px_rgba(52,199,89,0.2)]"
+                  >
+                    <span>👥</span>
+                    <span>Demander de l'aide à la Famille</span>
+                  </button>
+                </div>
+              )}
             </div>
 
-            {/* Help Request Loader Overlay */}
-            {activeHelpRequest ? (
-              <div className="py-6 flex flex-col items-center justify-center text-center animate-fade-in">
-                {helpCountdown > 0 ? (
-                  <>
-                    <div className="w-12 h-12 rounded-full border-2 border-t-purple-500 border-r-transparent border-b-transparent border-l-transparent animate-spin mb-4"></div>
-                    <span className="text-[10px] font-black uppercase tracking-[0.25em] text-purple-400 animate-pulse">TRANSMISSION DU SIGNAL MEUTE...</span>
-                    <p className="text-zinc-500 text-xs mt-2 font-monda">
-                      Demande d'aide envoyée. Attente de validation familiale dans <span className="text-purple-400 font-bold">{helpCountdown}s</span>...
-                    </p>
-                  </>
-                ) : (
-                  <div className="animate-scale-up">
-                    <iconify-icon icon="lucide:check-circle-2" width="48" className="text-green-400 mb-4 animate-bounce"></iconify-icon>
-                    <span className="text-[10px] font-black uppercase tracking-[0.25em] text-green-400">SIGNAL APPROUVÉ PAR LA MEUTE !</span>
-                    <p className="text-zinc-300 text-xs mt-2 font-bold font-monda">
-                      🔑 <span className="text-green-400 font-black">{helpSender}</span> a validé votre accès au talent !
-                    </p>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="space-y-4">
-                <p className="text-zinc-500 text-[11px] leading-relaxed text-center font-monda italic mb-2">
-                  "Dans le jeu en famille, contournez les exigences en utilisant un Joker ou en appelant la Meute à l'aide."
-                </p>
-
-                {/* Button 1: Joker */}
-                <button
-                  onClick={handleUseJoker}
-                  disabled={jokers <= 0}
-                  className={`w-full py-4 rounded-xl border flex items-center justify-center gap-3 font-heading font-black text-xs uppercase tracking-widest transition-all duration-300
-                    ${jokers > 0 
-                      ? 'bg-purple-500/10 border-purple-500/40 text-purple-300 hover:bg-purple-500 hover:text-black cursor-pointer shadow-[0_0_15px_rgba(168,85,247,0.2)]' 
-                      : 'bg-zinc-900/50 border-zinc-800 text-zinc-600 cursor-not-allowed'}`}
-                >
-                  <span>🃏</span>
-                  <span>Utiliser un Joker (Jokers : {jokers})</span>
-                </button>
-
-                {/* Button 2: Ask Family for Help */}
-                <button
-                  onClick={handleDemandeAide}
-                  className="w-full py-4 bg-emerald-500/10 border border-emerald-500/40 text-emerald-300 hover:bg-emerald-500 hover:text-black rounded-xl flex items-center justify-center gap-3 font-heading font-black text-xs uppercase tracking-widest transition-all duration-300 cursor-pointer shadow-[0_0_15px_rgba(52,199,89,0.2)]"
-                >
-                  <span>👥</span>
-                  <span>Demander de l'aide à la Famille</span>
-                </button>
-              </div>
-            )}
-
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

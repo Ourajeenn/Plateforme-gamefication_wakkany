@@ -9,10 +9,12 @@ import LevelEvolutionMap from './components/LevelEvolutionMap';
 import QuestPanel from './components/quests/QuestPanel';
 import StatsPanel from './components/StatsPanel';
 import ClanManagement from './components/ClanManagement';
-import BadgeGallery from './components/BadgeGallery';
+import HistoireView from './components/HistoireView';
+import BadgesView from './components/BadgesView';
 import NotificationToast from './components/NotificationToast';
 import TrainingCenter from './components/TrainingCenter';
 import BottomNav from './components/BottomNav';
+import AvatarCarousel from './components/AvatarCarousel';
 import usePlayerData from './hooks/usePlayerData';
 import { ACHIEVEMENTS } from './data/achievements';
 import { realtime } from './utils/realtime';
@@ -76,6 +78,19 @@ export default function App() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Effet sonore global pour chaque clic sur un élément interactif
+  useEffect(() => {
+    const handleGlobalClick = (e) => {
+      // Vérifie si l'élément cliqué (ou l'un de ses parents) est un bouton ou un lien
+      const isClickable = e.target.closest('button, a, [role="button"]');
+      if (isClickable) {
+        playClick();
+      }
+    };
+    document.addEventListener('click', handleGlobalClick);
+    return () => document.removeEventListener('click', handleGlobalClick);
+  }, [playClick]);
 
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
@@ -210,7 +225,7 @@ export default function App() {
           else handleJoinClick();
         }} className="text-zinc-500 hover:text-white transition-all">MON PROFIL</button>
         <button onClick={() => setLandingTab('about')} className={`transition-all hover:text-[#c28e3a] ${landingTab === 'about' ? 'text-[#c28e3a]' : 'text-zinc-500'}`}>ÉCOSYSTÈME</button>
-        <button onClick={() => setLandingTab('blog')} className={`transition-all hover:text-[#c28e3a] ${landingTab === 'blog' ? 'text-[#c28e3a]' : 'text-zinc-500'}`}>ARCHIVES</button>
+        <button onClick={() => setLandingTab('blog')} className={`transition-all hover:text-[#c28e3a] ${landingTab === 'blog' ? 'text-[#c28e3a]' : 'text-zinc-500'}`}>HISTOIRE</button>
       </div>
 
       <div className="flex items-center gap-4">
@@ -237,6 +252,7 @@ export default function App() {
         <button
           onClick={() => setIsMenuOpen(!isMenuOpen)}
           className="lg:hidden text-white p-2"
+          aria-label="Basculer le menu mobile"
         >
           <iconify-icon icon={isMenuOpen ? "lucide:x" : "lucide:menu"} width="24"></iconify-icon>
         </button>
@@ -380,14 +396,55 @@ export default function App() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {[
-            { title: 'La Grande Faille', desc: 'Une anomalie temporelle a fusionné 4 dimensions : Légion Héroïque, Ordre Antique, Ère Primaire et Syndicat Mécanique.', icon: 'lucide:shield-check' },
-            { title: 'Énergie Cosmique', desc: 'Le flux quantique irrigue désormais toutes les entités, donnant des pouvoirs aux Héros comme aux Titans mécaniques.', icon: 'lucide:sparkles' },
-            { title: 'Le Choc des Mondes', desc: 'Un cycle infini où dinosaures, guerriers mythiques, hypercars et super-héros forgent de nouvelles légendes.', icon: 'lucide:swords' }
+            { 
+              title: 'La Grande Faille', 
+              subtitle: 'L\'Événement Fondateur',
+              desc: 'Une anomalie temporelle cataclysmique a brisé les barrières de la réalité, provoquant la fusion brutale de quatre dimensions distinctes.', 
+              points: ['Légion Héroïque (Guerriers de Lumière)', 'Ordre Antique (Mages et Érudits)', 'Ère Primaire (Bêtes et Dinosaures)', 'Syndicat Mécanique (Cyborgs)'],
+              icon: 'lucide:shield-check',
+              color: '#3b82f6'
+            },
+            { 
+              title: 'L\'Aether', 
+              subtitle: 'Source de Pouvoir',
+              desc: 'Le flux quantique, ou Aether, irrigue désormais toutes les entités du multivers. Il est la source de toute magie et de la technologie avancée.', 
+              points: ['Modification de l\'ADN', 'Alimentation des Noyaux Mécaniques', 'Contrôle des Éléments', 'Évolution par l\'Expérience (XP)'],
+              icon: 'lucide:sparkles',
+              color: '#a855f7'
+            },
+            { 
+              title: 'L\'Arène Éternelle', 
+              subtitle: 'Le Choc des Mondes',
+              desc: 'Pour éviter une guerre totale destructrice, les conflits se règlent désormais dans l\'Arène, un cycle infini de combats titanesques.', 
+              points: ['Combats Inter-dimensionnels', 'Forges de Nouvelles Légendes', 'Système de Rangs et Badges', 'Conquête de Territoires'],
+              icon: 'lucide:swords',
+              color: '#f43f5e'
+            }
           ].map((item, idx) => (
-            <div key={idx} className="bg-zinc-900/50 border border-white/5 p-10 rounded-3xl hover:border-[#c28e3a]/30 transition-all group">
-              <iconify-icon icon={item.icon} width="48" className="text-[#c28e3a] mb-6 block group-hover:scale-110 transition-transform"></iconify-icon>
-              <h3 className="text-white text-2xl font-bold uppercase mb-4 italic font-heading">{item.title}</h3>
-              <p className="text-zinc-500 font-monda leading-relaxed">{item.desc}</p>
+            <div key={idx} className="relative bg-zinc-900/40 backdrop-blur-sm border border-white/10 p-10 rounded-[32px] hover:border-[#c28e3a]/40 transition-all duration-500 group overflow-hidden flex flex-col h-full">
+              {/* Background Glow */}
+              <div 
+                className="absolute -top-24 -right-24 w-48 h-48 rounded-full blur-[80px] opacity-20 group-hover:opacity-40 transition-opacity duration-700 pointer-events-none"
+                style={{ backgroundColor: item.color }}
+              ></div>
+              
+              <iconify-icon icon={item.icon} width="56" style={{ color: item.color }} className="mb-6 block group-hover:scale-110 transition-transform duration-500 filter drop-shadow-[0_0_10px_rgba(255,255,255,0.1)]"></iconify-icon>
+              
+              <div className="mb-6 flex-grow">
+                <span className="text-[10px] text-zinc-500 font-black uppercase tracking-[0.2em] block mb-2">{item.subtitle}</span>
+                <h3 className="text-white text-3xl font-bold uppercase mb-4 italic font-heading tracking-tight">{item.title}</h3>
+                <div className="h-px w-12 bg-white/20 mb-6 group-hover:w-full transition-all duration-700"></div>
+                <p className="text-zinc-400 font-monda leading-relaxed text-sm">{item.desc}</p>
+              </div>
+
+              <ul className="space-y-3 mt-auto">
+                {item.points.map((point, i) => (
+                  <li key={i} className="flex items-start gap-3 text-zinc-300 text-sm font-monda">
+                    <iconify-icon icon="lucide:check" width="16" className="text-[#c28e3a] mt-0.5 shrink-0"></iconify-icon>
+                    <span>{point}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
           ))}
         </div>
@@ -402,38 +459,7 @@ export default function App() {
     </div>
   );
 
-  const BlogPage = () => (
-    <div className="min-h-screen bg-zinc-950 pt-40 px-6 pb-24">
-      <div className="max-w-5xl mx-auto">
-        <button onClick={() => setLandingTab(null)} className="flex items-center gap-2 text-[#c28e3a] uppercase font-bold text-xs tracking-[0.3em] mb-12 hover:gap-4 transition-all">
-          <iconify-icon icon="lucide:arrow-left"></iconify-icon> Back to Home
-        </button>
-        <div className="flex justify-between items-end mb-16">
-          <h1 className="text-white text-6xl font-heading font-bold italic uppercase">CHRONICLES</h1>
-          <span className="text-zinc-500 text-xs font-bold uppercase tracking-widest border-b border-[#c28e3a] pb-1">v2.0 Update Logs</span>
-        </div>
-
-        <div className="space-y-12">
-          {[
-            { date: 'APR 03, 2026', title: 'The Multiverse Update', desc: 'L\'univers s\'agrandit ! Les arbres de compétences incluent désormais Héros, Guerriers, Dinosaures et Voitures.' },
-            { date: 'MAR 28, 2026', title: 'Nouvelles Quêtes Interdimensionnelles', desc: 'Résolvez les énigmes du continuum espace-temps pour débloquer des artefacts cosmiques.' },
-            { date: 'MAR 15, 2026', title: 'L\'Éveil d\'Apex', desc: 'La vérité sur la faille originelle : comment un T-Rex cybernétique a déclenché le croisement des univers.' }
-          ].map((post, idx) => (
-            <article key={idx} className="group cursor-pointer">
-              <div className="flex flex-col md:flex-row gap-8 items-start">
-                <time className="text-[#c28e3a] font-monda font-bold text-sm min-w-[120px] pt-1">{post.date}</time>
-                <div className="flex-1 border-l border-white/5 pl-8 group-hover:border-[#c28e3a] transition-all">
-                  <h3 className="text-white text-3xl font-heading font-bold italic uppercase mb-4 group-hover:text-[#c28e3a] transition-colors">{post.title}</h3>
-                  <p className="text-zinc-500 font-monda leading-relaxed text-lg italic mb-6">"{post.desc}"</p>
-                  <button className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/40 group-hover:text-white transition-all">Read Transmission →</button>
-                </div>
-              </div>
-            </article>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
+  // The BlogPage component is no longer used directly as it's merged into HistoireView
 
   const ArchetypesPage = () => (
     <div className="min-h-screen bg-zinc-950 pt-40 px-6 pb-24">
@@ -520,8 +546,9 @@ export default function App() {
   }
 
   return (
-    <div className="antialiased opacity-0 animate-fade-in text-white min-h-screen bg-zinc-950">
-      {view === 'landing' ? <LandingNav /> : <DashboardNav />}
+    <>
+      <div className="antialiased opacity-0 animate-fade-in text-white min-h-screen bg-zinc-950">
+        {view === 'landing' ? <LandingNav /> : <DashboardNav />}
 
       {view === 'landing' ? (
         landingTab === 'waitlist' ? (
@@ -529,7 +556,7 @@ export default function App() {
         ) : landingTab === 'about' ? (
           <AboutPage />
         ) : landingTab === 'blog' ? (
-          <BlogPage />
+          <div className="pt-24"><HistoireView /></div>
         ) : landingTab === 'archetypes' ? (
           <ArchetypesPage />
         ) : (
@@ -538,7 +565,7 @@ export default function App() {
             <header id="hero" className="relative w-full min-h-screen overflow-hidden flex flex-col justify-end pb-12 sm:pb-24">
               <div className="absolute inset-0 z-0 bg-zinc-950 overflow-hidden">
                 <iframe
-                  className="video-background opacity-85 w-full h-full object-cover scale-[1.3] brightness-125"
+                  className="video-background opacity-85 w-full h-full object-cover scale-[1.3] brightness-125 pointer-events-none"
                   src="https://player.mux.com/01mywJGOo4l00f8YOasdq4nIXXI6vrrIIVTKtMN6PCeQM?autoplay=true&loop=true&muted=true&controls=false"
                   frameBorder="0"
                   allow="autoplay; fullscreen"
@@ -551,17 +578,8 @@ export default function App() {
 
               <div className="relative z-10 w-full max-w-7xl mx-auto px-8 h-full flex flex-col pt-32 sm:pt-40">
                 <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end w-full gap-8">
-                  <div className="opacity-0 animate-scale-up delay-200">
-                    <div className="flex items-center gap-3 text-[#c28e3a] mb-4">
-                      <div className="h-px w-8 bg-[#c28e3a]"></div>
-                      <span className="text-[10px] font-black uppercase tracking-[0.4em]">Propulsé par l'Aether</span>
-                    </div>
-                    <h2 className="text-white text-3xl sm:text-5xl lg:text-6xl font-black italic tracking-tighter font-heading uppercase leading-none">
-                      TRANSFORMEZ<br />VOTRE <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#c28e3a] to-white">POTENTIEL</span>
-                    </h2>
-                  </div>
-
-                  <div className="lg:text-right flex flex-col lg:items-end opacity-0 animate-fade-in delay-500">
+                  {/* Brand Column (H1) */}
+                  <div className="lg:text-right flex flex-col lg:items-end opacity-0 animate-fade-in delay-500 w-full lg:w-auto lg:order-last">
                     <h1 className="text-white text-[60px] sm:text-[100px] lg:text-[140px] font-black italic leading-[0.8] tracking-tighter font-heading uppercase drop-shadow-[0_20px_20px_rgba(0,0,0,0.5)]">
                       Wak<br />kany
                     </h1>
@@ -577,6 +595,17 @@ export default function App() {
                         </div>
                       </div>
                     </div>
+                  </div>
+
+                  {/* Subtitle Column (H2) */}
+                  <div className="opacity-0 animate-scale-up delay-200 w-full lg:w-auto">
+                    <div className="flex items-center gap-3 text-[#c28e3a] mb-4">
+                      <div className="h-px w-8 bg-[#c28e3a]"></div>
+                      <span className="text-[10px] font-black uppercase tracking-[0.4em]">Propulsé par l'Aether</span>
+                    </div>
+                    <h2 className="text-white text-3xl sm:text-5xl lg:text-6xl font-black italic tracking-tighter font-heading uppercase leading-none">
+                      TRANSFORMEZ<br />VOTRE <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#c28e3a] to-white">POTENTIEL</span>
+                    </h2>
                   </div>
                 </div>
 
@@ -601,6 +630,9 @@ export default function App() {
                 </div>
               </div>
             </header>
+
+            {/* Avatar Selection Carousel (Added from User Request) */}
+            <AvatarCarousel />
 
             {/* Visual Evolution Section */}
             <section className="py-24 sm:py-32 bg-zinc-950 border-y border-white/5 overflow-hidden">
@@ -699,7 +731,7 @@ export default function App() {
                     </p>
                     <div className="flex gap-4">
                       {['discord', 'twitter', 'github', 'instagram'].map(platform => (
-                        <a key={platform} href="#" className="w-10 h-10 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center text-zinc-500 hover:text-white hover:bg-white/10 transition-all">
+                        <a key={platform} href="#" aria-label={`Suivez-nous sur ${platform}`} className="w-10 h-10 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center text-zinc-500 hover:text-white hover:bg-white/10 transition-all">
                           <iconify-icon icon={`solar:${platform}-bold`} width="20"></iconify-icon>
                         </a>
                       ))}
@@ -742,8 +774,8 @@ export default function App() {
                         addNotification('success', "Signal capté ! Bienvenue dans l'Aethermoor.");
                         e.target.reset();
                       }}>
-                        <input type="email" placeholder="hunter@aethermoor.com" required className="w-full bg-black/50 border border-white/5 px-4 py-4 rounded-xl text-white text-[10px] outline-none focus:border-[#c28e3a] transition-all" />
-                        <button className="absolute right-2 top-2 p-2 bg-[#c28e3a] text-black rounded-lg transition-all hover:scale-105 active:scale-95 shadow-lg shadow-orange-950/20">
+                        <input type="email" placeholder="hunter@aethermoor.com" required aria-label="Adresse e-mail pour la newsletter" className="w-full bg-black/50 border border-white/5 px-4 py-4 rounded-xl text-white text-[10px] outline-none focus:border-[#c28e3a] transition-all" />
+                        <button aria-label="S'inscrire à la newsletter" className="absolute right-2 top-2 p-2 bg-[#c28e3a] text-black rounded-lg transition-all hover:scale-105 active:scale-95 shadow-lg shadow-orange-950/20">
                           <iconify-icon icon="lucide:send" width="16"></iconify-icon>
                         </button>
                       </form>
@@ -786,7 +818,8 @@ export default function App() {
                   { id: 'map', label: 'Carte', icon: 'lucide:map' },
                   { id: 'skills', label: 'Talents', icon: 'lucide:git-branch' },
                   { id: 'clans', label: 'Clan', icon: 'lucide:users' },
-                  { id: 'rankings', label: 'Rang', icon: 'lucide:trophy' }
+                  { id: 'rankings', label: 'Rang', icon: 'lucide:trophy' },
+                  { id: 'badges', label: 'Badges', icon: 'lucide:award' }
                 ].map(tab => (
                   <button
                     key={tab.id}
@@ -904,25 +937,28 @@ export default function App() {
                   dominant: getDominantBranch(unlockedSkills) 
                 }} />
               )}
+
+              {dashboardTab === 'badges' && (
+                <BadgesView userLevel={getLevel(cumulativeXp).level} />
+              )}
             </div>
           </section>
         </div>
       )}
-      <BottomNav 
-        activeTab={dashboardTab} 
-        setActiveTab={setDashboardTab} 
-        hasNotifications={notifications.length > 0} 
-      />
+      </div>
+
+      {/* BottomNav removed as requested */}
       <NotificationToast notifications={notifications} removeNotification={removeNotification} />
 
       {/* Back to Top Button */}
       <button
         onClick={scrollToTop}
+        aria-label="Retourner en haut de la page"
         className={`fixed bottom-24 right-8 z-[100] w-14 h-14 bg-[#c28e3a] text-black rounded-2xl shadow-2xl transition-all duration-500 flex items-center justify-center hover:scale-110 active:scale-95 group ${showScrollTop ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0 pointer-events-none'}`}
       >
         <div className="absolute inset-0 bg-white/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
         <iconify-icon icon="lucide:arrow-up" width="24" className="relative z-10"></iconify-icon>
       </button>
-    </div>
+    </>
   );
 }

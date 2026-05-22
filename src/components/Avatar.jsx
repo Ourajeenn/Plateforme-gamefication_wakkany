@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { getLevel } from '../data/levels';
 import { getDominantBranch } from '../utils/xpHelpers';
 import { BRANCHES } from '../data/branches';
+import { useSoundFX } from '../hooks/useSoundFX';
 import BaseBody from './avatar/BaseBody';
 import AvatarEffects from './avatar/AvatarEffects';
 
@@ -13,6 +14,7 @@ export default function Avatar({ xp, unlockedSkills = [] }) {
 
   // Read selected custom element aura from local storage
   const [selectedAura, setSelectedAura] = useState(() => localStorage.getItem('wakkany_avatar_aura') || 'none');
+  const { playLightning } = useSoundFX();
 
   useEffect(() => {
     const checkAura = () => {
@@ -23,6 +25,12 @@ export default function Avatar({ xp, unlockedSkills = [] }) {
     };
     const interval = setInterval(checkAura, 300);
     return () => clearInterval(interval);
+  }, [selectedAura]);
+
+  useEffect(() => {
+    if (selectedAura === 'lightning') {
+      playLightning();
+    }
   }, [selectedAura]);
 
   return (
@@ -48,9 +56,17 @@ export default function Avatar({ xp, unlockedSkills = [] }) {
       <svg viewBox="0 0 200 200" className="w-full h-full relative z-10 drop-shadow-[0_0_15px_rgba(0,0,0,0.5)]">
         <defs>
           <filter id="glow">
-            <feGaussianBlur stdDeviation="2.5" result="coloredBlur" />
+            <feGaussianBlur stdDeviation="5" result="coloredBlur" />
             <feMerge>
               <feMergeNode in="coloredBlur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+          <filter id="glowStrong">
+            <feGaussianBlur stdDeviation="8" result="strongBlur" />
+            <feMerge>
+              <feMergeNode in="strongBlur" />
+              <feMergeNode in="strongBlur" />
               <feMergeNode in="SourceGraphic" />
             </feMerge>
           </filter>
@@ -78,13 +94,21 @@ export default function Avatar({ xp, unlockedSkills = [] }) {
         )}
 
         {selectedAura === 'lightning' && (
-          <g filter="url(#glow)">
-            <circle cx="100" cy="100" r="90" fill="none" stroke="#3b82f6" strokeWidth="2" strokeDasharray="30,8" className="animate-spin-slow" opacity="0.7" />
-            <circle cx="100" cy="100" r="80" fill="none" stroke="#60a5fa" strokeWidth="1" strokeDasharray="2,4" className="animate-[spin_4s_linear_infinite_reverse]" opacity="0.5" />
-            {/* Lightning bolt tracks */}
-            <path d="M90,15 L105,35 L95,45 L110,65" stroke="#60a5fa" strokeWidth="2" fill="none" className="animate-pulse" />
-            <path d="M35,90 L20,100 L30,110" stroke="#3b82f6" strokeWidth="2.5" fill="none" className="animate-ping" />
-            <path d="M165,90 L180,100 L170,110" stroke="#3b82f6" strokeWidth="2.5" fill="none" className="animate-ping" />
+          <g filter="url(#glowStrong)">
+            {/* Outer amplified glow */}
+            <circle cx="100" cy="100" r="100" fill="none" stroke="#3b82f6" strokeWidth="4" strokeDasharray="30,8" className="animate-spin-slow" opacity="1" />
+            <circle cx="100" cy="100" r="90" fill="none" stroke="#3b82f6" strokeWidth="4.5" strokeDasharray="30,8" className="animate-spin-slow" opacity="1" />
+            <circle cx="100" cy="100" r="80" fill="none" stroke="#60a5fa" strokeWidth="3" strokeDasharray="2,4" className="animate-[spin_4s_linear_infinite_reverse]" opacity="0.9" />
+            <circle cx="100" cy="100" r="95" fill="none" stroke="#93c5fd" strokeWidth="1.5" strokeDasharray="1,6" className="animate-[spin_2s_linear_infinite]" opacity="0.6" />
+            {/* Lightning bolt tracks — main and forks */}
+            <path d="M95,10 L105,30 L98,45 L108,60 L100,80" stroke="#93c5fd" strokeWidth="5" fill="none" className="animate-pulse" />
+            <path d="M108,60 L115,70 L108,80 L120,95" stroke="#93c5fd" strokeWidth="4" fill="none" className="animate-pulse" style={{animationDelay: '0.2s'}} />
+            {/* Side bolts — branching */}
+            <path d="M40,80 L30,95 L45,110" stroke="#3b82f6" strokeWidth="4.5" fill="none" className="animate-ping" />
+            <path d="M160,80 L170,95 L155,110" stroke="#3b82f6" strokeWidth="4.5" fill="none" className="animate-ping" />
+            {/* Bottom sparks — ground interaction */}
+            <path d="M80,170 L75,185 L85,180" stroke="#60a5fa" strokeWidth="3" fill="none" className="animate-pulse" style={{animationDelay: '0.5s'}} />
+            <path d="M120,170 L125,185 L115,180" stroke="#60a5fa" strokeWidth="3" fill="none" className="animate-pulse" style={{animationDelay: '0.7s'}} />
           </g>
         )}
 

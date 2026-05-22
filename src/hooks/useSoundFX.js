@@ -43,5 +43,15 @@ export const useSoundFX = () => {
     playSound(150, 'sawtooth', 0.3, 0.1);
   };
 
-  return { playClick, playUnlock, playLevelUp, playError };
+  const playLightning = () => {
+    // Aggressive crackle – high‑frequency bursts
+    playSound(2500, 'sawtooth', 0.09, 0.25);
+    setTimeout(() => playSound(3000, 'square', 0.07, 0.22), 30);
+    setTimeout(() => playSound(2000, 'sawtooth', 0.12, 0.20), 60);
+    // Deep thunder rumble – low‑bass decay
+    setTimeout(() => playSound(150, 'triangle', 0.7, 0.15), 120);
+    setTimeout(() => playSound(70, 'sine', 0.9, 0.10), 250);
+  };
+
+  return { playClick, playUnlock, playLevelUp, playError, playLightning };
 };

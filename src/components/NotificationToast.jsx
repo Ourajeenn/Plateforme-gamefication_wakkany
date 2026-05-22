@@ -13,14 +13,21 @@ export default function NotificationToast({ notifications, removeNotification })
 function Toast({ notif, onRemove }) {
     const [isVisible, setIsVisible] = useState(false);
 
+    const onRemoveRef = React.useRef(onRemove);
+    useEffect(() => {
+        onRemoveRef.current = onRemove;
+    }, [onRemove]);
+
     useEffect(() => {
         setIsVisible(true);
         const timer = setTimeout(() => {
             setIsVisible(false);
-            setTimeout(onRemove, 500); // Wait for fade out animation
+            setTimeout(() => {
+                if (onRemoveRef.current) onRemoveRef.current();
+            }, 500); // Wait for fade out animation
         }, 4000);
         return () => clearTimeout(timer);
-    }, [onRemove]);
+    }, []); // Run only once on mount
 
     const getIcon = () => {
         switch (notif.type) {

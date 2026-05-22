@@ -50,14 +50,6 @@ export default function FamilyGame() {
     setRevealedAnswer(false);
   }, [currentQuestionIndex]);
 
-  useEffect(() => {
-    // Global body scroll lock
-    document.body.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, []);
-
   const playQuizSFX = (type) => {
     try {
       const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -254,7 +246,7 @@ export default function FamilyGame() {
 
   if (gameState === 'playing' && currentQuestion) {
     return (
-      <div className="min-h-screen bg-zinc-950 flex flex-col p-6 md:p-12 font-monda text-white relative select-none overflow-hidden">
+      <div className="min-h-screen bg-zinc-950 flex flex-col p-6 md:p-12 font-monda text-white relative select-none overflow-y-auto">
         
         {/* Full-screen Slash Overlay for Boss Hits */}
         {activeSlash && (

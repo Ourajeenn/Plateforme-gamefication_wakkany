@@ -245,10 +245,10 @@ export default function ProfileView({ user, xp, unlockedSkills, unlockedAchievem
             <span className="w-2.5 h-2.5 rounded-full bg-purple-500 animate-ping"></span>
             <span className="text-[10px] text-purple-400 font-black uppercase tracking-[0.4em]">SYSTEM CHRONOS ACTIVE</span>
           </div>
-          <h1 className="text-white text-4xl md:text-5xl font-heading font-black italic uppercase mt-2 tracking-widest filter drop-shadow-[0_0_15px_rgba(168,85,247,0.4)]">
+          <h1 className="text-white text-2xl sm:text-4xl md:text-5xl font-heading font-black italic uppercase mt-2 tracking-wider sm:tracking-widest filter drop-shadow-[0_0_15px_rgba(168,85,247,0.4)]">
             SYSTEM LEVELING
           </h1>
-          <p className="text-zinc-500 text-xs mt-1 font-heading font-bold uppercase tracking-[0.25em]">
+          <p className="text-zinc-500 text-[10px] sm:text-xs mt-1 font-heading font-bold uppercase tracking-[0.2em] sm:tracking-[0.25em]">
             Identité numérique et statistiques de puissance
           </p>
         </div>
@@ -263,9 +263,9 @@ export default function ProfileView({ user, xp, unlockedSkills, unlockedAchievem
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         
         {/* Left Column - Avatar Scan & Task Management */}
-        <div className="lg:col-span-6 flex flex-col gap-8">
+        <div className="lg:col-span-6 flex flex-col gap-8 w-full">
           
-          <div className="bg-zinc-950 border border-purple-500/10 rounded-3xl p-8 relative overflow-hidden group shadow-[inset_0_0_30px_rgba(168,85,247,0.05),0_10px_30px_rgba(0,0,0,0.8)]">
+          <div className="bg-zinc-950 border border-purple-500/10 rounded-3xl p-5 sm:p-8 relative overflow-hidden group shadow-[inset_0_0_30px_rgba(168,85,247,0.05),0_10px_30px_rgba(0,0,0,0.8)]">
             <div className="absolute inset-0 bg-radial-gradient from-purple-900/10 via-transparent to-transparent opacity-60 pointer-events-none"></div>
             
             <div className="flex justify-between items-start mb-8 relative z-10">
@@ -355,10 +355,9 @@ export default function ProfileView({ user, xp, unlockedSkills, unlockedAchievem
         </div>
 
         {/* Right Column - Status & Radial Radar Chart (col-span-6) */}
-        <div className="lg:col-span-6 flex flex-col gap-8">
+        <div className="lg:col-span-6 flex flex-col gap-8 w-full">
           
-          {/* System status details */}
-          <div className="bg-zinc-950 border border-purple-500/10 rounded-3xl p-8 shadow-[inset_0_0_30px_rgba(168,85,247,0.05),0_10px_30px_rgba(0,0,0,0.8)] flex-1 flex flex-col justify-between">
+          <div className="bg-zinc-950 border border-purple-500/10 rounded-3xl p-5 sm:p-8 shadow-[inset_0_0_30px_rgba(168,85,247,0.05),0_10px_30px_rgba(0,0,0,0.8)] flex-1 flex flex-col justify-between">
             <div>
               <h3 className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.3em] mb-6">
                 Informations du Système de Pouvoir
@@ -460,7 +459,7 @@ export default function ProfileView({ user, xp, unlockedSkills, unlockedAchievem
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mt-10">
         
         {/* Habit Tracker Calendar */}
-        <div className="lg:col-span-8 bg-zinc-950 border border-purple-500/10 rounded-3xl p-8 pt-10 shadow-[inset_0_0_30px_rgba(168,85,247,0.05),0_10px_30px_rgba(0,0,0,0.8)] relative overflow-hidden flex flex-col justify-between group">
+        <div className="lg:col-span-8 bg-zinc-950 border border-purple-500/10 rounded-3xl p-4 sm:p-8 pt-8 sm:pt-10 shadow-[inset_0_0_30px_rgba(168,85,247,0.05),0_10px_30px_rgba(0,0,0,0.8)] relative overflow-hidden flex flex-col justify-between group">
           
           <div className="absolute -top-0.5 left-1/2 -translate-x-1/2 bg-zinc-950 border-x border-b border-purple-500/30 px-8 py-2 rounded-b-2xl shadow-lg z-20">
             <span className="text-[10px] font-heading font-black tracking-[0.25em] text-white uppercase">HABIT TRACKER</span>
@@ -470,14 +469,14 @@ export default function ProfileView({ user, xp, unlockedSkills, unlockedAchievem
           
           <div className="mt-4">
             <div className="text-center mb-6">
-              <h2 className="text-white text-3xl font-heading font-black italic uppercase tracking-[0.3em] filter drop-shadow-[0_0_10px_rgba(168,85,247,0.3)]">
+              <h2 className="text-white text-2xl sm:text-3xl font-heading font-black italic uppercase tracking-[0.25em] sm:tracking-[0.3em] filter drop-shadow-[0_0_10px_rgba(168,85,247,0.3)]">
                 MARCH
               </h2>
             </div>
 
-            <div className="grid grid-cols-5 gap-4 text-center border-b border-purple-500/10 pb-4 mb-4">
+            <div className="grid grid-cols-5 gap-2 sm:gap-4 text-center border-b border-purple-500/10 pb-4 mb-4">
               {['W-09', 'W-10', 'W-11', 'W-12', 'W-13'].map((week, idx) => (
-                <span key={idx} className="text-purple-400 text-[10px] font-black uppercase tracking-widest">
+                <span key={idx} className="text-purple-400 text-[9px] sm:text-[10px] font-black uppercase tracking-wider sm:tracking-widest">
                   {week}
                 </span>
               ))}
@@ -485,30 +484,30 @@ export default function ProfileView({ user, xp, unlockedSkills, unlockedAchievem
 
             {/* Calendar Grid */}
             <div className="space-y-4 relative z-10">
-              <div className="grid grid-cols-5 gap-4">
+              <div className="grid grid-cols-5 gap-2 sm:gap-4">
                 <div className="flex justify-center">
-                  <div className="w-12 h-12 rounded-xl bg-purple-500/20 border border-purple-400/40 shadow-[0_0_10px_rgba(168,85,247,0.3)] flex items-center justify-center text-purple-300 font-bold text-lg">
+                  <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-purple-500/20 border border-purple-400/40 shadow-[0_0_10px_rgba(168,85,247,0.3)] flex items-center justify-center text-purple-300 font-bold text-sm sm:text-lg">
                     ✓
                   </div>
                 </div>
 
                 <div className="flex justify-center">
-                  <div className="w-12 h-12 rounded-xl bg-purple-500/20 border border-purple-400/40 shadow-[0_0_10px_rgba(168,85,247,0.3)] flex items-center justify-center text-purple-300 font-bold text-lg">
+                  <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-purple-500/20 border border-purple-400/40 shadow-[0_0_10px_rgba(168,85,247,0.3)] flex items-center justify-center text-purple-300 font-bold text-sm sm:text-lg">
                     ✓
                   </div>
                 </div>
 
-                <div className="flex justify-center gap-2">
-                  <div className="w-8 h-12 rounded-lg bg-purple-500/20 border border-purple-400/40 shadow-[0_0_10px_rgba(168,85,247,0.3)] flex items-center justify-center text-purple-300 font-bold text-sm">✓</div>
-                  <div className="w-8 h-12 rounded-lg bg-purple-500/20 border border-purple-400/40 shadow-[0_0_10px_rgba(168,85,247,0.3)] flex items-center justify-center text-purple-300 font-bold text-sm">✓</div>
+                <div className="flex justify-center gap-1 sm:gap-2">
+                  <div className="w-5 h-8 sm:w-8 sm:h-12 rounded-md sm:rounded-lg bg-purple-500/20 border border-purple-400/40 shadow-[0_0_10px_rgba(168,85,247,0.3)] flex items-center justify-center text-purple-300 font-bold text-xs sm:text-sm">✓</div>
+                  <div className="w-5 h-8 sm:w-8 sm:h-12 rounded-md sm:rounded-lg bg-purple-500/20 border border-purple-400/40 shadow-[0_0_10px_rgba(168,85,247,0.3)] flex items-center justify-center text-purple-300 font-bold text-xs sm:text-sm">✓</div>
                 </div>
 
-                <div className="flex justify-center gap-1.5 items-center">
-                  <div className="w-6 h-10 rounded bg-purple-500/20 border border-purple-400/40 shadow-[0_0_10px_rgba(168,85,247,0.3)] flex items-center justify-center text-purple-300 font-bold text-[10px]">✓</div>
-                  <div className="w-6 h-10 rounded bg-purple-500/20 border border-purple-400/40 shadow-[0_0_10px_rgba(168,85,247,0.3)] flex items-center justify-center text-purple-300 font-bold text-[10px]">✓</div>
+                <div className="flex justify-center gap-1 sm:gap-1.5 items-center">
+                  <div className="w-4 h-7 sm:w-6 sm:h-10 rounded-sm sm:rounded bg-purple-500/20 border border-purple-400/40 shadow-[0_0_10px_rgba(168,85,247,0.3)] flex items-center justify-center text-purple-300 font-bold text-[8px] sm:text-[10px]">✓</div>
+                  <div className="w-4 h-7 sm:w-6 sm:h-10 rounded-sm sm:rounded bg-purple-500/20 border border-purple-400/40 shadow-[0_0_10px_rgba(168,85,247,0.3)] flex items-center justify-center text-purple-300 font-bold text-[8px] sm:text-[10px]">✓</div>
                   <button 
                     onClick={() => toggleDay(10)}
-                    className={`w-8 h-10 rounded border font-heading font-black italic text-xs transition-all duration-300 cursor-pointer 
+                    className={`w-5 h-7 sm:w-8 sm:h-10 rounded-sm sm:rounded border font-heading font-black italic text-[9px] sm:text-xs transition-all duration-300 cursor-pointer 
                       ${checkedDays.includes(10) ? 'bg-purple-500/20 border-purple-400 text-purple-300 shadow-[0_0_10px_rgba(168,85,247,0.5)]' : 'bg-zinc-900 border-purple-500/25 text-white/80 hover:border-purple-400'}`}
                   >
                     {checkedDays.includes(10) ? '✓' : '10'}
@@ -518,7 +517,7 @@ export default function ProfileView({ user, xp, unlockedSkills, unlockedAchievem
                 <div className="flex justify-center">
                   <button 
                     onClick={() => toggleDay(11)}
-                    className={`w-12 h-12 rounded-xl border font-heading font-black italic text-sm transition-all duration-300 cursor-pointer 
+                    className={`w-8 h-8 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl border font-heading font-black italic text-xs sm:text-sm transition-all duration-300 cursor-pointer 
                       ${checkedDays.includes(11) ? 'bg-purple-500/20 border-purple-400 text-purple-300 shadow-[0_0_10px_rgba(168,85,247,0.5)]' : 'bg-zinc-900 border-purple-500/25 text-white/80 hover:border-purple-400'}`}
                   >
                     {checkedDays.includes(11) ? '✓' : '11'}
@@ -526,12 +525,12 @@ export default function ProfileView({ user, xp, unlockedSkills, unlockedAchievem
                 </div>
               </div>
 
-              <div className="grid grid-cols-7 gap-3 pt-4 border-t border-purple-500/5 text-center">
+              <div className="grid grid-cols-7 gap-1.5 sm:gap-3 pt-4 border-t border-purple-500/5 text-center">
                 {[12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31].map((day) => (
                   <button
                     key={day}
                     onClick={() => toggleDay(day)}
-                    className={`w-9 h-9 mx-auto rounded-lg border font-monda font-bold text-xs transition-all duration-300 cursor-pointer flex items-center justify-center
+                    className={`w-7 h-7 sm:w-9 sm:h-9 mx-auto rounded-md sm:rounded-lg border font-monda font-bold text-[10px] sm:text-xs transition-all duration-300 cursor-pointer flex items-center justify-center
                       ${checkedDays.includes(day) ? 'bg-purple-500/20 border-purple-400 text-purple-300 shadow-[0_0_10px_rgba(168,85,247,0.5)]' : 'bg-zinc-950 border-purple-500/10 text-zinc-500 hover:border-purple-400/50 hover:text-white'}`}
                   >
                     {checkedDays.includes(day) ? '✓' : day}
@@ -562,7 +561,7 @@ export default function ProfileView({ user, xp, unlockedSkills, unlockedAchievem
         </div>
 
         {/* Solo Leveling Aesthetic Inventory */}
-        <div className="lg:col-span-4 bg-zinc-950 border border-purple-500/10 rounded-3xl p-8 pt-10 shadow-[inset_0_0_30px_rgba(168,85,247,0.05),0_10px_30px_rgba(0,0,0,0.8)] relative overflow-hidden flex flex-col justify-between group">
+        <div className="lg:col-span-4 bg-zinc-950 border border-purple-500/10 rounded-3xl p-5 sm:p-8 pt-8 sm:pt-10 shadow-[inset_0_0_30px_rgba(168,85,247,0.05),0_10px_30px_rgba(0,0,0,0.8)] relative overflow-hidden flex flex-col justify-between group">
           
           <div className="absolute -top-0.5 left-1/2 -translate-x-1/2 bg-zinc-950 border-x border-b border-purple-500/30 px-8 py-2 rounded-b-2xl shadow-lg z-20">
             <span className="text-[10px] font-heading font-black tracking-[0.25em] text-white uppercase">INVENTORY</span>
@@ -629,7 +628,7 @@ export default function ProfileView({ user, xp, unlockedSkills, unlockedAchievem
       </div>
 
       {/* Proposition D: Tableau de Chasse aux Quêtes Actives */}
-      <div className="bg-zinc-950 border border-purple-500/10 rounded-3xl p-8 pt-10 shadow-[inset_0_0_30px_rgba(168,85,247,0.05),0_10px_30px_rgba(0,0,0,0.8)] relative overflow-hidden mt-10">
+      <div className="bg-zinc-950 border border-purple-500/10 rounded-3xl p-5 sm:p-8 pt-8 sm:pt-10 shadow-[inset_0_0_30px_rgba(168,85,247,0.05),0_10px_30px_rgba(0,0,0,0.8)] relative overflow-hidden mt-10">
         
         <div className="absolute -top-0.5 left-1/2 -translate-x-1/2 bg-zinc-950 border-x border-b border-purple-500/30 px-8 py-2 rounded-b-2xl shadow-lg z-20">
           <span className="text-[10px] font-heading font-black tracking-[0.25em] text-white uppercase">TABLEAU DE CHASSE AUX QUÊTES</span>
