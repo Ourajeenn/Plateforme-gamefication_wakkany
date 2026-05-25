@@ -10,10 +10,10 @@ export const storage = {
     try {
       if (isSupabaseConfigured && key.startsWith('player:')) {
         const { data: { user: authUser } } = await supabase.auth.getUser();
-        
+
         if (authUser) {
-          const { user, xp, unlockedSkills, completedQuests, unlockedAchievements } = value;
-          
+          const { user, xp, unlockedSkills, completedQuests } = value;
+
           // Upsert profile
           const { error: profileError } = await supabase
             .from('profiles')
@@ -71,12 +71,12 @@ export const storage = {
             .eq('id', authUser.id)
             .single();
 
-          const { data: skills, error: skillsError } = await supabase
+          const { data: skills } = await supabase
             .from('unlocked_skills')
             .select('skill_id')
             .eq('user_id', authUser.id);
 
-          const { data: quests, error: questsError } = await supabase
+          const { data: quests } = await supabase
             .from('completed_quests')
             .select('quest_id')
             .eq('user_id', authUser.id);

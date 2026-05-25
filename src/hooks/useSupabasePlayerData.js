@@ -10,7 +10,7 @@ export default function useSupabasePlayerData(userId) {
 
         async function fetchPlayerData() {
             setLoading(true);
-            const { data, error } = await supabase
+            const { data } = await supabase
                 .from('profiles')
                 .select('*')
                 .eq('id', userId)

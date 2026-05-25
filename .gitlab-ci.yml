@@ -1,4 +1,7 @@
 image: node:20
+
+stages:
+  - lint
   - build
   - deploy
 
@@ -7,13 +10,36 @@ cache:
     files:
       - package-lock.json
   paths:
+    - node_modules/
 
+lint:
+  stage: lint
+  script:
+    - npm ci
+    - npm run lint
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_BRANCH == "dev"
+
+build:
+  stage: build
+  needs:
+    - lint
+  script:
+    - npm ci
+    - export VITE_BASE_PATH="/${CI_PROJECT_PATH_SLUG}/"
+    - npm run build
+  artifacts:
+    paths:
+      - dist
+  rules:
     - if: $CI_COMMIT_BRANCH == "main"
     - if: $CI_COMMIT_BRANCH == "dev"
 
 pages:
   stage: deploy
-  needs: ["build"]
+  needs:
+    - build
   script:
     - mkdir -p public
     - cp -r dist/. public/

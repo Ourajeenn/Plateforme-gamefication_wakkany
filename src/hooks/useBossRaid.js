@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { BOSS_ENCOUNTERS, isLevelUnlocked, getNextEncounter } from '../data/bossEncounters';
 import { FAMILY_QUESTIONS } from '../data/familyQuizzes';
 
@@ -10,7 +10,10 @@ const loadProgress = () => {
   try {
     const s = localStorage.getItem(STORAGE_KEY);
     return s ? JSON.parse(s) : defaultProgress;
-  } catch { return defaultProgress; }
+  } catch (error) {
+    console.warn('Impossible de charger la progression du raid', error);
+    return defaultProgress;
+  }
 };
 
 export function useBossRaid() {
@@ -37,7 +40,11 @@ export function useBossRaid() {
 
   // Persist progress
   useEffect(() => {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(progress)); } catch {}
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+    } catch (error) {
+      console.warn('Impossible de persister la progression du raid', error);
+    }
   }, [progress]);
 
   // ── Start an encounter ──────────────────────────────────
@@ -112,7 +119,9 @@ export function useBossRaid() {
         try {
           const cur = parseInt(localStorage.getItem('wakkany_family_xp') || '0', 10);
           localStorage.setItem('wakkany_family_xp', (cur + totalXp).toString());
-        } catch {}
+        } catch (error) {
+          console.warn('Impossible de mettre à jour l’XP du joueur', error);
+        }
 
         const newDefeated = [...progress.defeated, currentEncounter.id];
         const levelDone   = BOSS_ENCOUNTERS
@@ -125,9 +134,13 @@ export function useBossRaid() {
 
         setProgress({ defeated: newDefeated, currentLevel: nextLevel });
 
-        if (allDone)       setRaidState('allComplete');
-        else if (levelDone) setRaidState('levelComplete');
-        else               setRaidState('victory');
+        if (allDone) {
+          setRaidState('allComplete');
+        } else if (levelDone) {
+          setRaidState('levelComplete');
+        } else {
+          setRaidState('victory');
+        }
 
       } else if (teamDown || lastQ) {
         setRaidState('defeat');

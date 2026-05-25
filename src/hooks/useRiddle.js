@@ -24,9 +24,10 @@ export default function useRiddle() {
   const [error, setError] = useState(null);
 
   const generateRiddle = async (theme, difficulty) => {
+    void difficulty;
     setLoading(true);
     setError(null);
-    
+
     // Artificial delay to simulate AI thinking
     await new Promise(resolve => setTimeout(resolve, 1500));
 
