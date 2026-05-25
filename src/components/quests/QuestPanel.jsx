@@ -54,14 +54,14 @@ export default function QuestPanel({ xp, unlockedSkills, completedQuests, onComp
 
     return (
         <div className="space-y-12">
-            <div className="flex flex-col md:flex-row justify-between items-end gap-6 mb-8">
-                <div>
-                    <h2 className="text-[#c28e3a] text-xs font-black uppercase tracking-[0.3em] mb-2">Centre de Commande</h2>
-                    <h1 className="text-white text-5xl font-heading font-bold italic uppercase tracking-tighter">CONTRATS & MISSIONS</h1>
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-8">
+                <div className="w-full md:w-auto">
+                    <h2 className="text-[#c28e3a] text-[10px] sm:text-xs font-black uppercase tracking-[0.3em] mb-2">Centre de Commande</h2>
+                    <h1 className="text-white text-3xl sm:text-4xl lg:text-5xl font-heading font-bold italic uppercase tracking-tighter break-words">CONTRATS & MISSIONS</h1>
                 </div>
-                <div className="bg-zinc-900 px-6 py-3 rounded-2xl border border-white/5 flex items-center gap-4">
+                <div className="bg-zinc-900 px-4 sm:px-6 py-3 rounded-2xl border border-white/5 flex items-center gap-4 w-full md:w-auto justify-between sm:justify-start">
                     <span className="text-zinc-500 text-[10px] uppercase font-bold tracking-widest">Ratio de Complétion</span>
-                    <div className="text-white text-2xl font-black italic">{Math.round((completedQuests.length / QUESTS.length) * 100)}%</div>
+                    <div className="text-white text-xl sm:text-2xl font-black italic">{Math.round((completedQuests.length / QUESTS.length) * 100)}%</div>
                 </div>
             </div>
 

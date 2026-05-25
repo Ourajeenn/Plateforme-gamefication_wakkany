@@ -22,14 +22,20 @@ const avatars = [
   { id: '08', name: 'Singe Ninja',       img: grid2, col: 2, row: 1, cols: 3, rows: 2 },
 ];
 
-const CARD_W  = 190;
-const CARD_H  = 255;
-const GAP     = 16;
-const VISIBLE = 7;
-const CLIP    = 'polygon(10% 0%, 90% 0%, 100% 7%, 100% 93%, 90% 100%, 10% 100%, 0% 93%, 0% 7%)';
+const CLIP = 'polygon(10% 0%, 90% 0%, 100% 7%, 100% 93%, 90% 100%, 10% 100%, 0% 93%, 0% 7%)';
+
+function getCarouselLayout(width) {
+  if (width < 640) {
+    return { cardW: 120, cardH: 160, gap: 10, visible: 5 };
+  }
+  if (width < 960) {
+    return { cardW: 160, cardH: 215, gap: 12, visible: 5 };
+  }
+  return { cardW: 190, cardH: 255, gap: 16, visible: 7 };
+}
 
 /* ── Sprite cell component ───────────────────────────────────────────────── */
-function SpriteCell({ avatar, filter }) {
+function SpriteCell({ avatar, filter, cardW, cardH }) {
   const [style, setStyle] = useState({});
 
   useEffect(() => {
@@ -44,8 +50,8 @@ function SpriteCell({ avatar, filter }) {
       const cellH = ih / avatar.rows;
 
       // Scale so the cell FILLS the card (cover) — no empty borders
-      const sx = CARD_W / cellW;
-      const sy = CARD_H / cellH;
+      const sx = cardW / cellW;
+      const sy = cardH / cellH;
       const sc = Math.max(sx, sy);
 
       const scaledW = Math.round(iw * sc);
@@ -54,8 +60,8 @@ function SpriteCell({ avatar, filter }) {
       const sCellH  = Math.round(cellH * sc);
 
       // Center the exact sprite cell inside the card
-      const px = Math.round(-(avatar.col * sCellW) - (sCellW - CARD_W) / 2);
-      const py = Math.round(-(avatar.row * sCellH) - (sCellH - CARD_H) / 2);
+      const px = Math.round(-(avatar.col * sCellW) - (sCellW - cardW) / 2);
+      const py = Math.round(-(avatar.row * sCellH) - (sCellH - cardH) / 2);
 
       setStyle({
         backgroundImage:    `url(${avatar.img})`,
@@ -70,7 +76,7 @@ function SpriteCell({ avatar, filter }) {
     return () => {
       isActive = false;
     };
-  }, [avatar.img, avatar.col, avatar.row, avatar.cols, avatar.rows]);
+  }, [avatar.img, avatar.col, avatar.row, avatar.cols, avatar.rows, cardW, cardH]);
 
   return (
     <div
@@ -88,7 +94,14 @@ function SpriteCell({ avatar, filter }) {
 export default function AvatarCarousel() {
   const [centerIdx, setCenterIdx] = useState(2);
   const [glow, setGlow] = useState({ x: 0, y: 0, visible: false });
+  const [viewportWidth, setViewportWidth] = useState(() => typeof window !== 'undefined' ? window.innerWidth : 1024);
   const isPausedRef = useRef(false);
+
+  useEffect(() => {
+    const onResize = () => setViewportWidth(window.innerWidth);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
 
   useEffect(() => {
     const id = setInterval(() => {
@@ -96,6 +109,8 @@ export default function AvatarCarousel() {
     }, 2500);
     return () => clearInterval(id);
   }, []);
+
+  const { cardW, cardH, gap, visible } = getCarouselLayout(viewportWidth);
 
   const handleGlowMove = (e) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -106,9 +121,9 @@ export default function AvatarCarousel() {
     });
   };
 
-  const half    = Math.floor(VISIBLE / 2);
-  const visible = Array.from({ length: VISIBLE }, (_, i) => {
-    const offset  = i - half;
+  const half = Math.floor(visible / 2);
+  const visibleCards = Array.from({ length: visible }, (_, i) => {
+    const offset = i - half;
     const realIdx = (centerIdx + offset + avatars.length) % avatars.length;
     return { avatar: avatars[realIdx], offset, realIdx };
   });
@@ -137,13 +152,13 @@ export default function AvatarCarousel() {
       </div>
 
       {/* Cards row */}
-      <div className="relative w-full" style={{ height: CARD_H + 60 }}>
-        {visible.map(({ avatar, offset, realIdx }) => {
-          const dist   = Math.abs(offset);
-          const scale  = Math.max(0.62, 1 - dist * 0.1);
-          const opac   = dist === 0 ? 1 : dist === 1 ? 0.78 : dist === 2 ? 0.52 : 0.28;
-          const zIdx   = VISIBLE - dist;
-          const slotX  = offset * (CARD_W + GAP);
+      <div className="relative w-full" style={{ height: cardH + 60 }}>
+        {visibleCards.map(({ avatar, offset, realIdx }) => {
+          const dist = Math.abs(offset);
+          const scale = Math.max(0.62, 1 - dist * 0.1);
+          const opac = dist === 0 ? 1 : dist === 1 ? 0.78 : dist === 2 ? 0.52 : 0.28;
+          const zIdx = visible - dist;
+          const slotX = offset * (cardW + gap);
 
           const borderColor = dist === 0 ? '#c28e3a' : dist === 1 ? '#4a8a8a' : '#444';
           const imgFilter   = dist === 0 ? 'none'
@@ -156,10 +171,10 @@ export default function AvatarCarousel() {
               onClick={() => setCenterIdx(realIdx)}
               className="absolute cursor-pointer stabilize-motion"
               style={{
-                width:  CARD_W,
-                height: CARD_H,
-                left:   '50%',
-                top:    '50%',
+                width: cardW,
+                height: cardH,
+                left: '50%',
+                top: '50%',
                 transform: `translate3d(calc(-50% + ${slotX}px), -50%, 0) scale(${scale})`,
                 transformOrigin: 'center center',
                 zIndex: zIdx,
@@ -203,7 +218,7 @@ export default function AvatarCarousel() {
                   className="w-full h-full relative overflow-hidden"
                   style={{ clipPath: CLIP }}
                 >
-                  <SpriteCell avatar={avatar} filter={imgFilter} />
+                  <SpriteCell avatar={avatar} filter={imgFilter} cardW={cardW} cardH={cardH} />
                 </div>
               </div>
 

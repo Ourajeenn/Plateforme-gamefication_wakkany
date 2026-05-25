@@ -71,6 +71,18 @@ export default function App() {
   const [flashQuests, setFlashQuests] = useState([
     { id: 'f1', title: 'Anomalie de l\'Aether', desc: 'Une faille s\'est ouverte dans le secteur 4. Stabilisez-la.', xpReward: 200, timeLeft: 300 }, // 5 mins
   ]);
+  const dashboardTabs = [
+    { id: 'profile', label: 'Évolution', icon: 'lucide:user' },
+    { id: 'quests', label: 'Quêtes', icon: 'lucide:scroll' },
+    { id: 'quiz', label: 'Quiz TV', icon: 'lucide:gamepad-2' },
+    { id: 'avatar', label: 'Avatar', icon: 'lucide:box' },
+    { id: 'stats', label: 'Stats', icon: 'lucide:bar-chart-3' },
+    { id: 'map', label: 'Carte', icon: 'lucide:map' },
+    { id: 'skills', label: 'Talents', icon: 'lucide:git-branch' },
+    { id: 'clans', label: 'Clan', icon: 'lucide:users' },
+    { id: 'rankings', label: 'Rang', icon: 'lucide:trophy' },
+    { id: 'badges', label: 'Badges', icon: 'lucide:award' }
+  ];
 
   // Gestion des notifications
   const [showScrollTop, setShowScrollTop] = useState(false);
@@ -209,7 +221,7 @@ export default function App() {
 
 
   const LandingNav = () => (
-    <nav className="fixed top-0 left-0 w-full bg-black/40 backdrop-blur-2xl border-b border-white/10 flex items-center justify-between px-4 sm:px-8 py-3 sm:py-4 z-[100] transition-all hover:bg-black/60 shadow-2xl">
+    <nav className="fixed top-0 left-0 w-full glass-panel border-b border-white/10 flex items-center justify-between px-4 sm:px-8 py-3 sm:py-4 z-[100] transition-all shadow-[0_18px_50px_rgba(0,0,0,0.35)]">
       <div className="flex items-center gap-3 group cursor-pointer" onClick={() => { setView('landing'); setLandingTab(null); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
         <div className="relative">
           <iconify-icon icon="lucide:triangle" width="32" height="32" className="text-[#c28e3a] rotate-180 stroke-[1.5]"></iconify-icon>
@@ -306,31 +318,31 @@ export default function App() {
     };
 
     return (
-      <nav className="fixed top-0 left-0 w-full bg-zinc-950/80 backdrop-blur-md border-b border-white/5 flex items-center justify-between px-4 sm:px-8 py-3 sm:py-4 z-[60]">
-        <div className="flex items-center gap-8">
+      <nav className="fixed top-0 left-0 w-full glass-panel border-b border-white/10 flex items-center justify-between px-4 sm:px-8 py-3 sm:py-4 z-[60] shadow-[0_18px_50px_rgba(0,0,0,0.35)]">
+        <div className="flex items-center gap-3 sm:gap-8 min-w-0">
           <div 
-            className="flex items-center gap-4 cursor-pointer group" 
+            className="flex items-center gap-3 sm:gap-4 cursor-pointer group shrink-0" 
             onClick={() => { setView('landing'); setLandingTab(null); }}
           >
             <iconify-icon icon="lucide:triangle" width="24" height="24" className="text-[#c28e3a] rotate-180 group-hover:rotate-0 transition-transform duration-500"></iconify-icon>
-            <span className="text-white font-heading font-bold tracking-widest text-lg italic uppercase">Wakkany</span>
+            <span className="text-white font-heading font-bold tracking-widest text-base sm:text-lg italic uppercase">Wakkany</span>
           </div>
           <LiveFeed />
         </div>
 
-        <div className="flex items-center gap-6">
-          <div className="hidden md:flex flex-col text-right">
-            <span className="text-white font-bold text-sm leading-none">{user?.name || 'Nomade'}</span>
-            <span className="text-[#c28e3a] text-[10px] uppercase font-bold tracking-widest">{user?.clan?.name || 'Clanless'}</span>
+        <div className="flex items-center gap-3 sm:gap-6 shrink-0">
+          <div className="hidden md:flex min-w-0 flex-col text-right">
+            <span className="text-white font-bold text-sm leading-none truncate max-w-[10rem]">{user?.name || 'Nomade'}</span>
+            <span className="text-[#c28e3a] text-[10px] uppercase font-bold tracking-widest truncate max-w-[10rem]">{user?.clan?.name || 'Clanless'}</span>
           </div>
-          <div className="w-10 h-10 rounded-full border border-[#c28e3a]/40 overflow-hidden bg-zinc-900 flex items-center justify-center">
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-[#c28e3a]/40 overflow-hidden bg-zinc-900/70/70 flex items-center justify-center shrink-0">
             {user?.clan?.image ? (
               <img src={user.clan.image} className="w-full h-full object-cover" />
             ) : (
               <iconify-icon icon={user?.clan?.icon || 'lucide:user'} className="text-[#c28e3a] text-xl"></iconify-icon>
             )}
           </div>
-          <button onClick={() => { setUser(null); setView('landing'); }} className="text-zinc-600 hover:text-red-500 transition-all hover:scale-110">
+          <button onClick={() => { setUser(null); setView('landing'); }} className="text-zinc-600 hover:text-red-500 transition-all hover:scale-110 shrink-0">
             <iconify-icon icon="solar:logout-2-linear" width="24"></iconify-icon>
           </button>
         </div>
@@ -350,16 +362,16 @@ export default function App() {
             <p className="text-zinc-400 text-xl font-monda leading-relaxed italic">
               "The Covenant may be broken, but the spirit of the pack remains. Secure your position in the upcoming trials."
             </p>
-            <div className="p-8 bg-zinc-900 border border-white/5 rounded-3xl">
+            <div className="glass-panel p-8 rounded-3xl">
               <h3 className="text-white font-bold mb-4 uppercase">Registry Requirements</h3>
-              <ul className="text-zinc-500 text-sm space-y-3">
+              <ul className="text-zinc-200 text-sm space-y-3">
                 <li>• Level 0 clearance</li>
                 <li>• Minimum 100 XP aspiration</li>
                 <li>• Engagement pour Wakkany</li>
               </ul>
             </div>
           </div>
-          <div className="bg-black/40 border border-white/10 p-10 rounded-3xl backdrop-blur-md">
+          <div className="glass-panel p-10 rounded-3xl">
             {waitlistStatus === 'success' ? (
               <div className="text-center py-12 animate-scale-up">
                 <iconify-icon icon="lucide:check-circle" width="64" className="text-[#c28e3a] mb-6"></iconify-icon>
@@ -423,7 +435,7 @@ export default function App() {
               color: '#f43f5e'
             }
           ].map((item, idx) => (
-            <div key={idx} className="relative bg-zinc-900/40 backdrop-blur-sm border border-white/10 p-10 rounded-[32px] hover:border-[#c28e3a]/40 transition-all duration-500 group overflow-hidden flex flex-col h-full">
+            <div key={idx} className="relative glass-panel p-10 rounded-[32px] hover:border-[#c28e3a]/40 transition-all duration-500 group overflow-hidden flex flex-col h-full">
               {/* Background Glow */}
               <div 
                 className="absolute -top-24 -right-24 w-48 h-48 rounded-full blur-[80px] opacity-20 group-hover:opacity-40 transition-opacity duration-700 pointer-events-none"
@@ -452,9 +464,9 @@ export default function App() {
         </div>
 
         <div className="mt-20 p-[1px] bg-gradient-to-r from-transparent via-[#c28e3a]/30 to-transparent">
-          <div className="bg-black/40 backdrop-blur-md p-16 text-center rounded-3xl">
+          <div className="glass-panel p-16 text-center rounded-3xl">
             <h2 className="text-white text-3xl font-heading italic uppercase mb-6">"History is written in blood, but the future is forged in XP."</h2>
-            <p className="text-zinc-500 max-w-2xl mx-auto font-monda">Plateforme Wakkany est un écosystème RPG unique où votre identité visuelle évolue avec vos compétences. Chaque choix dans l'arbre de talents se reflète sur votre avatar, rendant chaque champion unique.</p>
+            <p className="text-zinc-200 max-w-2xl mx-auto font-monda">Plateforme Wakkany est un écosystème RPG unique où votre identité visuelle évolue avec vos compétences. Chaque choix dans l'arbre de talents se reflète sur votre avatar, rendant chaque champion unique.</p>
           </div>
         </div>
       </div>
@@ -564,10 +576,10 @@ export default function App() {
         ) : (
           <>
             {/* Hero Section */}
-            <header id="hero" className="relative w-full min-h-screen overflow-hidden flex flex-col justify-end pb-12 sm:pb-24">
+            <header id="hero" className="relative w-full h-screen overflow-hidden flex flex-col justify-end pb-10 sm:pb-24">
               <div className="absolute inset-0 z-0 bg-zinc-950 overflow-hidden stabilize-motion">
                 <iframe
-                  className="video-background opacity-85 w-full h-full object-cover scale-[1.3] brightness-125 pointer-events-none stabilize-motion"
+                  className="video-background opacity-85 brightness-125 pointer-events-none stabilize-motion"
                   src="https://player.mux.com/01mywJGOo4l00f8YOasdq4nIXXI6vrrIIVTKtMN6PCeQM?autoplay=true&loop=true&muted=true&controls=false"
                   frameBorder="0"
                   allow="autoplay; fullscreen"
@@ -578,21 +590,21 @@ export default function App() {
                 <div className="absolute inset-0 bg-yellow-500/5 pointer-events-none"></div>
               </div>
 
-              <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-8 h-full flex flex-col pt-24 sm:pt-40">
-                <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end w-full gap-8">
+              <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-8 h-full flex flex-col pt-20 sm:pt-40">
+                <div className="flex flex-col lg:flex-row justify-between items-center lg:items-end w-full gap-8 lg:gap-12">
                   {/* Brand Column (H1) */}
-                  <div className="lg:text-right flex flex-col lg:items-end opacity-0 animate-fade-in delay-500 w-full max-w-full lg:w-auto lg:order-last">
-                    <h1 className="text-white text-[clamp(2.5rem,9vw,8.75rem)] font-black italic leading-[0.8] tracking-tighter font-heading uppercase drop-shadow-[0_20px_20px_rgba(0,0,0,0.5)] w-full max-w-full break-words">
+                  <div className="text-center lg:text-right flex flex-col lg:items-end opacity-0 animate-fade-in delay-500 w-full max-w-full lg:w-auto lg:order-last">
+                    <h1 className="text-white text-[clamp(2.2rem,8vw,8.75rem)] font-black italic leading-[0.8] tracking-tighter font-heading uppercase drop-shadow-[0_20px_20px_rgba(0,0,0,0.5)] w-full max-w-full break-words">
                       Wak<br />kany
                     </h1>
-                    <p className="text-yellow-500 text-sm sm:text-lg lg:text-2xl mt-4 sm:mt-6 max-w-md tracking-tight font-monda font-light italic">
+                    <p className="text-yellow-500 text-sm sm:text-lg lg:text-2xl mt-4 sm:mt-6 max-w-md mx-auto lg:mx-0 tracking-tight font-monda font-light italic">
                       "Votre évolution ne dépend pas du hasard, mais de vos choix."
                     </p>
 
-                    <div className="mt-8 sm:mt-10 flex flex-wrap gap-3 sm:gap-4 w-full lg:justify-end">
-                      <div className="flex items-center bg-black/40 backdrop-blur-xl border border-white/5 py-4 px-6 rounded-2xl">
+                    <div className="mt-8 sm:mt-10 flex justify-center lg:justify-end flex-wrap gap-3 sm:gap-4 w-full">
+                      <div className="glass-panel flex items-center py-3 px-5 sm:py-4 sm:px-6 rounded-2xl">
                         <div className="flex flex-col">
-                          <span className="text-[9px] text-zinc-600 font-black uppercase tracking-widest">Utilisateurs Actifs</span>
+                          <span className="text-[9px] text-zinc-300 font-black uppercase tracking-widest">Utilisateurs Actifs</span>
                           <span className="text-white font-heading font-bold italic text-xl">12,450+ </span>
                         </div>
                       </div>
@@ -600,18 +612,18 @@ export default function App() {
                   </div>
 
                   {/* Subtitle Column (H2) */}
-                  <div className="opacity-0 animate-scale-up delay-200 w-full max-w-full lg:w-auto">
-                    <div className="flex items-center gap-3 text-[#c28e3a] mb-4">
+                  <div className="opacity-0 animate-scale-up delay-200 w-full max-w-full lg:w-auto text-center lg:text-left">
+                    <div className="flex items-center justify-center lg:justify-start gap-3 text-[#c28e3a] mb-4">
                       <div className="h-px w-8 bg-[#c28e3a]"></div>
                       <span className="text-[10px] font-black uppercase tracking-[0.4em]">Propulsé par l'Aether</span>
                     </div>
-                    <h2 className="text-white text-[clamp(1.75rem,5vw,3.75rem)] sm:text-5xl lg:text-6xl font-black italic tracking-tighter font-heading uppercase leading-none w-full max-w-full break-words">
+                    <h2 className="text-white text-[clamp(1.6rem,4.5vw,3.75rem)] sm:text-5xl lg:text-6xl font-black italic tracking-tighter font-heading uppercase leading-none w-full max-w-full break-words">
                       TRANSFORMEZ<br />VOTRE <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#c28e3a] to-white">POTENTIEL</span>
                     </h2>
                   </div>
                 </div>
 
-                <div className="mt-auto mb-8 sm:mb-12 flex flex-col items-center gap-6 sm:gap-8 w-full">
+                <div className="mt-auto mb-6 sm:mb-12 flex flex-col items-center gap-5 sm:gap-8 w-full">
                   <div className="flex flex-col items-center opacity-40">
                     <span className="text-[8px] font-black uppercase tracking-[0.5em] mb-2">Défiler vers l'Aube</span>
                     <iconify-icon icon="lucide:chevron-down" width="16"></iconify-icon>
@@ -622,7 +634,7 @@ export default function App() {
                       if (user) setView('dashboard');
                       else handleJoinClick();
                     }}
-                    className="relative group overflow-hidden w-full max-w-md px-6 py-4 sm:px-16 sm:py-6 bg-white text-black font-black text-sm sm:text-xl lg:text-2xl uppercase tracking-[0.2em] font-heading italic transition-all duration-500 hover:scale-105 active:scale-95 shadow-[0_20px_50px_rgba(194,142,58,0.3)] rounded-2xl"
+                    className="relative group overflow-hidden w-full max-w-sm sm:max-w-md px-6 py-4 sm:px-16 sm:py-6 bg-white text-black font-black text-sm sm:text-xl lg:text-2xl uppercase tracking-[0.2em] font-heading italic transition-all duration-500 hover:scale-105 active:scale-95 shadow-[0_20px_50px_rgba(194,142,58,0.3)] rounded-2xl"
                   >
                     <span className="relative z-10 transition-colors group-hover:text-white">
                       {user ? `RETOURNER AU COMBAT, ${user.name.toUpperCase()}` : "REJOINDRE LA MEUTE"}
@@ -635,20 +647,20 @@ export default function App() {
             <AvatarCarousel />
 
             {/* Section Lore */}
-            <section id="lore" className="py-32 relative bg-cover bg-center" style={{ backgroundImage: "linear-gradient(to bottom, rgba(21,21,21,0.85), rgba(21,21,21,0.9)), url('https://i.postimg.cc/Qtjkb1QH/bg24.png')", backgroundColor: "#151515", backgroundAttachment: 'scroll' }}>
+            <section id="lore" className="py-16 sm:py-24 md:py-32 relative bg-cover bg-center" style={{ backgroundImage: "linear-gradient(to bottom, rgba(21,21,21,0.85), rgba(21,21,21,0.9)), url('https://i.postimg.cc/Qtjkb1QH/bg24.png')", backgroundColor: "#151515", backgroundAttachment: 'scroll' }}>
               {/* Subtle Floating Blades framing the background */}
               <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none z-0 flex justify-between items-center px-4 md:px-12 opacity-40">
                 {/* Left Blade */}
-                <img src="https://i.postimg.cc/C1wHNkG1/blade2.png" alt="Left Blade" className="w-48 md:w-80 object-contain animate-float-left drop-shadow-[0_0_15px_rgba(255,255,255,0.1)]" />
+                <img src="https://i.postimg.cc/C1wHNkG1/blade2.png" alt="Left Blade" className="w-28 sm:w-40 md:w-80 object-contain animate-float-left drop-shadow-[0_0_15px_rgba(255,255,255,0.1)]" />
                 {/* Right Blade */}
-                <img src="https://i.postimg.cc/Ssm7rC6K/bladepng.png" alt="Right Blade" className="w-48 md:w-80 object-contain animate-float-right drop-shadow-[0_0_15px_rgba(255,255,255,0.1)]" />
+                <img src="https://i.postimg.cc/Ssm7rC6K/bladepng.png" alt="Right Blade" className="w-28 sm:w-40 md:w-80 object-contain animate-float-right drop-shadow-[0_0_15px_rgba(255,255,255,0.1)]" />
               </div>
 
-              <div className="max-w-6xl mx-auto px-6 relative z-10 text-center py-24">
-                <h2 className="text-white text-4xl md:text-5xl font-medium tracking-tight font-heading uppercase mb-6">LE MONDE D'ARTHÉLYON</h2>
-                <div className="w-12 h-1 bg-[#c28e3a] mx-auto mb-20"></div>
+              <div className="max-w-6xl mx-auto px-4 sm:px-6 relative z-10 text-center py-8 sm:py-16 md:py-24">
+                <h2 className="text-white text-3xl sm:text-4xl md:text-5xl font-medium tracking-tight font-heading uppercase mb-4 sm:mb-6">LE MONDE D'ARTHÉLYON</h2>
+                <div className="w-12 h-1 bg-[#c28e3a] mx-auto mb-10 sm:mb-16 md:mb-20"></div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-16 md:gap-24 text-left text-gray-300 text-2xl font-monda leading-relaxed italic">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-12 md:gap-16 lg:gap-24 text-left text-gray-300 text-base sm:text-lg md:text-2xl font-monda leading-relaxed italic">
                   <p>Avant les chaînes. Avant le silence. Il y avait une promesse entre les bêtes — jurée par le sang, scellée par l'acier.<br/><br/>Ils l'appelaient le Covenant. Un serment qui liait le renard, le tigre, le loup et une centaine de clans à une seule vérité : aucune bête ne se tient seule.</p>
                   <p className="md:text-right">Cette vérité est morte aujourd'hui. Brisée par la trahison. Enterrée sous le fer et les cendres. Les clans se sont retournés les uns contre les autres. Les vieilles forêts se sont tues. Et le dernier gardien — un renard avec une lame et une promesse qu'il refuse d'oublier — marche dans un monde qui a déjà abandonné.</p>
                 </div>
@@ -656,13 +668,13 @@ export default function App() {
             </section>
 
             {/* Section Personnages (Alliés de la Covenant) */}
-            <section id="characters" className="bg-white py-32 text-center relative z-10">
-              <h3 className="text-zinc-800 text-3xl font-medium tracking-tight font-heading italic mb-2">ALLIÉS DE LA</h3>
-              <h2 className="text-zinc-900 text-6xl md:text-7xl font-bold tracking-tight font-heading italic uppercase mb-6">COVENANT</h2>
-              <div className="w-12 h-1 bg-[#c28e3a] mx-auto mb-20"></div>
+            <section id="characters" className="bg-white py-16 sm:py-24 md:py-32 text-center relative z-10">
+              <h3 className="text-zinc-800 text-2xl sm:text-3xl font-medium tracking-tight font-heading italic mb-2">ALLIÉS DE LA</h3>
+              <h2 className="text-zinc-900 text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight font-heading italic uppercase mb-4 sm:mb-6">COVENANT</h2>
+              <div className="w-12 h-1 bg-[#c28e3a] mx-auto mb-10 sm:mb-16 md:mb-20"></div>
 
               {/* Avatars Row */}
-              <div className="flex justify-center items-center gap-6 mb-28 overflow-x-auto px-6 py-4 max-w-6xl mx-auto scrollbar-hide">
+              <div className="flex justify-center items-center gap-3 sm:gap-4 md:gap-6 mb-12 sm:mb-16 md:mb-28 overflow-x-auto px-4 sm:px-6 py-4 max-w-6xl mx-auto scrollbar-hide">
                 {[
                   { id: '03', name: 'Grumm', img: 'https://images.unsplash.com/photo-1534361960057-19889db9621e?auto=format&fit=crop&q=80&w=200', char: 'grumm' },
                   { id: '04', name: 'Grumm', img: 'https://images.unsplash.com/photo-1598153346810-860daa814c4b?auto=format&fit=crop&q=80&w=200', char: 'grumm' },
@@ -690,12 +702,12 @@ export default function App() {
               </div>
 
               {/* Character Profiles Grid */}
-              <div className="max-w-[1400px] mx-auto px-6 flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-0 relative">
+              <div className="max-w-[1400px] mx-auto px-4 sm:px-6 flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-0 relative">
                 
                 {/* Left Character (Lyra) */}
                 <div className={`flex flex-col text-left gap-5 w-full max-w-md lg:-mr-12 transition-all duration-500 ${
                   activeChar === 'lyra' 
-                    ? 'z-20 scale-100 lg:scale-105 opacity-100 bg-zinc-900 text-white p-8 border border-white/10 shadow-2xl relative rounded-xl' 
+                    ? 'z-20 scale-100 lg:scale-105 opacity-100 bg-zinc-900 text-white p-5 sm:p-8 border border-white/10 shadow-2xl relative rounded-xl' 
                     : 'z-0 opacity-70 hover:opacity-100 hover:-translate-y-2'
                 }`}>
                   {activeChar === 'lyra' && <div className="absolute inset-0 border border-white/10 pointer-events-none rounded-xl"></div>}
@@ -729,7 +741,7 @@ export default function App() {
                 {/* Center Character (Grumm) */}
                 <div className={`flex flex-col text-left w-full max-w-xl transition-all duration-500 ${
                   activeChar === 'grumm' 
-                    ? 'z-20 scale-100 lg:scale-105 opacity-100 bg-zinc-900 text-white p-8 border border-white/10 shadow-2xl relative rounded-xl' 
+                    ? 'z-20 scale-100 lg:scale-105 opacity-100 bg-zinc-900 text-white p-5 sm:p-8 border border-white/10 shadow-2xl relative rounded-xl' 
                     : 'z-0 opacity-70 hover:opacity-100 hover:-translate-y-2'
                 }`}>
                   {activeChar === 'grumm' && <div className="absolute inset-0 border border-white/10 pointer-events-none rounded-xl"></div>}
@@ -754,7 +766,7 @@ export default function App() {
                 {/* Right Character (Kiko) */}
                 <div className={`flex flex-col text-right items-end gap-5 w-full max-w-md lg:-ml-12 transition-all duration-500 ${
                   activeChar === 'kiko' 
-                    ? 'z-20 scale-100 lg:scale-105 opacity-100 bg-zinc-900 text-white p-8 border border-white/10 shadow-2xl relative text-left items-start rounded-xl' 
+                    ? 'z-20 scale-100 lg:scale-105 opacity-100 bg-zinc-900 text-white p-5 sm:p-8 border border-white/10 shadow-2xl relative text-left items-start rounded-xl' 
                     : 'z-0 opacity-70 hover:opacity-100 hover:-translate-y-2'
                 }`}>
                   {activeChar === 'kiko' && <div className="absolute inset-0 border border-white/10 pointer-events-none rounded-xl"></div>}
@@ -789,24 +801,24 @@ export default function App() {
             </section>
 
             {/* Section Appel à l'Action (Steam Wishlist) */}
-            <section className="bg-gradient-to-b from-white to-gray-100 pt-32 pb-48 text-center border-t border-gray-200 relative z-10">
-              <div className="max-w-4xl mx-auto px-6 relative z-10">
-                <h3 className="text-zinc-800 text-4xl font-medium tracking-tight font-heading mb-2">Arthélyon est</h3>
-                <h2 className="text-zinc-900 text-7xl md:text-8xl font-bold tracking-tight font-heading italic uppercase mb-8 text-shadow-sm">EN ATTENTE</h2>
-                <div className="w-12 h-1 bg-[#c28e3a] mx-auto mb-12"></div>
+            <section className="bg-gradient-to-b from-white to-gray-100 pt-20 pb-24 sm:pt-24 sm:pb-32 md:pt-32 md:pb-48 text-center border-t border-gray-200 relative z-10">
+              <div className="max-w-4xl mx-auto px-4 sm:px-6 relative z-10">
+                <h3 className="text-zinc-800 text-2xl sm:text-3xl md:text-4xl font-medium tracking-tight font-heading mb-2">Arthélyon est</h3>
+                <h2 className="text-zinc-900 text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight font-heading italic uppercase mb-6 sm:mb-8 text-shadow-sm">EN ATTENTE</h2>
+                <div className="w-12 h-1 bg-[#c28e3a] mx-auto mb-8 sm:mb-12"></div>
                 
-                <p className="text-zinc-800 text-2xl md:text-3xl font-monda leading-relaxed mb-16 text-balance">Le Covenant ne se restaurera pas lui-même. Choisissez votre bête, aiguisez votre lame, et entrez dans un monde qui riposte. Wakkany est gratuit sur Steam — pas de barrières, pas de chaînes, juste les terres sauvages et tout ce que vous avez le courage d’y affronter.</p>
+                <p className="text-zinc-800 text-base sm:text-lg md:text-2xl lg:text-3xl font-monda leading-relaxed mb-10 sm:mb-16">Le Covenant ne se restaurera pas lui-même. Choisissez votre bête, aiguisez votre lame, et entrez dans un monde qui riposte. Wakkany est gratuit sur Steam — pas de barrières, pas de chaînes, juste les terres sauvages et tout ce que vous avez le courage d’y affronter.</p>
                 
                 <a 
                   href="https://store.steampowered.com" 
                   target="_blank" 
                   rel="noreferrer"
-                  className="group inline-flex items-center gap-6 bg-zinc-900 text-white px-10 py-5 rounded transition-all hover:bg-black hover:scale-105 shadow-xl hover:shadow-2xl cursor-pointer"
+                  className="group inline-flex flex-col sm:flex-row items-center gap-4 sm:gap-6 bg-zinc-900 text-white px-6 sm:px-10 py-4 sm:py-5 rounded transition-all hover:bg-black hover:scale-105 shadow-xl hover:shadow-2xl cursor-pointer w-full sm:w-auto"
                 >
-                  <iconify-icon icon="simple-icons:steam" width="40" height="40" className="text-white group-hover:text-gray-300 block"></iconify-icon>
-                  <div className="text-left border-l border-white/20 pl-6">
-                    <div className="text-base uppercase tracking-[0.2em] text-gray-400 font-medium mb-1">Liste de souhaits sur</div>
-                    <div className="text-3xl font-bold tracking-wider font-heading">STEAM</div>
+                  <iconify-icon icon="simple-icons:steam" width="32" height="32" className="text-white group-hover:text-gray-300 block sm:w-10 sm:h-10"></iconify-icon>
+                  <div className="text-center sm:text-left border-t sm:border-t-0 sm:border-l border-white/20 pt-4 sm:pt-0 sm:pl-6">
+                    <div className="text-sm sm:text-base uppercase tracking-[0.2em] text-gray-400 font-medium mb-1">Liste de souhaits sur</div>
+                    <div className="text-2xl sm:text-3xl font-bold tracking-wider font-heading">STEAM</div>
                   </div>
                 </a>
               </div>
@@ -872,29 +884,18 @@ export default function App() {
         <div className="pt-20 min-h-screen bg-zinc-950">
           <section className="max-w-7xl mx-auto px-4 sm:px-6 pt-8 pb-28 lg:pb-12">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-white/5 pb-8 mb-8">
-              <div>
-                <h1 className="text-white text-5xl font-heading font-bold italic uppercase mb-2">
+              <div className="w-full md:w-auto">
+                <h1 className="text-white text-3xl sm:text-4xl lg:text-5xl font-heading font-bold italic uppercase mb-2 break-words">
                   Bienvenue, <span className="text-[#c28e3a]">{user?.name}</span>
                 </h1>
-                <p className="text-zinc-500 font-monda uppercase text-xs tracking-widest">
+                <p className="text-zinc-500 font-monda uppercase text-[10px] sm:text-xs tracking-widest break-words">
                   {user?.academy} // {user?.clan?.name}
                 </p>
               </div>
 
-              <div className="flex items-center gap-6">
+              <div className="w-full md:w-auto">
                  <div className="hidden lg:flex bg-black/40 border border-white/10 p-1 rounded-xl">
-                 {[
-                  { id: 'profile', label: 'Évolution', icon: 'lucide:user' },
-                  { id: 'quests', label: 'Quêtes', icon: 'lucide:scroll' },
-                  { id: 'quiz', label: 'Quiz TV', icon: 'lucide:gamepad-2' },
-                  { id: 'avatar', label: 'Avatar', icon: 'lucide:box' },
-                  { id: 'stats', label: 'Stats', icon: 'lucide:bar-chart-3' },
-                  { id: 'map', label: 'Carte', icon: 'lucide:map' },
-                  { id: 'skills', label: 'Talents', icon: 'lucide:git-branch' },
-                  { id: 'clans', label: 'Clan', icon: 'lucide:users' },
-                  { id: 'rankings', label: 'Rang', icon: 'lucide:trophy' },
-                  { id: 'badges', label: 'Badges', icon: 'lucide:award' }
-                ].map(tab => (
+                 {dashboardTabs.map(tab => (
                   <button
                     key={tab.id}
                     onClick={() => setDashboardTab(tab.id)}
@@ -905,6 +906,21 @@ export default function App() {
                     <span className="hidden sm:inline">{tab.label}</span>
                   </button>
                 ))}
+              </div>
+
+              <div className="md:hidden overflow-x-auto scrollbar-hide">
+                <div className="flex gap-2 min-w-max bg-black/40 border border-white/10 p-1 rounded-xl">
+                  {dashboardTabs.map(tab => (
+                    <button
+                      key={tab.id}
+                      onClick={() => setDashboardTab(tab.id)}
+                      className={`flex items-center gap-2 px-4 py-3 rounded-lg text-[10px] font-bold uppercase tracking-widest whitespace-nowrap transition-all ${dashboardTab === tab.id ? 'bg-[#c28e3a] text-black shadow-lg shadow-orange-950/20' : 'text-zinc-500 hover:text-white'}`}
+                    >
+                      <iconify-icon icon={tab.icon} width="14"></iconify-icon>
+                      <span>{tab.label}</span>
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
@@ -925,9 +941,9 @@ export default function App() {
                    </div>
                    
                    {/* Real-time Activity Feed */}
-                   <div className="bg-zinc-900/60 border border-white/5 rounded-3xl p-8 relative overflow-hidden">
+                   <div className="glass-panel rounded-3xl p-8 relative overflow-hidden">
                       <div className="flex items-center justify-between mb-6">
-                         <h3 className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.3em]">Flux d'Activité en Temps Réel</h3>
+                         <h3 className="text-zinc-200 text-[10px] font-black uppercase tracking-[0.3em]">Flux d'Activité en Temps Réel</h3>
                          <div className="flex items-center gap-2">
                             <div className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></div>
                             <span className="text-[8px] font-bold text-red-500 uppercase tracking-widest">Live</span>
@@ -942,15 +958,15 @@ export default function App() {
               )}
 
               {dashboardTab === 'avatar' && (
-                <div className="max-w-4xl mx-auto flex flex-col items-center gap-12 py-10">
-                   <h2 className="text-white text-4xl font-heading font-black italic uppercase">VOTRE RÉALITÉ VISUELLE</h2>
-                   <div className="bg-zinc-900 border border-white/10 p-20 rounded-[60px] shadow-2xl relative group">
+                <div className="max-w-4xl mx-auto flex flex-col items-center gap-8 sm:gap-12 py-6 sm:py-10 px-4">
+                   <h2 className="text-white text-2xl sm:text-4xl font-heading font-black italic uppercase text-center">VOTRE RÉALITÉ VISUELLE</h2>
+                   <div className="bg-zinc-900 border border-white/10 p-6 sm:p-10 lg:p-20 rounded-[32px] sm:rounded-[48px] lg:rounded-[60px] shadow-2xl relative group w-full overflow-hidden">
                       <div className="absolute inset-0 bg-[#c28e3a]/10 blur-[120px] opacity-20 animate-pulse"></div>
-                      <div className="scale-[2.5] relative z-10">
+                      <div className="flex justify-center items-center relative z-10 scale-[1.05] sm:scale-[1.7] lg:scale-[2.5] origin-center">
                         <Avatar xp={cumulativeXp} unlockedSkills={unlockedSkills} />
                       </div>
                    </div>
-                   <p className="text-zinc-500 text-center max-w-xl font-monda italic">
+                   <p className="text-zinc-500 text-center max-w-xl font-monda italic text-sm sm:text-base">
                      L'évolution de votre avatar est liée à vos progrès. Débloquez de nouveaux talents dans l'arbre pour voir votre identité visuelle se transformer.
                    </p>
                 </div>
