@@ -5,4 +5,8 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   plugins: [react()],
   base: '/plateforme%20wakkany/',
+  server: {
+    port: 5179,
+    strictPort: false
+  }
 });

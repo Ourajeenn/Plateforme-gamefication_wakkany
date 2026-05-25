@@ -17,6 +17,7 @@ export default function usePlayerData() {
     const [xp, setXp] = useState(0);
     const [unlockedSkills, setUnlockedSkills] = useState([]);
     const [completedQuests, setCompletedQuests] = useState([]);
+    const [spellingScore, setSpellingScore] = useState(0);
     const [unlockedAchievements, setUnlockedAchievements] = useState([]);
     const [xpHistory, setXpHistory] = useState(MOCK_HISTORY);
     const [isLoaded, setIsLoaded] = useState(false);
@@ -30,6 +31,7 @@ export default function usePlayerData() {
             const legacyUser = localStorage.getItem('wakkany_user');
             
             if (savedSession || legacyUser) {
+
                 let username = savedSession;
                 if (!username && legacyUser) {
                     const parsedUser = JSON.parse(legacyUser);
@@ -38,6 +40,10 @@ export default function usePlayerData() {
 
                 if (username) {
                     const playerData = await storage.getItem(`player:${username.toLowerCase()}`, { shared: false });
+            // Initialize spellingScore if missing
+            if (playerData && playerData.spellingScore === undefined) {
+              playerData.spellingScore = 0;
+            }
                     
                     if (playerData) {
                         setUser(playerData.user);
@@ -56,7 +62,8 @@ export default function usePlayerData() {
                     }
                 }
             }
-            setIsLoaded(true);
+  
+        setIsLoaded(true);
         }
         loadSession();
     }, []);
@@ -80,7 +87,8 @@ export default function usePlayerData() {
                 unlockedSkills,
                 completedQuests,
                 unlockedAchievements,
-                xpHistory: newHistory
+                xpHistory: newHistory,
+                spellingScore
             };
             
             storage.setItem(`player:${user.name.toLowerCase()}`, playerData, { shared: false });
@@ -124,8 +132,7 @@ export default function usePlayerData() {
         unlockedSkills, setUnlockedSkills,
         completedQuests, setCompletedQuests,
         unlockedAchievements, setUnlockedAchievements,
-        xpHistory
+        xpHistory,
+        spellingScore, setSpellingScore
     };
 }
-
-

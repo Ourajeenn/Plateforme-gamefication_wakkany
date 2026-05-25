@@ -4,7 +4,41 @@ on:
   push:
     branches:
       - main
-      - dev # Facultatif : permet de tester le déploiement depuis dev également
+      - dev
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: dist
+          branch: gh-pages
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+
+on:
+  push:
+    branches:
+      - dev # Deploy from development branch
 
 permissions:
   contents: write
@@ -27,7 +61,42 @@ jobs:
           git config --global user.name "github-actions[bot]"
 
       - name: Install and Build 
-        run: npm install && npm run build
+        run: npm ci && npm run build
+
+      - name: Deploy 
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: dist
+          branch: gh-pages
+
+
+on:
+  push:
+    branches:
+      - dev # Deploy from development branch
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Set Git user
+        run: |
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+
+      - name: Install and Build 
+        run: npm ci && npm run build
 
       - name: Deploy 
         uses: JamesIves/github-pages-deploy-action@v4

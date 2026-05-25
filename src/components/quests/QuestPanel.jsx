@@ -9,6 +9,17 @@ export default function QuestPanel({ xp, unlockedSkills, completedQuests, onComp
     const [activeQuiz, setActiveQuiz] = useState(null);
     const [rewardedQuest, setRewardedQuest] = useState(null);
 
+    const handleQuestSuccess = (quest) => {
+        if (!quest || completedQuests.includes(quest.id)) {
+            setActiveQuiz(null);
+            return;
+        }
+
+        setActiveQuiz(null);
+        setRewardedQuest(quest);
+        onCompleteQuest(quest);
+    };
+
     const formatTime = (seconds) => {
         const mins = Math.floor(seconds / 60);
         const secs = seconds % 60;
@@ -109,11 +120,7 @@ export default function QuestPanel({ xp, unlockedSkills, completedQuests, onComp
                 <RiddleModal
                     quest={activeQuiz}
                     onClose={() => setActiveQuiz(null)}
-                    onSuccess={(q) => {
-                        setActiveQuiz(null);
-                        setRewardedQuest(q);
-                        onCompleteQuest(q);
-                    }}
+                    onSuccess={handleQuestSuccess}
                 />
             )}
 

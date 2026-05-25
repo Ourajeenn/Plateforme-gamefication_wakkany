@@ -1,12 +1,16 @@
 import React, { useEffect } from 'react';
+import { useSoundFX } from '../hooks/useSoundFX';
+// Image served from public assets folder
 
 // Instance audio globale pour la musique de fond
 let bgMusic = null;
 
 export default function Preloader({ onComplete }) {
+  const { playPreloaderLightning } = useSoundFX();
+
   useEffect(() => {
     if (!bgMusic) {
-      bgMusic = new Audio('/assets/epic_music.mp3');
+      bgMusic = new Audio(`${import.meta.env.BASE_URL}assets/epic_music.mp3`);
       bgMusic.loop = true;
       bgMusic.volume = 0.5;
     }
@@ -22,13 +26,34 @@ export default function Preloader({ onComplete }) {
 
     document.addEventListener('click', playOnInteraction);
 
+    const autoAdvance = window.setTimeout(() => {
+      if (onComplete) onComplete();
+    }, 2200);
+
     return () => {
+      window.clearTimeout(autoAdvance);
       document.removeEventListener('click', playOnInteraction);
+    };
+  }, [onComplete]);
+
+  const lightningRef = React.useRef(null);
+
+  // Trigger thunder sound when lightning animation starts
+  useEffect(() => {
+    const el = lightningRef.current;
+    if (!el) return;
+    const handleAnimationStart = () => {
+      playPreloaderLightning();
+    };
+    el.addEventListener('animationstart', handleAnimationStart);
+    return () => {
+      el.removeEventListener('animationstart', handleAnimationStart);
     };
   }, []);
 
   const handleStart = () => {
-    // Terminer le preloader pour afficher l'application
+    // Play lightning sound and finish preloader
+    playPreloaderLightning();
     onComplete();
   };
 
@@ -46,17 +71,10 @@ export default function Preloader({ onComplete }) {
       `}</style>
       
       {/* Conteneur de l'image de fond */}
-      <div 
-        className="absolute inset-0 w-full h-full bg-center bg-no-repeat"
-        style={{ 
-          backgroundImage: "url('/assets/wakkany_1.png')",
-          backgroundSize: 'cover', // Remplit l'écran sans espaces vides
-          backgroundColor: 'black'
-        }}
-      ></div>
+      <img src={`${import.meta.env.BASE_URL}assets/wakkany_1.png`} className="absolute inset-0 w-full h-full object-cover" alt="Preloader background" />
       
       {/* Effet d'éclairs (Lightning) */}
-      <div className="absolute inset-0 bg-white mix-blend-overlay pointer-events-none animate-lightning"></div>
+      <div ref={lightningRef} className="absolute inset-0 bg-white mix-blend-overlay pointer-events-none animate-lightning"></div>
       
       {/* Voile sombre pour faire ressortir le bouton sans flouter l'image */}
       <div className="absolute inset-0 bg-black/40"></div>

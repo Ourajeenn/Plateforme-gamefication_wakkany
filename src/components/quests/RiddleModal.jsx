@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import useRiddle from '../../hooks/useRiddle';
 
 export default function RiddleModal({ quest, onClose, onSuccess }) {
@@ -7,24 +7,54 @@ export default function RiddleModal({ quest, onClose, onSuccess }) {
   const [attempts, setAttempts] = useState(0);
   const [status, setStatus] = useState('idle'); // idle, correct, wrong
   const [showHint, setShowHint] = useState(false);
+  const timersRef = useRef([]);
+  const isMountedRef = useRef(true);
 
   useEffect(() => {
+    isMountedRef.current = true;
     generateRiddle(quest.riddleTheme, quest.difficulty);
+
+    return () => {
+      isMountedRef.current = false;
+      timersRef.current.forEach(clearTimeout);
+      timersRef.current = [];
+    };
   }, []);
+
+  const clearTimers = () => {
+    timersRef.current.forEach(clearTimeout);
+    timersRef.current = [];
+  };
+
+  const handleClose = () => {
+    clearTimers();
+    onClose();
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!currentRiddle) return;
+    if (!currentRiddle || status === 'correct') return;
 
     if (userAnswer.toLowerCase().trim() === currentRiddle.answer.toLowerCase()) {
+      clearTimers();
       setStatus('correct');
-      setTimeout(() => onSuccess(quest), 1500);
+      const timeout = setTimeout(() => {
+        if (isMountedRef.current) {
+          onSuccess(quest);
+        }
+      }, 1500);
+      timersRef.current.push(timeout);
     } else {
       setStatus('wrong');
       const newAttempts = attempts + 1;
       setAttempts(newAttempts);
       if (newAttempts >= 2) setShowHint(true);
-      setTimeout(() => setStatus('idle'), 2000);
+      const timeout = setTimeout(() => {
+        if (isMountedRef.current) {
+          setStatus('idle');
+        }
+      }, 2000);
+      timersRef.current.push(timeout);
     }
   };
 
@@ -42,7 +72,7 @@ export default function RiddleModal({ quest, onClose, onSuccess }) {
               <h2 className="text-[#c28e3a] text-[10px] font-black uppercase tracking-[0.3em]">Épreuve de Quête</h2>
               <span className="text-white font-heading font-bold italic uppercase text-lg">{quest.title}</span>
             </div>
-            <button onClick={onClose} className="text-zinc-700 hover:text-white transition-colors">
+            <button onClick={handleClose} className="text-zinc-700 hover:text-white transition-colors">
               <iconify-icon icon="lucide:x" width="24"></iconify-icon>
             </button>
           </div>
@@ -60,7 +90,7 @@ export default function RiddleModal({ quest, onClose, onSuccess }) {
           ) : error ? (
             <div className="text-center py-12">
                <p className="text-red-500 mb-4">{error}</p>
-               <button onClick={onClose} className="px-6 py-2 bg-zinc-800 text-white rounded-lg">Fermer</button>
+               <button onClick={handleClose} className="px-6 py-2 bg-zinc-800 text-white rounded-lg">Fermer</button>
             </div>
           ) : (
             <div className="animate-fade-in space-y-8">

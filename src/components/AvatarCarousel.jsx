@@ -8,18 +8,16 @@ const avatars = [
   { id: '04', name: 'Renarde Impériale', img: grid1, col: 1, row: 0, cols: 4, rows: 3 },
   { id: '05', name: 'Tigre Berserker',   img: grid1, col: 2, row: 0, cols: 4, rows: 3 },
   { id: '06', name: 'Faucon Éclaireur',  img: grid1, col: 3, row: 0, cols: 4, rows: 3 },
-  { id: '05', name: 'Blaireau Titan',    img: grid1, col: 0, row: 1, cols: 4, rows: 3 },
-  { id: '06', name: 'Ours Guerrier',     img: grid1, col: 1, row: 1, cols: 4, rows: 3 },
-  { id: '10', name: 'Panthère Mage',     img: grid1, col: 2, row: 1, cols: 4, rows: 3 },
-  { id: '11', name: 'Lézard Sage',       img: grid1, col: 3, row: 1, cols: 4, rows: 3 },
+  { id: '13', name: 'Blaireau Titan',    img: grid1, col: 0, row: 1, cols: 4, rows: 3 },
+  { id: '14', name: 'Panthère Mage',     img: grid1, col: 2, row: 1, cols: 4, rows: 3 },
+  { id: '15', name: 'Lézard Sage',       img: grid1, col: 3, row: 1, cols: 4, rows: 3 },
   { id: '09', name: 'Singe Héros',       img: grid1, col: 0, row: 2, cols: 4, rows: 3 },
   { id: '10', name: 'Gecko Maître',      img: grid1, col: 1, row: 2, cols: 4, rows: 3 },
   { id: '11', name: 'Hibou Érudit',      img: grid1, col: 2, row: 2, cols: 4, rows: 3 },
   { id: '12', name: 'Gorille Noble',     img: grid1, col: 3, row: 2, cols: 4, rows: 3 },
-  { id: '03', name: 'Singe Tireur',      img: grid2, col: 0, row: 0, cols: 3, rows: 2 },
-  { id: '04', name: 'Guenon Geisha',     img: grid2, col: 1, row: 0, cols: 3, rows: 2 },
-  { id: '05', name: 'Singe Explorateur', img: grid2, col: 2, row: 0, cols: 3, rows: 2 },
-  { id: '06', name: 'Singe Titan',       img: grid2, col: 0, row: 1, cols: 3, rows: 2 },
+  { id: '16', name: 'Singe Tireur',      img: grid2, col: 0, row: 0, cols: 3, rows: 2 },
+  { id: '17', name: 'Guenon Geisha',     img: grid2, col: 1, row: 0, cols: 3, rows: 2 },
+  { id: '18', name: 'Singe Explorateur', img: grid2, col: 2, row: 0, cols: 3, rows: 2 },
   { id: '07', name: 'Guenon du Thé',     img: grid2, col: 1, row: 1, cols: 3, rows: 2 },
   { id: '08', name: 'Singe Ninja',       img: grid2, col: 2, row: 1, cols: 3, rows: 2 },
 ];
@@ -35,8 +33,12 @@ function SpriteCell({ avatar, filter }) {
   const [style, setStyle] = useState({});
 
   useEffect(() => {
+    let isActive = true;
     const img = new window.Image();
+
     img.onload = () => {
+      if (!isActive) return;
+
       const { naturalWidth: iw, naturalHeight: ih } = img;
       const cellW = iw / avatar.cols;
       const cellH = ih / avatar.rows;
@@ -44,16 +46,16 @@ function SpriteCell({ avatar, filter }) {
       // Scale so the cell FILLS the card (cover) — no empty borders
       const sx = CARD_W / cellW;
       const sy = CARD_H / cellH;
-      const sc = Math.max(sx, sy);   // cover: always fill the card
+      const sc = Math.max(sx, sy);
 
-      const scaledW = iw * sc;
-      const scaledH = ih * sc;
-      const sCellW  = cellW * sc;
-      const sCellH  = cellH * sc;
+      const scaledW = Math.round(iw * sc);
+      const scaledH = Math.round(ih * sc);
+      const sCellW  = Math.round(cellW * sc);
+      const sCellH  = Math.round(cellH * sc);
 
-      // Center the cell in the card
-      const px = -(avatar.col * sCellW) - (sCellW - CARD_W) / 2;
-      const py = -(avatar.row * sCellH) - (sCellH - CARD_H) / 2;
+      // Center the exact sprite cell inside the card
+      const px = Math.round(-(avatar.col * sCellW) - (sCellW - CARD_W) / 2);
+      const py = Math.round(-(avatar.row * sCellH) - (sCellH - CARD_H) / 2);
 
       setStyle({
         backgroundImage:    `url(${avatar.img})`,
@@ -62,7 +64,12 @@ function SpriteCell({ avatar, filter }) {
         backgroundRepeat:   'no-repeat',
       });
     };
+
     img.src = avatar.img;
+
+    return () => {
+      isActive = false;
+    };
   }, [avatar.img, avatar.col, avatar.row, avatar.cols, avatar.rows]);
 
   return (
@@ -80,6 +87,7 @@ function SpriteCell({ avatar, filter }) {
 /* ── Main carousel ───────────────────────────────────────────────────────── */
 export default function AvatarCarousel() {
   const [centerIdx, setCenterIdx] = useState(2);
+  const [glow, setGlow] = useState({ x: 0, y: 0, visible: false });
   const isPausedRef = useRef(false);
 
   useEffect(() => {
@@ -88,6 +96,15 @@ export default function AvatarCarousel() {
     }, 2500);
     return () => clearInterval(id);
   }, []);
+
+  const handleGlowMove = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    setGlow({
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+      visible: true,
+    });
+  };
 
   const half    = Math.floor(VISIBLE / 2);
   const visible = Array.from({ length: VISIBLE }, (_, i) => {
@@ -137,19 +154,36 @@ export default function AvatarCarousel() {
             <div
               key={`${realIdx}-${offset}`}
               onClick={() => setCenterIdx(realIdx)}
-              className="absolute cursor-pointer"
+              className="absolute cursor-pointer stabilize-motion"
               style={{
                 width:  CARD_W,
                 height: CARD_H,
                 left:   '50%',
                 top:    '50%',
-                transform: `translate(calc(-50% + ${slotX}px), -50%) scale(${scale})`,
+                transform: `translate3d(calc(-50% + ${slotX}px), -50%, 0) scale(${scale})`,
                 transformOrigin: 'center center',
                 zIndex: zIdx,
                 opacity: opac,
-                transition: 'all 0.45s cubic-bezier(0.4,0,0.2,1)',
+                overflow: 'hidden',
+                transition: 'transform 0.45s cubic-bezier(0.4,0,0.2,1), opacity 0.45s ease, filter 0.45s ease',
               }}
+              onMouseMove={handleGlowMove}
+              onMouseEnter={() => setGlow(prev => ({ ...prev, visible: true }))}
+              onMouseLeave={() => setGlow(prev => ({ ...prev, visible: false }))}
             >
+              {/* White glow follower */}
+              <div
+                className="absolute inset-0 pointer-events-none"
+                style={{
+                  background: glow.visible
+                    ? `radial-gradient(circle at ${glow.x}px ${glow.y}px, rgba(255,255,255,0.38), rgba(255,255,255,0.12) 28%, transparent 52%)`
+                    : 'transparent',
+                  opacity: dist === 0 ? 0.9 : 0.55,
+                  transition: 'opacity 0.2s ease, background 0.1s linear',
+                  mixBlendMode: 'screen',
+                }}
+              />
+
               {/* Outer glow (active only) */}
               {dist === 0 && (
                 <div className="absolute inset-0 pointer-events-none"

@@ -15,13 +15,14 @@ import NotificationToast from './components/NotificationToast';
 import TrainingCenter from './components/TrainingCenter';
 import BottomNav from './components/BottomNav';
 import AvatarCarousel from './components/AvatarCarousel';
+import Preloader from './components/Preloader';
 import usePlayerData from './hooks/usePlayerData';
 import { ACHIEVEMENTS } from './data/achievements';
 import { realtime } from './utils/realtime';
 import { getDominantBranch, getTotalXp } from './utils/xpHelpers';
 import { getLevel } from './data/levels';
 import { useSoundFX } from './hooks/useSoundFX';
-import Preloader from './components/Preloader';
+import SpellingVoiceGame from './components/SpellingVoiceGame';
 
 import QuizHome from './components/quiz/QuizHome';
 import QuizConfig from './components/quiz/QuizConfig';
@@ -62,6 +63,7 @@ export default function App() {
   const levelData = getLevel(cumulativeXp);
   const { playClick, playUnlock, playLevelUp, playError } = useSoundFX();
   const [landingTab, setLandingTab] = useState(null); // 'waitlist', 'about', 'blog', 'archetypes'
+  const [activeChar, setActiveChar] = useState('grumm');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [waitlistStatus, setWaitlistStatus] = useState('idle'); // 'idle', 'loading', 'success'
@@ -224,7 +226,7 @@ export default function App() {
           if (user) setView('dashboard');
           else handleJoinClick();
         }} className="text-zinc-500 hover:text-white transition-all">MON PROFIL</button>
-        <button onClick={() => setLandingTab('about')} className={`transition-all hover:text-[#c28e3a] ${landingTab === 'about' ? 'text-[#c28e3a]' : 'text-zinc-500'}`}>ÉCOSYSTÈME</button>
+        <button onClick={() => setView('spelling')} className={`transition-all hover:text-[#c28e3a] ${landingTab === 'spelling' ? 'text-[#c28e3a]' : 'text-zinc-500'}`}>ORTHOGRAPHE</button>
         <button onClick={() => setLandingTab('blog')} className={`transition-all hover:text-[#c28e3a] ${landingTab === 'blog' ? 'text-[#c28e3a]' : 'text-zinc-500'}`}>HISTOIRE</button>
       </div>
 
@@ -353,7 +355,7 @@ export default function App() {
               <ul className="text-zinc-500 text-sm space-y-3">
                 <li>• Level 0 clearance</li>
                 <li>• Minimum 100 XP aspiration</li>
-                <li>• Commitment to the hunt</li>
+                <li>• Engagement pour Wakkany</li>
               </ul>
             </div>
           </div>
@@ -372,8 +374,8 @@ export default function App() {
                 setTimeout(() => setWaitlistStatus('success'), 1500);
               }} className="space-y-6">
                 <div>
-                  <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-2 block">Adresse Aethermail</label>
-                  <input type="email" required className="w-full bg-zinc-900 border border-white/10 px-6 py-4 rounded-xl text-white outline-none focus:border-[#c28e3a] transition-all" placeholder="hunter@aethermoor.com" />
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-2 block">Adresse Arthélyonmail</label>
+                  <input type="email" required className="w-full bg-zinc-900 border border-white/10 px-6 py-4 rounded-xl text-white outline-none focus:border-[#c28e3a] transition-all" placeholder="wakkany@arthelyon.com" />
                 </div>
                 <button type="submit" disabled={waitlistStatus === 'loading'} className="w-full py-5 bg-[#c28e3a] text-black font-bold uppercase tracking-widest hover:brightness-110 transition-all font-monda disabled:opacity-50">
                   {waitlistStatus === 'loading' ? 'Chiffrement...' : 'Demander l\'Accès'}
@@ -541,8 +543,8 @@ export default function App() {
     );
   }
 
-  if (view === 'setup') {
-    return <ProfileSetup onComplete={handleProfileComplete} />;
+  if (view === 'spelling') {
+    return <SpellingVoiceGame />;
   }
 
   return (
@@ -563,9 +565,9 @@ export default function App() {
           <>
             {/* Hero Section */}
             <header id="hero" className="relative w-full min-h-screen overflow-hidden flex flex-col justify-end pb-12 sm:pb-24">
-              <div className="absolute inset-0 z-0 bg-zinc-950 overflow-hidden">
+              <div className="absolute inset-0 z-0 bg-zinc-950 overflow-hidden stabilize-motion">
                 <iframe
-                  className="video-background opacity-85 w-full h-full object-cover scale-[1.3] brightness-125 pointer-events-none"
+                  className="video-background opacity-85 w-full h-full object-cover scale-[1.3] brightness-125 pointer-events-none stabilize-motion"
                   src="https://player.mux.com/01mywJGOo4l00f8YOasdq4nIXXI6vrrIIVTKtMN6PCeQM?autoplay=true&loop=true&muted=true&controls=false"
                   frameBorder="0"
                   allow="autoplay; fullscreen"
@@ -576,18 +578,18 @@ export default function App() {
                 <div className="absolute inset-0 bg-yellow-500/5 pointer-events-none"></div>
               </div>
 
-              <div className="relative z-10 w-full max-w-7xl mx-auto px-8 h-full flex flex-col pt-32 sm:pt-40">
+              <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-8 h-full flex flex-col pt-24 sm:pt-40">
                 <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end w-full gap-8">
                   {/* Brand Column (H1) */}
-                  <div className="lg:text-right flex flex-col lg:items-end opacity-0 animate-fade-in delay-500 w-full lg:w-auto lg:order-last">
-                    <h1 className="text-white text-[60px] sm:text-[100px] lg:text-[140px] font-black italic leading-[0.8] tracking-tighter font-heading uppercase drop-shadow-[0_20px_20px_rgba(0,0,0,0.5)]">
+                  <div className="lg:text-right flex flex-col lg:items-end opacity-0 animate-fade-in delay-500 w-full max-w-full lg:w-auto lg:order-last">
+                    <h1 className="text-white text-[clamp(2.5rem,9vw,8.75rem)] font-black italic leading-[0.8] tracking-tighter font-heading uppercase drop-shadow-[0_20px_20px_rgba(0,0,0,0.5)] w-full max-w-full break-words">
                       Wak<br />kany
                     </h1>
-                    <p className="text-yellow-500 text-lg sm:text-2xl mt-6 max-w-md tracking-tight font-monda font-light italic">
+                    <p className="text-yellow-500 text-sm sm:text-lg lg:text-2xl mt-4 sm:mt-6 max-w-md tracking-tight font-monda font-light italic">
                       "Votre évolution ne dépend pas du hasard, mais de vos choix."
                     </p>
 
-                    <div className="mt-10 flex flex-wrap gap-4 w-full lg:justify-end">
+                    <div className="mt-8 sm:mt-10 flex flex-wrap gap-3 sm:gap-4 w-full lg:justify-end">
                       <div className="flex items-center bg-black/40 backdrop-blur-xl border border-white/5 py-4 px-6 rounded-2xl">
                         <div className="flex flex-col">
                           <span className="text-[9px] text-zinc-600 font-black uppercase tracking-widest">Utilisateurs Actifs</span>
@@ -598,18 +600,18 @@ export default function App() {
                   </div>
 
                   {/* Subtitle Column (H2) */}
-                  <div className="opacity-0 animate-scale-up delay-200 w-full lg:w-auto">
+                  <div className="opacity-0 animate-scale-up delay-200 w-full max-w-full lg:w-auto">
                     <div className="flex items-center gap-3 text-[#c28e3a] mb-4">
                       <div className="h-px w-8 bg-[#c28e3a]"></div>
                       <span className="text-[10px] font-black uppercase tracking-[0.4em]">Propulsé par l'Aether</span>
                     </div>
-                    <h2 className="text-white text-3xl sm:text-5xl lg:text-6xl font-black italic tracking-tighter font-heading uppercase leading-none">
+                    <h2 className="text-white text-[clamp(1.75rem,5vw,3.75rem)] sm:text-5xl lg:text-6xl font-black italic tracking-tighter font-heading uppercase leading-none w-full max-w-full break-words">
                       TRANSFORMEZ<br />VOTRE <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#c28e3a] to-white">POTENTIEL</span>
                     </h2>
                   </div>
                 </div>
 
-                <div className="mt-auto mb-8 sm:mb-12 flex flex-col items-center gap-8">
+                <div className="mt-auto mb-8 sm:mb-12 flex flex-col items-center gap-6 sm:gap-8 w-full">
                   <div className="flex flex-col items-center opacity-40">
                     <span className="text-[8px] font-black uppercase tracking-[0.5em] mb-2">Défiler vers l'Aube</span>
                     <iconify-icon icon="lucide:chevron-down" width="16"></iconify-icon>
@@ -620,7 +622,7 @@ export default function App() {
                       if (user) setView('dashboard');
                       else handleJoinClick();
                     }}
-                    className="relative group overflow-hidden px-16 py-6 bg-white text-black font-black text-xl sm:text-2xl uppercase tracking-[0.2em] font-heading italic transition-all duration-500 hover:scale-105 active:scale-95 shadow-[0_20px_50px_rgba(194,142,58,0.3)] rounded-2xl"
+                    className="relative group overflow-hidden w-full max-w-md px-6 py-4 sm:px-16 sm:py-6 bg-white text-black font-black text-sm sm:text-xl lg:text-2xl uppercase tracking-[0.2em] font-heading italic transition-all duration-500 hover:scale-105 active:scale-95 shadow-[0_20px_50px_rgba(194,142,58,0.3)] rounded-2xl"
                   >
                     <span className="relative z-10 transition-colors group-hover:text-white">
                       {user ? `RETOURNER AU COMBAT, ${user.name.toUpperCase()}` : "REJOINDRE LA MEUTE"}
@@ -630,164 +632,236 @@ export default function App() {
                 </div>
               </div>
             </header>
-
-            {/* Avatar Selection Carousel (Added from User Request) */}
             <AvatarCarousel />
 
-            {/* Visual Evolution Section */}
-            <section className="py-24 sm:py-32 bg-zinc-950 border-y border-white/5 overflow-hidden">
-               <div className="max-w-7xl mx-auto px-8">
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-                    <div>
-                      <h3 className="text-[#c28e3a] text-xs font-black uppercase tracking-[0.3em] mb-4">Système d'Evolution Visuelle</h3>
-                      <h2 className="text-white text-5xl font-heading font-black italic uppercase tracking-tighter mb-8 leading-none">VOTRE AVATAR<br />DEVIENT VOTRE <span className="text-zinc-500">LÉGENDE</span></h2>
-                      <p className="text-zinc-400 text-lg leading-relaxed italic font-monda mb-10">
-                        Chaque point d'expérience investi dans votre arbre de compétences modifie physiquement votre avatar SVG. D'un simple nomade à un champion rayonnant d'énergie éthérée.
-                      </p>
-                      
-                      <div className="space-y-6">
-                        {[
-                          { label: 'FORCE / RÉSISTANCE', desc: 'Armures lourdes et teintures émeraude.', color: '#4ade80' },
-                          { label: 'ARCANE / EXPLOSIVITÉ', desc: 'Effets particulaires et reflets incandescents.', color: '#f87171' },
-                          { label: 'OMBRE / CONTRÔLE', desc: 'Auras de stase et nuances violettes.', color: '#818cf8' }
-                        ].map((way, idx) => (
-                          <div key={idx} className="flex gap-4 items-start group">
-                            <div className="w-1.5 h-1.5 rounded-full mt-2 transition-all group-hover:scale-[2.5]" style={{ backgroundColor: way.color, boxShadow: `0 0 10px ${way.color}` }}></div>
-                            <div>
-                              <h4 className="text-white text-xs font-black tracking-widest">{way.label}</h4>
-                              <p className="text-zinc-600 text-[11px] uppercase font-bold">{way.desc}</p>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
+            {/* Section Lore */}
+            <section id="lore" className="py-32 relative bg-cover bg-center" style={{ backgroundImage: "linear-gradient(to bottom, rgba(21,21,21,0.85), rgba(21,21,21,0.9)), url('https://i.postimg.cc/Qtjkb1QH/bg24.png')", backgroundColor: "#151515", backgroundAttachment: 'scroll' }}>
+              {/* Subtle Floating Blades framing the background */}
+              <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none z-0 flex justify-between items-center px-4 md:px-12 opacity-40">
+                {/* Left Blade */}
+                <img src="https://i.postimg.cc/C1wHNkG1/blade2.png" alt="Left Blade" className="w-48 md:w-80 object-contain animate-float-left drop-shadow-[0_0_15px_rgba(255,255,255,0.1)]" />
+                {/* Right Blade */}
+                <img src="https://i.postimg.cc/Ssm7rC6K/bladepng.png" alt="Right Blade" className="w-48 md:w-80 object-contain animate-float-right drop-shadow-[0_0_15px_rgba(255,255,255,0.1)]" />
+              </div>
 
-                    <div className="relative group perspective-1000">
-                      <div className="bg-gradient-to-br from-zinc-900 to-black border border-white/10 rounded-[40px] p-12 aspect-square flex items-center justify-center transform transition-all duration-700 group-hover:rotate-y-12 group-hover:scale-105 shadow-2xl">
-                         <Avatar xp={150} unlockedSkills={['sustain_1', 'sus_2']} />
-                         <div className="absolute -top-8 -right-8 w-32 h-32 bg-[#c28e3a]/10 blur-3xl animate-pulse"></div>
-                      </div>
-                    </div>
-                  </div>
-               </div>
+              <div className="max-w-6xl mx-auto px-6 relative z-10 text-center py-24">
+                <h2 className="text-white text-4xl md:text-5xl font-medium tracking-tight font-heading uppercase mb-6">LE MONDE D'ARTHÉLYON</h2>
+                <div className="w-12 h-1 bg-[#c28e3a] mx-auto mb-20"></div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-16 md:gap-24 text-left text-gray-300 text-2xl font-monda leading-relaxed italic">
+                  <p>Avant les chaînes. Avant le silence. Il y avait une promesse entre les bêtes — jurée par le sang, scellée par l'acier.<br/><br/>Ils l'appelaient le Covenant. Un serment qui liait le renard, le tigre, le loup et une centaine de clans à une seule vérité : aucune bête ne se tient seule.</p>
+                  <p className="md:text-right">Cette vérité est morte aujourd'hui. Brisée par la trahison. Enterrée sous le fer et les cendres. Les clans se sont retournés les uns contre les autres. Les vieilles forêts se sont tues. Et le dernier gardien — un renard avec une lame et une promesse qu'il refuse d'oublier — marche dans un monde qui a déjà abandonné.</p>
+                </div>
+              </div>
             </section>
 
-            {/* Mechanics Section */}
-            <section className="py-32 bg-black relative">
-               <div className="max-w-7xl mx-auto px-8">
-                  <div className="text-center mb-24">
-                    <h2 className="text-white text-4xl sm:text-6xl font-heading font-black italic uppercase tracking-tighter mb-6">MÉCANIQUES DE <span className="text-zinc-700">DESTINÉE</span></h2>
-                    <div className="w-24 h-1 bg-[#c28e3a] mx-auto"></div>
+            {/* Section Personnages (Alliés de la Covenant) */}
+            <section id="characters" className="bg-white py-32 text-center relative z-10">
+              <h3 className="text-zinc-800 text-3xl font-medium tracking-tight font-heading italic mb-2">ALLIÉS DE LA</h3>
+              <h2 className="text-zinc-900 text-6xl md:text-7xl font-bold tracking-tight font-heading italic uppercase mb-6">COVENANT</h2>
+              <div className="w-12 h-1 bg-[#c28e3a] mx-auto mb-20"></div>
+
+              {/* Avatars Row */}
+              <div className="flex justify-center items-center gap-6 mb-28 overflow-x-auto px-6 py-4 max-w-6xl mx-auto scrollbar-hide">
+                {[
+                  { id: '03', name: 'Grumm', img: 'https://images.unsplash.com/photo-1534361960057-19889db9621e?auto=format&fit=crop&q=80&w=200', char: 'grumm' },
+                  { id: '04', name: 'Grumm', img: 'https://images.unsplash.com/photo-1598153346810-860daa814c4b?auto=format&fit=crop&q=80&w=200', char: 'grumm' },
+                  { id: '05', name: 'Grumm', img: 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?auto=format&fit=crop&q=80&w=200', char: 'grumm' },
+                  { id: '06', name: 'Grumm', img: 'https://i.postimg.cc/qv918NDq/hippo1.png', char: 'grumm' },
+                  { id: '07', name: 'Lyra', img: 'https://images.unsplash.com/photo-1564349683136-77e08dba1ef7?auto=format&fit=crop&q=80&w=200', char: 'lyra' },
+                  { id: '08', name: 'Kiko', img: 'https://i.postimg.cc/4xrWzY2N/monkey.png', char: 'kiko' },
+                  { id: '09', name: 'Lyra', img: 'https://i.postimg.cc/DwtxqSpw/panda.png', char: 'lyra' },
+                ].map((item, idx) => {
+                  const isActive = activeChar === item.char;
+                  return (
+                    <div 
+                      key={idx}
+                      onClick={() => setActiveChar(item.char)}
+                      className={`rounded-full overflow-hidden shrink-0 transition-all cursor-pointer bg-zinc-900 ${
+                        isActive 
+                          ? 'w-28 h-28 border-[3px] border-[#c28e3a] shadow-2xl scale-110 z-10 ring-4 ring-white/20' 
+                          : 'w-20 h-20 border border-gray-300 filter grayscale hover:grayscale-0'
+                      }`}
+                    >
+                      <img src={item.img} alt={`${item.name} Avatar`} className="w-full h-full object-cover object-top" />
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Character Profiles Grid */}
+              <div className="max-w-[1400px] mx-auto px-6 flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-0 relative">
+                
+                {/* Left Character (Lyra) */}
+                <div className={`flex flex-col text-left gap-5 w-full max-w-md lg:-mr-12 transition-all duration-500 ${
+                  activeChar === 'lyra' 
+                    ? 'z-20 scale-100 lg:scale-105 opacity-100 bg-zinc-900 text-white p-8 border border-white/10 shadow-2xl relative rounded-xl' 
+                    : 'z-0 opacity-70 hover:opacity-100 hover:-translate-y-2'
+                }`}>
+                  {activeChar === 'lyra' && <div className="absolute inset-0 border border-white/10 pointer-events-none rounded-xl"></div>}
+                  <div className="flex items-baseline gap-3 px-4">
+                    <h4 className={`text-3xl font-medium tracking-tight font-heading uppercase ${activeChar === 'lyra' ? 'text-white' : 'text-zinc-800'}`}>LYRA</h4>
+                    <span className={`text-lg ${activeChar === 'lyra' ? 'text-gray-400' : 'text-gray-500'}`}>/ La Dissonance</span>
                   </div>
+                  <p className={`text-lg font-medium italic px-4 ${activeChar === 'lyra' ? 'text-white' : 'text-zinc-800'}`}>« Chaque bête a un chant. La plupart ne l’ont pas encore entendu. »</p>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    {[
-                      { icon: 'solar:graph-up-bold-duotone', title: 'Progression Hexagonale', desc: 'Un arbre de compétences modulaire qui s\'adapte à votre style sans contraintes de classe.' },
-                      { icon: 'solar:shield-star-bold-duotone', title: 'Contrats Majeurs', desc: 'Relevez des défis de productivité pour forger votre caractère et augmenter votre score.' },
-                      { icon: 'solar:ranking-bold-duotone', title: 'Honneur Partagé', desc: 'Faites partie d\'un classement dynamique géré en temps réel par la blockchain Aethermoor.' }
-                    ].map((feature, idx) => (
-                      <div key={idx} className="bg-zinc-900/40 border border-white/5 p-12 rounded-[32px] hover:border-[#c28e3a]/30 transition-all group">
-                        <div className="w-16 h-16 bg-zinc-950 rounded-2xl flex items-center justify-center mb-8 border border-white/10 group-hover:bg-[#c28e3a] group-hover:text-black transition-all">
-                          <iconify-icon icon={feature.icon} width="32"></iconify-icon>
-                        </div>
-                        <h3 className="text-white text-xl font-black uppercase mb-4 italic tracking-tight">{feature.title}</h3>
-                        <p className="text-zinc-500 font-monda leading-relaxed text-sm italic">"{feature.desc}"</p>
-                      </div>
-                    ))}
-                  </div>
-               </div>
-            </section>
-
-            {/* Lore Section (Improved) */}
-            <section id="lore" className="py-48 relative overflow-hidden flex items-center justify-center">
-              <div className="absolute inset-0 z-0 scale-105">
-                <img src="https://i.postimg.cc/Qtjkb1QH/bg24.png" className="w-full h-full object-cover opacity-30" />
-                <div className="absolute inset-0 bg-yellow-500/20 mix-blend-color"></div>
-                <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black"></div>
-              </div>
-              <div className="max-w-4xl mx-auto px-8 relative z-10 text-center">
-                 <iconify-icon icon="lucide:scroll-text" className="text-[#c28e3a] mb-12 text-6xl animate-pulse"></iconify-icon>
-                 <h2 className="text-white text-5xl sm:text-6xl font-black italic uppercase tracking-tighter mb-8 leading-tight">L'HÉRITAGE DE WAKKANY</h2>
-                 <p className="text-zinc-400 text-xl font-monda italic leading-relaxed mb-12">
-                   "Avant les chaînes. Avant le silence. Il y avait une promesse entre les bêtes — jurée par le sang, scellée par l'acier. Aujourd'hui, cette vérité est morte, enterrée sous le fer et les cendres. Les clans se sont retournés les uns contre les autres. La chasse vient de recommencer."
-                 </p>
-                 <button onClick={handleJoinClick} className="text-[#c28e3a] font-black uppercase tracking-[0.4em] text-xs hover:tracking-[0.6em] transition-all">S'inscrire dans les archives →</button>
-              </div>
-            </section>
-
-            {/* Footer */}
-            <footer className="relative bg-zinc-950 pt-32 pb-12 border-t border-white/5 overflow-hidden">
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-px bg-gradient-to-r from-transparent via-[#c28e3a]/40 to-transparent"></div>
-              
-              <div className="max-w-7xl mx-auto px-8 relative z-10">
-                <div className="grid grid-cols-1 lg:grid-cols-4 gap-16 mb-24">
-                  <div className="lg:col-span-1">
-                    <div className="flex items-center gap-3 text-white font-heading text-2xl font-black italic uppercase mb-8">
-                       <iconify-icon icon="lucide:triangle" width="24" className="text-[#c28e3a] rotate-180"></iconify-icon>
-                       Wakkany Plateforme
-                    </div>
-                    <p className="text-zinc-500 text-sm italic font-monda leading-relaxed mb-8">
-                      La plateforme Wakkany est un écosystème d'évolution personnelle conçu pour transformer vos objectifs quotidiens en une quête épique.
+                  {activeChar === 'lyra' && (
+                    <p className="text-gray-400 text-base md:text-lg leading-relaxed mt-2 px-4 font-monda">
+                      Une mélodie dans le chaos. Lyra canalise l'énergie harmonique pour apaiser les tempêtes d'Aether ou manipuler l'esprit de ses adversaires. Toujours à la recherche des vérités oubliées.
                     </p>
-                    <div className="flex gap-4">
-                      {['discord', 'twitter', 'github', 'instagram'].map(platform => (
-                        <a key={platform} href="#" aria-label={`Suivez-nous sur ${platform}`} className="w-10 h-10 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center text-zinc-500 hover:text-white hover:bg-white/10 transition-all">
-                          <iconify-icon icon={`solar:${platform}-bold`} width="20"></iconify-icon>
-                        </a>
-                      ))}
-                    </div>
+                  )}
+                  
+                  <div className="relative w-full h-80 overflow-hidden shadow-lg border border-gray-200 bg-zinc-100">
+                    <img src="https://i.postimg.cc/DwtxqSpw/panda.png" alt="Lyra" className="w-full h-full object-cover" />
                   </div>
+                  <div className="px-4">
+                    <button 
+                      onClick={handleJoinClick} 
+                      className={`clip-card-btn px-8 py-2.5 text-base font-semibold uppercase tracking-wider transition-colors ${
+                        activeChar === 'lyra' ? 'bg-[#c28e3a] text-zinc-900 hover:bg-[#d4a045]' : 'bg-zinc-900 text-white hover:bg-black'
+                      }`}
+                    >
+                      EN SAVOIR PLUS
+                    </button>
+                  </div>
+                </div>
 
-                  <div className="grid grid-cols-2 lg:col-span-3 gap-12 sm:grid-cols-3">
-                    <div>
-                      <h4 className="text-white text-[10px] font-black uppercase tracking-[0.3em] mb-8">L'UNIVERS</h4>
-                      <ul className="space-y-4 text-zinc-500 text-xs font-bold uppercase tracking-widest">
-                         <li onClick={() => { setLandingTab('about'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-[#c28e3a] cursor-pointer transition-colors">L'Écosystème</li>
-                         <li onClick={() => addNotification('info', "La Blockchain Aethermoor est en cours de synchronisation.")} className="hover:text-[#c28e3a] cursor-pointer transition-colors">La Technologie</li>
-                         <li onClick={() => { 
-                            if (user) { setView('dashboard'); setDashboardTab('skills'); window.scrollTo({ top: 0, behavior: 'smooth' }); }
-                            else { setLandingTab('archetypes'); window.scrollTo({ top: 0, behavior: 'smooth' }); }
-                          }} className="hover:text-[#c28e3a] cursor-pointer transition-colors">Arbres de Talent</li>
-                         <li onClick={() => setLandingTab('waitlist')} className="hover:text-[#c28e3a] cursor-pointer transition-colors">Accès Anticipé</li>
-                      </ul>
+                {/* Center Character (Grumm) */}
+                <div className={`flex flex-col text-left w-full max-w-xl transition-all duration-500 ${
+                  activeChar === 'grumm' 
+                    ? 'z-20 scale-100 lg:scale-105 opacity-100 bg-zinc-900 text-white p-8 border border-white/10 shadow-2xl relative rounded-xl' 
+                    : 'z-0 opacity-70 hover:opacity-100 hover:-translate-y-2'
+                }`}>
+                  {activeChar === 'grumm' && <div className="absolute inset-0 border border-white/10 pointer-events-none rounded-xl"></div>}
+                  <div className="w-full h-[400px] relative overflow-hidden bg-zinc-800">
+                    <img src="https://i.postimg.cc/qv918NDq/hippo1.png" alt="Grumm" className="w-full h-full object-cover object-top" />
+                  </div>
+                  <div className="p-8 flex flex-col gap-4 bg-zinc-900 relative">
+                    <div className="flex items-baseline gap-3">
+                      <h4 className="text-white text-4xl font-medium tracking-tight font-heading uppercase">GRUMM</h4>
+                      <span className="text-gray-400 text-xl">/ Le colosse</span>
                     </div>
-                    <div>
-                      <h4 className="text-white text-[10px] font-black uppercase tracking-[0.3em] mb-8">COMMUNAUTÉ</h4>
-                      <ul className="space-y-4 text-zinc-500 text-xs font-bold uppercase tracking-widest">
-                         <li onClick={() => window.open('https://discord.gg', '_blank')} className="hover:text-[#c28e3a] cursor-pointer transition-colors">Discord</li>
-                         <li onClick={() => { 
-                            if (user) { setView('dashboard'); setDashboardTab('rankings'); window.scrollTo({ top: 0, behavior: 'smooth' }); }
-                            else { setLandingTab('blog'); window.scrollTo({ top: 0, behavior: 'smooth' }); }
-                          }} className="hover:text-[#c28e3a] cursor-pointer transition-colors">Classements</li>
-                         <li onClick={() => { 
-                            if (user) { setView('dashboard'); setDashboardTab('clans'); window.scrollTo({ top: 0, behavior: 'smooth' }); }
-                            else addNotification('info', "Rejoignez la meute pour créer votre clan.");
-                          }} className="hover:text-[#c28e3a] cursor-pointer transition-colors">Clans Émanants</li>
-                         <li onClick={() => setLandingTab('blog')} className="hover:text-[#c28e3a] cursor-pointer transition-colors">Journal d'Évolution</li>
-                      </ul>
-                    </div>
-                    <div>
-                      <h4 className="text-white text-[10px] font-black uppercase tracking-[0.3em] mb-8">NEWSLETTER</h4>
-                      <p className="text-zinc-600 text-[10px] mb-6 leading-relaxed uppercase font-bold">Inscrivez-vous pour recevoir les mises à jour de l'Aethermoor.</p>
-                      <form className="relative group" onSubmit={(e) => {
-                        e.preventDefault();
-                        addNotification('success', "Signal capté ! Bienvenue dans l'Aethermoor.");
-                        e.target.reset();
-                      }}>
-                        <input type="email" placeholder="hunter@aethermoor.com" required aria-label="Adresse e-mail pour la newsletter" className="w-full bg-black/50 border border-white/5 px-4 py-4 rounded-xl text-white text-[10px] outline-none focus:border-[#c28e3a] transition-all" />
-                        <button aria-label="S'inscrire à la newsletter" className="absolute right-2 top-2 p-2 bg-[#c28e3a] text-black rounded-lg transition-all hover:scale-105 active:scale-95 shadow-lg shadow-orange-950/20">
-                          <iconify-icon icon="lucide:send" width="16"></iconify-icon>
-                        </button>
-                      </form>
+                    <p className="text-white text-lg font-medium italic">« Je ne fatigue pas. Je suis la pierre. »</p>
+                    <p className="text-gray-400 text-base md:text-lg leading-relaxed mt-2 font-monda">
+                      Le tremblement de terre ambulant. Grumm ne fait pas de bla-bla inutile — il arrive, et le problème cesse d’exister. Très protecteur envers quiconque est assez petit pour se tenir derrière lui, c’est-à-dire tout le monde. Ne confondez pas sa simplicité avec de la stupidité. Il sait exactement ce qu’il fait. Il s’en fiche juste que vous le sachiez aussi.
+                    </p>
+                    <div className="mt-4">
+                      <button onClick={handleJoinClick} className="clip-card-btn px-10 py-3 bg-[#c28e3a] text-zinc-900 text-base font-semibold uppercase tracking-wider hover:bg-[#d4a045] transition-colors">EN SAVOIR PLUS</button>
                     </div>
                   </div>
                 </div>
 
-                <div className="pt-12 border-t border-white/5 flex flex-col sm:flex-row justify-between items-center gap-6">
-                  <p className="text-zinc-700 text-[9px] font-black uppercase tracking-[0.3em]">© 2026 WAKKANY. TOUS DROITS RÉSERVÉS.</p>
-                  <div className="flex gap-8 text-zinc-700 text-[9px] font-black uppercase tracking-[0.3em]">
-                    <span onClick={() => addNotification('info', "Codex Wakkany en cours de rédaction")} className="hover:text-zinc-400 cursor-pointer transition-colors">Constitution</span>
-                    <span onClick={() => addNotification('info', "Vos données sont protégées par l'Aether")} className="hover:text-zinc-400 cursor-pointer transition-colors">Respect de la Vie Privée</span>
+                {/* Right Character (Kiko) */}
+                <div className={`flex flex-col text-right items-end gap-5 w-full max-w-md lg:-ml-12 transition-all duration-500 ${
+                  activeChar === 'kiko' 
+                    ? 'z-20 scale-100 lg:scale-105 opacity-100 bg-zinc-900 text-white p-8 border border-white/10 shadow-2xl relative text-left items-start rounded-xl' 
+                    : 'z-0 opacity-70 hover:opacity-100 hover:-translate-y-2'
+                }`}>
+                  {activeChar === 'kiko' && <div className="absolute inset-0 border border-white/10 pointer-events-none rounded-xl"></div>}
+                  <div className="flex items-baseline justify-end gap-3 w-full px-4">
+                    <h4 className={`text-3xl font-medium tracking-tight font-heading uppercase ${activeChar === 'kiko' ? 'text-white' : 'text-zinc-800'}`}>KIKO</h4>
+                    <span className={`text-lg ${activeChar === 'kiko' ? 'text-gray-400' : 'text-gray-500'}`}>/ Le saut libre</span>
+                  </div>
+                  <p className={`text-lg font-medium italic px-4 ${activeChar === 'kiko' ? 'text-white text-left' : 'text-zinc-800 text-right'}`}>« Les règles ne sont que des suggestions que personne n’a appliquées avec assez de force. »</p>
+                  
+                  {activeChar === 'kiko' && (
+                    <p className="text-gray-400 text-base md:text-lg leading-relaxed mt-2 px-4 font-monda text-left">
+                      Voltigeur de l'extrême. Kiko glisse entre les failles temporelles avec une agilité déconcertante, bravant la gravité et les lois de la physique avec malice.
+                    </p>
+                  )}
+                  
+                  <div className="relative w-full h-80 overflow-hidden shadow-lg border border-gray-200 bg-zinc-100">
+                    <img src="https://i.postimg.cc/4xrWzY2N/monkey.png" alt="Kiko" className="w-full h-full object-cover" />
+                  </div>
+                  <div className="px-4">
+                    <button 
+                      onClick={handleJoinClick} 
+                      className={`clip-card-btn px-8 py-2.5 text-base font-semibold uppercase tracking-wider transition-colors ${
+                        activeChar === 'kiko' ? 'bg-[#c28e3a] text-zinc-900 hover:bg-[#d4a045]' : 'bg-zinc-900 text-white hover:bg-black'
+                      }`}
+                    >
+                      EN SAVOIR PLUS
+                    </button>
+                  </div>
+                </div>
+
+              </div>
+            </section>
+
+            {/* Section Appel à l'Action (Steam Wishlist) */}
+            <section className="bg-gradient-to-b from-white to-gray-100 pt-32 pb-48 text-center border-t border-gray-200 relative z-10">
+              <div className="max-w-4xl mx-auto px-6 relative z-10">
+                <h3 className="text-zinc-800 text-4xl font-medium tracking-tight font-heading mb-2">Arthélyon est</h3>
+                <h2 className="text-zinc-900 text-7xl md:text-8xl font-bold tracking-tight font-heading italic uppercase mb-8 text-shadow-sm">EN ATTENTE</h2>
+                <div className="w-12 h-1 bg-[#c28e3a] mx-auto mb-12"></div>
+                
+                <p className="text-zinc-800 text-2xl md:text-3xl font-monda leading-relaxed mb-16 text-balance">Le Covenant ne se restaurera pas lui-même. Choisissez votre bête, aiguisez votre lame, et entrez dans un monde qui riposte. Wakkany est gratuit sur Steam — pas de barrières, pas de chaînes, juste les terres sauvages et tout ce que vous avez le courage d’y affronter.</p>
+                
+                <a 
+                  href="https://store.steampowered.com" 
+                  target="_blank" 
+                  rel="noreferrer"
+                  className="group inline-flex items-center gap-6 bg-zinc-900 text-white px-10 py-5 rounded transition-all hover:bg-black hover:scale-105 shadow-xl hover:shadow-2xl cursor-pointer"
+                >
+                  <iconify-icon icon="simple-icons:steam" width="40" height="40" className="text-white group-hover:text-gray-300 block"></iconify-icon>
+                  <div className="text-left border-l border-white/20 pl-6">
+                    <div className="text-base uppercase tracking-[0.2em] text-gray-400 font-medium mb-1">Liste de souhaits sur</div>
+                    <div className="text-3xl font-bold tracking-wider font-heading">STEAM</div>
+                  </div>
+                </a>
+              </div>
+            </section>
+
+            {/* Footer & Bottom Hero */}
+            <footer className="relative bg-black pt-48 pb-12 flex flex-col items-center border-t border-white/5">
+              
+              {/* Overlapping Footer Image */}
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-[40%] md:-translate-y-[50%] w-full max-w-6xl z-20 pointer-events-none flex justify-center px-4">
+                <img src="https://i.postimg.cc/9MzzCfVb/footer.png" alt="Alignement des Champions" className="w-full h-auto max-h-[600px] object-contain drop-shadow-2xl" />
+              </div>
+
+              <div className="relative z-10 w-full max-w-7xl mx-auto px-6 mt-16 md:mt-24">
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-12 text-lg text-gray-400 font-monda border-t border-white/10 pt-16 bg-gradient-to-t from-black via-black/80 to-transparent p-8 rounded-t-3xl backdrop-blur-sm">
+                  
+                  {/* Brand Info */}
+                  <div className="md:col-span-4 flex flex-col gap-6">
+                    <div>
+                      <p className="text-base uppercase tracking-widest text-gray-500 mb-2 font-medium">Géré par</p>
+                      <div className="flex items-center gap-3 text-white font-heading text-2xl font-semibold italic tracking-tight">
+                        <iconify-icon icon="lucide:swords" width="32" height="32" className="text-white stroke-[1.5]"></iconify-icon> Wakkany
+                      </div>
+                    </div>
+                    <div className="flex gap-5 mt-2">
+                      <a href="#" aria-label="Youtube" className="text-gray-400 hover:text-white transition-colors p-2 bg-white/5 rounded-full flex"><iconify-icon icon="simple-icons:youtube" width="20" height="20"></iconify-icon></a>
+                      <a href="#" aria-label="Twitter" className="text-gray-400 hover:text-white transition-colors p-2 bg-white/5 rounded-full flex"><iconify-icon icon="simple-icons:x" width="20" height="20"></iconify-icon></a>
+                      <a href="#" aria-label="Instagram" className="text-gray-400 hover:text-white transition-colors p-2 bg-white/5 rounded-full flex"><iconify-icon icon="simple-icons:instagram" width="20" height="20"></iconify-icon></a>
+                      <a href="#" aria-label="Twitch" className="text-gray-400 hover:text-white transition-colors p-2 bg-white/5 rounded-full flex"><iconify-icon icon="simple-icons:twitch" width="20" height="20"></iconify-icon></a>
+                    </div>
+                    <p className="text-base text-gray-500 mt-6 font-medium">© 2026 Wakkany. Tous droits réservés.</p>
+                  </div>
+
+                  {/* Links 1 */}
+                  <div className="md:col-span-3 flex flex-col gap-4">
+                    <h5 className="text-white text-lg font-medium uppercase tracking-widest mb-2 tracking-tight">WAKKANY</h5>
+                    <a href="#" className="hover:text-[#c28e3a] transition-colors w-max">Carrières</a>
+                    <a href="#" className="hover:text-[#c28e3a] transition-colors w-max">Mentions Légales</a>
+                    <a href="#" className="hover:text-[#c28e3a] transition-colors w-max">Confidentialité</a>
+                  </div>
+
+                  {/* Links 2 */}
+                  <div className="md:col-span-3 flex flex-col gap-4">
+                    <h5 className="text-white text-lg font-medium uppercase tracking-widest mb-2 tracking-tight">COMMUNAUTÉ</h5>
+                    <a href="#" className="hover:text-[#c28e3a] transition-colors w-max">Blog</a>
+                    <a href="#" className="hover:text-[#c28e3a] transition-colors w-max">Newsletter</a>
+                  </div>
+
+                  {/* Lang Select */}
+                  <div className="md:col-span-2 flex justify-start md:justify-end items-start">
+                    <button className="flex items-center gap-2 hover:text-white transition-colors border border-white/10 px-4 py-2 rounded-lg bg-white/5">
+                      <iconify-icon icon="solar:global-linear" width="16" height="16" className="stroke-[1.5]"></iconify-icon> 
+                      <span className="font-medium uppercase text-base">FR</span> 
+                      <iconify-icon icon="solar:alt-arrow-down-linear" width="16" height="16" className="stroke-[1.5]"></iconify-icon>
+                    </button>
                   </div>
                 </div>
               </div>
