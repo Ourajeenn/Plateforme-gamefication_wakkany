@@ -27,7 +27,7 @@ build:
     - lint
   script:
     - npm ci
-    - export VITE_BASE_PATH="/${CI_PROJECT_PATH_SLUG}/"
+    - export VITE_BASE_PATH="/${CI_PROJECT_NAME}/"
     - npm run build
   artifacts:
     paths:
