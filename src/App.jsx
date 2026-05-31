@@ -23,6 +23,7 @@ import { getDominantBranch, getTotalXp } from './utils/xpHelpers';
 import { getLevel } from './data/levels';
 import { useSoundFX } from './hooks/useSoundFX';
 import SpellingVoiceGame from './components/SpellingVoiceGame';
+import AcademyView from './components/AcademyView';
 
 import QuizHome from './components/quiz/QuizHome';
 import QuizConfig from './components/quiz/QuizConfig';
@@ -221,7 +222,7 @@ export default function App() {
 
 
   const LandingNav = () => (
-    <nav className="fixed top-0 left-0 w-full glass-panel border-b border-white/10 flex items-center justify-between px-4 sm:px-8 py-3 sm:py-4 z-[100] transition-all shadow-[0_18px_50px_rgba(0,0,0,0.35)]">
+    <nav className="fixed top-0 left-0 w-full glass-panel border-b border-white/10 flex items-center justify-between px-4 sm:px-8 py-3 sm:py-4 z-[100] shadow-[0_18px_50px_rgba(0,0,0,0.35)]" style={{transform:'translateZ(0)', willChange:'transform'}}>
       <div className="flex items-center gap-3 group cursor-pointer" onClick={() => { setView('landing'); setLandingTab(null); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
         <div className="relative">
           <iconify-icon icon="lucide:triangle" width="32" height="32" className="text-[#c28e3a] rotate-180 stroke-[1.5]"></iconify-icon>
@@ -273,10 +274,11 @@ export default function App() {
       </div>
 
       {isMenuOpen && (
-        <div className="absolute top-full left-0 w-full mt-4 bg-zinc-950/95 backdrop-blur-3xl border border-white/10 rounded-3xl p-8 flex flex-col gap-6 animate-scale-up lg:hidden">
+        <div className="fixed top-[60px] left-0 w-full bg-zinc-950/98 backdrop-blur-3xl border-b border-white/10 p-8 flex flex-col gap-6 animate-fade-in z-[99]">
           <button onClick={() => { setView('landing'); setLandingTab(null); setIsMenuOpen(false); }} className="text-white font-black uppercase tracking-widest text-left">Accueil</button>
           <button onClick={() => { setView('landing'); setLandingTab('waitlist'); setIsMenuOpen(false); }} className="text-white font-black uppercase tracking-widest text-left">Liste d'attente</button>
           <button onClick={() => { handleJoinClick(); setIsMenuOpen(false); }} className="text-white font-black uppercase tracking-widest text-left">Commencer</button>
+          <button onClick={() => { navigate('/quiz'); setIsMenuOpen(false); }} className="text-white font-black uppercase tracking-widest text-left">Quiz Salon</button>
           <button onClick={() => { setView('landing'); setLandingTab('about'); setIsMenuOpen(false); }} className="text-white font-black uppercase tracking-widest text-left">À Propos</button>
         </div>
       )}
@@ -550,6 +552,7 @@ export default function App() {
         <Route path="/quiz/config" element={<QuizConfig />} />
         <Route path="/quiz/profile" element={<PackProfile />} />
         <Route path="/quiz/play" element={<FamilyGame />} />
+        <Route path="/quiz/academy" element={<AcademyView />} />
         <Route path="*" element={<Navigate to="/quiz" replace />} />
       </Routes>
     );
@@ -561,7 +564,7 @@ export default function App() {
 
   return (
     <>
-      <div className="antialiased opacity-0 animate-fade-in text-white min-h-screen bg-zinc-950">
+      <div className="antialiased text-white min-h-screen bg-zinc-950 animate-fade-in overflow-y-auto">
         {view === 'landing' ? <LandingNav /> : <DashboardNav />}
 
       {view === 'landing' ? (
@@ -612,10 +615,10 @@ export default function App() {
                   </div>
 
                   {/* Subtitle Column (H2) */}
-                  <div className="opacity-0 animate-scale-up delay-200 w-full max-w-full lg:w-auto text-center lg:text-left">
+                  <div className="opacity-0 animate-fade-in-up delay-200 w-full max-w-full lg:w-auto text-center lg:text-left">
                     <div className="flex items-center justify-center lg:justify-start gap-3 text-[#c28e3a] mb-4">
                       <div className="h-px w-8 bg-[#c28e3a]"></div>
-                      <span className="text-[10px] font-black uppercase tracking-[0.4em]">Propulsé par l'Aether</span>
+                      <span className="text-[10px] font-black uppercase tracking-[0.4em]">Propulsé Arthélyon</span>
                     </div>
                     <h2 className="text-white text-[clamp(1.6rem,4.5vw,3.75rem)] sm:text-5xl lg:text-6xl font-black italic tracking-tighter font-heading uppercase leading-none w-full max-w-full break-words">
                       TRANSFORMEZ<br />VOTRE <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#c28e3a] to-white">POTENTIEL</span>
@@ -883,18 +886,11 @@ export default function App() {
       ) : (
         <div className="pt-20 min-h-screen bg-zinc-950">
           <section className="max-w-7xl mx-auto px-4 sm:px-6 pt-8 pb-28 lg:pb-12">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-white/5 pb-8 mb-8">
-              <div className="w-full md:w-auto">
-                <h1 className="text-white text-3xl sm:text-4xl lg:text-5xl font-heading font-bold italic uppercase mb-2 break-words">
-                  Bienvenue, <span className="text-[#c28e3a]">{user?.name}</span>
-                </h1>
-                <p className="text-zinc-500 font-monda uppercase text-[10px] sm:text-xs tracking-widest break-words">
-                  {user?.academy} // {user?.clan?.name}
-                </p>
-              </div>
-
-              <div className="w-full md:w-auto">
-                 <div className="hidden lg:flex bg-black/40 border border-white/10 p-1 rounded-xl">
+            <div className="flex flex-col items-center gap-6 border-b border-white/5 pb-8 mb-8">
+              
+              {/* Menu Tabs Container - Placed above the welcome text */}
+              <div className="w-full">
+                 <div className="hidden lg:flex justify-center bg-black/40 border border-white/10 p-1 rounded-xl">
                  {dashboardTabs.map(tab => (
                   <button
                     key={tab.id}
@@ -908,8 +904,8 @@ export default function App() {
                 ))}
               </div>
 
-              <div className="md:hidden overflow-x-auto scrollbar-hide">
-                <div className="flex gap-2 min-w-max bg-black/40 border border-white/10 p-1 rounded-xl">
+              <div className="lg:hidden overflow-x-auto scrollbar-hide w-full flex justify-center">
+                <div className="flex justify-center gap-2 min-w-max bg-black/40 border border-white/10 p-1 rounded-xl mx-auto">
                   {dashboardTabs.map(tab => (
                     <button
                       key={tab.id}
@@ -923,6 +919,17 @@ export default function App() {
                 </div>
               </div>
             </div>
+
+            {/* Welcome Title Container - Placed below and centered */}
+            <div className="w-full text-center mt-2">
+              <h1 className="text-white text-3xl sm:text-4xl lg:text-5xl font-heading font-bold italic uppercase mb-2 break-words">
+                Bienvenue, <span className="text-[#c28e3a]">{user?.name}</span>
+              </h1>
+              <p className="text-zinc-500 font-monda uppercase text-[10px] sm:text-xs tracking-widest break-words">
+                {user?.academy} // {user?.clan?.name}
+              </p>
+            </div>
+
           </div>
 
           {/* Tab Secret Content */}

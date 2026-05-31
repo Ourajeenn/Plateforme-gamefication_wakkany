@@ -1,20 +1,10 @@
 import React, { useEffect } from 'react';
-import { useSoundFX } from '../hooks/useSoundFX';
-// Image served from public assets folder
-
-// Instance audio globale pour la musique de fond
-let bgMusic = null;
+import { useSoundFX, bgMusic } from '../hooks/useSoundFX';
 
 export default function Preloader({ onComplete }) {
   const { playPreloaderLightning } = useSoundFX();
 
   useEffect(() => {
-    if (!bgMusic) {
-      bgMusic = new Audio(`${import.meta.env.BASE_URL}assets/epic_music.mp3`);
-      bgMusic.loop = true;
-      bgMusic.volume = 0.5;
-    }
-
     // Tente de lancer la musique immédiatement (souvent bloqué par le navigateur)
     bgMusic.play().catch(() => console.log("Autoplay bloqué, attente d'une interaction..."));
 
@@ -52,6 +42,10 @@ export default function Preloader({ onComplete }) {
   }, []);
 
   const handleStart = () => {
+    // Jouer la musique de fond s'il y a eu un clic sur START
+    if (bgMusic) {
+      bgMusic.play().catch(e => console.log(e));
+    }
     // Play lightning sound and finish preloader
     playPreloaderLightning();
     onComplete();

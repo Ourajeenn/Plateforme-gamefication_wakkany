@@ -1,32 +1,50 @@
 import { useCallback } from 'react';
 
+// Create a single shared AudioContext outside the hook to avoid the 6-context limit in Chrome
+let sharedAudioCtx = null;
+
+// Create audio instances globally so they aren't garbage collected immediately when components unmount
+const clickAudio = new Audio(`/assets/click1.mp3`);
+const thunderAudio = new Audio(`/assets/thunder.mp3`);
+export const bgMusic = new Audio(`/assets/epic_music.mp3`);
+bgMusic.loop = true;
+bgMusic.volume = 0.5;
+
 export const useSoundFX = () => {
   const playSound = useCallback((freq, type, duration, volume = 0.1) => {
     try {
-      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      const oscillator = audioCtx.createOscillator();
-      const gainNode = audioCtx.createGain();
+      if (!sharedAudioCtx) {
+        sharedAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      
+      // Resume context if suspended (browser autoplay policy)
+      if (sharedAudioCtx.state === 'suspended') {
+        sharedAudioCtx.resume();
+      }
+
+      const oscillator = sharedAudioCtx.createOscillator();
+      const gainNode = sharedAudioCtx.createGain();
 
       oscillator.type = type; // 'sine', 'square', 'sawtooth', 'triangle'
-      oscillator.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      oscillator.frequency.setValueAtTime(freq, sharedAudioCtx.currentTime);
       
       // Enveloppe ADSR simple
-      gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
-      gainNode.gain.linearRampToValueAtTime(volume, audioCtx.currentTime + 0.05);
-      gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+      gainNode.gain.setValueAtTime(0, sharedAudioCtx.currentTime);
+      gainNode.gain.linearRampToValueAtTime(volume, sharedAudioCtx.currentTime + 0.05);
+      gainNode.gain.exponentialRampToValueAtTime(0.0001, sharedAudioCtx.currentTime + duration);
 
       oscillator.connect(gainNode);
-      gainNode.connect(audioCtx.destination);
+      gainNode.connect(sharedAudioCtx.destination);
 
       oscillator.start();
-      oscillator.stop(audioCtx.currentTime + duration);
+      oscillator.stop(sharedAudioCtx.currentTime + duration);
     } catch (e) {
       console.warn("Audio Context not supported or blocked", e);
     }
   }, []);
 
   const playClick = () => {
-    const clickAudio = new Audio(`${import.meta.env.BASE_URL}assets/click1.mp3`);
+    clickAudio.currentTime = 0;
     clickAudio.play().catch(() => {});
   };
   
@@ -65,19 +83,38 @@ export const useSoundFX = () => {
     playSound(2500, 'sawtooth', 0.09, 0.25);
     setTimeout(() => playSound(3000, 'square', 0.07, 0.22), 30);
     setTimeout(() => playSound(2000, 'sawtooth', 0.12, 0.20), 60);
+    
     // Play thunder audio sample
-    const thunderAudio = new Audio(`${import.meta.env.BASE_URL}assets/thunder.mp3`);
+    thunderAudio.currentTime = 0;
     thunderAudio.play().catch(() => {});
   };
 
   // Timer tick sound for spelling game countdown
   const playTimerTick = () => {
-    // short subtle beep
     playSound(800, 'sine', 0.05, 0.08);
   };
+  
   const playPreloaderLightning = () => {
-    const thunderAudio = new Audio(`${import.meta.env.BASE_URL}assets/thunder.mp3`);
+    // Ajouter les effets synthétiques pour être sûr qu'un son joue instantanément
+    playSound(2500, 'sawtooth', 0.09, 0.25);
+    setTimeout(() => playSound(3000, 'square', 0.07, 0.22), 30);
+    
+    // Play thunder audio sample
+    thunderAudio.currentTime = 0;
     thunderAudio.play().catch(() => {});
   };
-  return { playClick, playUnlock, playLevelUp, playError, playLightning, playPreloaderLightning, playTimerTick, playCorrect, playJoker };
+  
+  const stopBgMusic = () => {
+    bgMusic.pause();
+  };
+
+  const playCountdownBeep = () => {
+    playSound(600, 'sine', 0.1, 0.2);
+  };
+
+  const playCountdownGo = () => {
+    playSound(1200, 'triangle', 0.4, 0.3);
+  };
+  
+  return { playClick, playUnlock, playLevelUp, playError, playLightning, playPreloaderLightning, playTimerTick, playCorrect, playJoker, stopBgMusic, playCountdownBeep, playCountdownGo };
 };

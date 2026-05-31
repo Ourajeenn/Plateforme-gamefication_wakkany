@@ -64,6 +64,16 @@ export default function QuizHome() {
             <h2 className="text-3xl font-heading font-black italic uppercase">Paramètres</h2>
             <p className="text-zinc-500 text-sm mt-2">Difficulté & Temps Limite</p>
           </button>
+
+          <button 
+            onClick={() => navigate('/quiz/academy')}
+            className="group relative bg-zinc-900/80 border-2 border-[#c28e3a]/50 p-10 rounded-[40px] hover:bg-[#c28e3a]/10 hover:border-[#c28e3a] transition-all duration-300 transform hover:scale-105 active:scale-95 md:col-span-2 overflow-hidden"
+          >
+            <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <iconify-icon icon="lucide:graduation-cap" width="50" className="text-[#c28e3a] mb-4"></iconify-icon>
+            <h2 className="text-3xl font-heading font-black italic uppercase">Arène du Savoir</h2>
+            <p className="text-zinc-500 text-sm mt-2">Mode Exposé & Concours d'Orthographe</p>
+          </button>
         </div>
 
         <button 
