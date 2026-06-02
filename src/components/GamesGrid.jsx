@@ -20,7 +20,7 @@ export default function GamesGrid() {
               emoji={game.emoji}
               title={game.title}
               description={game.description}
-              link={`/jeux/${game.slug}`}
+              link={`/quiz/games/${game.slug}`}
               popular={game.popular}
             />
           ))}
