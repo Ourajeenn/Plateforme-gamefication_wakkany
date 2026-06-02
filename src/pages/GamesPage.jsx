@@ -34,11 +34,9 @@ export default function GamesPage() {
       />
 
       <Routes>
-        <Route path="/jeux" element={<GamesGrid />} />
-        <Route path="/jeux/:slug" element={<GameDetails />} />
         <Route path="/quiz/games" element={<GamesGrid />} />
         <Route path="/quiz/games/:slug" element={<GameDetails />} />
-        <Route path="*" element={<Navigate to="/jeux" replace />} />
+        <Route path="*" element={<Navigate to="/quiz/games" replace />} />
       </Routes>
     </div>
   );

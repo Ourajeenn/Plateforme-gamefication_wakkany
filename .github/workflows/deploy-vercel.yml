@@ -1,0 +1,51 @@
+name: Deploy to Vercel
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+      - 'features/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  vercel_deploy:
+    runs-on: ubuntu-latest
+    needs: [test, build]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: artifact
+          path: ./dist
+
+      - name: Deploy to Vercel
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          npm install -g vercel
+          vercel --prod --confirm --token $VERCEL_TOKEN --scope ${{ secrets.VERCEL_ORG_ID }} --project ${{ secrets.VERCEL_PROJECT_ID }}
+
+      - name: Verify Vercel deployment
+        run: |
+          echo "Waiting for Vercel deployment..."
+          sleep 30
+          URL=$(vercel ls --prod --token $VERCEL_TOKEN | grep ${{ secrets.VERCEL_PROJECT_ID }} | awk '{print $2}')
+          echo "Testing $URL"
+          curl -f -L $URL || exit 1

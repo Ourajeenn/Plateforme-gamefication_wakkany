@@ -12,7 +12,7 @@ export default function QuizHome() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-zinc-950 flex flex-col items-center justify-center p-8 relative overflow-hidden font-monda text-white">
+    <div className="min-h-screen bg-black flex flex-col items-center justify-center p-8 relative overflow-hidden font-monda text-white">
       {/* Background FX */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_#c28e3a20_0%,_#000_80%)]"></div>
       
@@ -63,16 +63,6 @@ export default function QuizHome() {
             <iconify-icon icon="lucide:settings" width="50" className="text-[#c28e3a] mb-4"></iconify-icon>
             <h2 className="text-3xl font-heading font-black italic uppercase">Paramètres</h2>
             <p className="text-zinc-500 text-sm mt-2">Difficulté & Temps Limite</p>
-          </button>
-
-          <button 
-            onClick={() => navigate('/quiz/academy')}
-            className="group relative bg-zinc-900/80 border-2 border-[#c28e3a]/50 p-10 rounded-[40px] hover:bg-[#c28e3a]/10 hover:border-[#c28e3a] transition-all duration-300 transform hover:scale-105 active:scale-95 md:col-span-2 overflow-hidden"
-          >
-            <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            <iconify-icon icon="lucide:graduation-cap" width="50" className="text-[#c28e3a] mb-4"></iconify-icon>
-            <h2 className="text-3xl font-heading font-black italic uppercase">Arène du Savoir</h2>
-            <p className="text-zinc-500 text-sm mt-2">Mode Exposé & Concours d'Orthographe</p>
           </button>
         </div>
 

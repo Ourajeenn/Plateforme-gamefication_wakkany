@@ -4,11 +4,22 @@ import { useCallback } from 'react';
 let sharedAudioCtx = null;
 
 // Create audio instances globally so they aren't garbage collected immediately when components unmount
-const clickAudio = new Audio(`/assets/click1.mp3`);
-const thunderAudio = new Audio(`/assets/thunder.mp3`);
-export const bgMusic = new Audio(`/assets/epic_music.mp3`);
-bgMusic.loop = true;
-bgMusic.volume = 0.5;
+const assetBase = import.meta.env.BASE_URL || '/';
+const createAudio = (fileName) => {
+  try {
+    return new Audio(`${assetBase}assets/${fileName}`);
+  } catch {
+    return null;
+  }
+};
+
+const clickAudio = createAudio('click1.mp3');
+const thunderAudio = createAudio('thunder.mp3');
+export const bgMusic = createAudio('epic_music.mp3');
+if (bgMusic) {
+  bgMusic.loop = true;
+  bgMusic.volume = 0.5;
+}
 
 export const useSoundFX = () => {
   const playSound = useCallback((freq, type, duration, volume = 0.1) => {
@@ -44,8 +55,12 @@ export const useSoundFX = () => {
   }, []);
 
   const playClick = () => {
-    clickAudio.currentTime = 0;
-    clickAudio.play().catch(() => {});
+    if (clickAudio) {
+      clickAudio.currentTime = 0;
+      clickAudio.play().catch(() => {});
+      return;
+    }
+    playSound(450, 'triangle', 0.05, 0.1);
   };
   
   const playUnlock = () => {
@@ -84,9 +99,10 @@ export const useSoundFX = () => {
     setTimeout(() => playSound(3000, 'square', 0.07, 0.22), 30);
     setTimeout(() => playSound(2000, 'sawtooth', 0.12, 0.20), 60);
     
-    // Play thunder audio sample
-    thunderAudio.currentTime = 0;
-    thunderAudio.play().catch(() => {});
+    if (thunderAudio) {
+      thunderAudio.currentTime = 0;
+      thunderAudio.play().catch(() => {});
+    }
   };
 
   // Timer tick sound for spelling game countdown
@@ -99,13 +115,16 @@ export const useSoundFX = () => {
     playSound(2500, 'sawtooth', 0.09, 0.25);
     setTimeout(() => playSound(3000, 'square', 0.07, 0.22), 30);
     
-    // Play thunder audio sample
-    thunderAudio.currentTime = 0;
-    thunderAudio.play().catch(() => {});
+    if (thunderAudio) {
+      thunderAudio.currentTime = 0;
+      thunderAudio.play().catch(() => {});
+    }
   };
   
   const stopBgMusic = () => {
-    bgMusic.pause();
+    if (bgMusic) {
+      bgMusic.pause();
+    }
   };
 
   const playCountdownBeep = () => {

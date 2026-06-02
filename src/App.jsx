@@ -37,11 +37,11 @@ export default function App() {
 
   const isSetup = location.pathname === '/setup';
   const isDashboard = location.pathname.startsWith('/dashboard');
-  const isGames = location.pathname.startsWith('/jeux') || location.pathname.startsWith('/quiz/games');
-  const isQuiz = location.pathname.startsWith('/quiz') && !location.pathname.startsWith('/quiz/games');
+  const isGames = location.pathname.startsWith('/quiz/games');
+  const isQuiz = location.pathname.startsWith('/quiz');
 
   const dashboardTab = isDashboard ? location.pathname.replace('/dashboard/', '') || 'profile' : 'profile';
-  const view = isSetup ? 'setup' : isDashboard ? 'dashboard' : isGames ? 'games' : isQuiz ? 'quiz' : 'landing';
+  const view = isSetup ? 'setup' : isDashboard ? 'dashboard' : isQuiz ? 'quiz' : 'landing';
 
   const goTo = useCallback((path) => {
     navigate(path);
@@ -49,7 +49,7 @@ export default function App() {
 
   const handlePreloaderComplete = useCallback(() => {
     setIsLoading(false);
-    navigate('/quiz');
+    navigate('/');
   }, [navigate]);
   const { user, setUser, xp, setXp, unlockedSkills, setUnlockedSkills, completedQuests, setCompletedQuests, xpHistory, unlockedAchievements, setUnlockedAchievements } = usePlayerData();
   const [isLoading, setIsLoading] = useState(true);
@@ -227,8 +227,8 @@ export default function App() {
         <button onClick={() => { goTo('/'); setLandingTab(null); scrollToSection('hero'); }} className="hover:text-[#c28e3a] transition-all hover:tracking-[0.3em]">ACCUEIL</button>
         <button onClick={() => setLandingTab('waitlist')} className={`transition-all hover:text-[#c28e3a] ${landingTab === 'waitlist' ? 'text-[#c28e3a]' : 'text-zinc-500'}`}>LISTE D'ATTENTE</button>
         <button onClick={() => navigate('/quiz')} className="text-zinc-500 hover:text-[#c28e3a] transition-all">QUIZ SALON</button>
-        <button onClick={() => navigate('/jeux')} className="text-zinc-500 hover:text-[#c28e3a] transition-all">JEUX</button>
         <button onClick={() => {
+
           if (user) navigate('/dashboard/profile');
           else handleJoinClick();
         }} className="text-zinc-500 hover:text-white transition-all">MON PROFIL</button>
@@ -271,7 +271,6 @@ export default function App() {
           <button onClick={() => { goTo('/'); setLandingTab('waitlist'); setIsMenuOpen(false); }} className="text-white font-black uppercase tracking-widest text-left">Liste d'attente</button>
           <button onClick={() => { handleJoinClick(); setIsMenuOpen(false); }} className="text-white font-black uppercase tracking-widest text-left">Commencer</button>
           <button onClick={() => { navigate('/quiz'); setIsMenuOpen(false); }} className="text-white font-black uppercase tracking-widest text-left">Quiz Salon</button>
-          <button onClick={() => { navigate('/jeux'); setIsMenuOpen(false); }} className="text-white font-black uppercase tracking-widest text-left">Jeux</button>
           <button onClick={() => { goTo('/'); setLandingTab('about'); setIsMenuOpen(false); }} className="text-white font-black uppercase tracking-widest text-left">À Propos</button>
         </div>
       )}

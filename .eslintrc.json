@@ -7,6 +7,7 @@
     "eslint:recommended",
     "plugin:react/recommended"
   ],
+  "plugins": ["security"],
   "parserOptions": {
     "ecmaFeatures": {
       "jsx": true
@@ -14,6 +15,9 @@
     "ecmaVersion": "latest",
     "sourceType": "module"
   },
-  "plugins": ["react"],
-  "rules": {}
+  "settings": {"react": {"version": "detect"}},
+    "rules": {
+      "react/react-in-jsx-scope": "off",
+      "react/prop-types": "off"
+    }
 }
