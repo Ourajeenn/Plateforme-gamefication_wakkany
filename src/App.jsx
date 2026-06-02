@@ -22,7 +22,8 @@ import { realtime } from './utils/realtime';
 import { getDominantBranch, getTotalXp } from './utils/xpHelpers';
 import { getLevel } from './data/levels';
 import { useSoundFX } from './hooks/useSoundFX';
-import SpellingVoiceGame from './components/SpellingVoiceGame';
+import GamesPage from './pages/GamesPage.jsx';
+
 import AcademyView from './components/AcademyView';
 
 import QuizHome from './components/quiz/QuizHome';
@@ -36,28 +37,20 @@ export default function App() {
 
   const isSetup = location.pathname === '/setup';
   const isDashboard = location.pathname.startsWith('/dashboard');
-  const isQuiz = location.pathname.startsWith('/quiz');
+  const isGames = location.pathname.startsWith('/jeux') || location.pathname.startsWith('/quiz/games');
+  const isQuiz = location.pathname.startsWith('/quiz') && !location.pathname.startsWith('/quiz/games');
 
   const dashboardTab = isDashboard ? location.pathname.replace('/dashboard/', '') || 'profile' : 'profile';
-  const view = isSetup ? 'setup' : isDashboard ? 'dashboard' : isQuiz ? 'quiz' : 'landing';
+  const view = isSetup ? 'setup' : isDashboard ? 'dashboard' : isGames ? 'games' : isQuiz ? 'quiz' : 'landing';
 
-  const setDashboardTab = (tab) => {
-    if (tab === 'quiz') {
-      navigate('/quiz');
-    } else {
-      navigate(`/dashboard/${tab}`);
-    }
-  };
-  const setView = (v) => {
-     if (v === 'landing') navigate('/');
-     if (v === 'setup') navigate('/setup');
-     if (v === 'dashboard') navigate('/dashboard/profile');
-     if (v === 'quiz') navigate('/quiz');
-  };
+  const goTo = useCallback((path) => {
+    navigate(path);
+  }, [navigate]);
 
   const handlePreloaderComplete = useCallback(() => {
     setIsLoading(false);
-  }, []);
+    navigate('/quiz');
+  }, [navigate]);
   const { user, setUser, xp, setXp, unlockedSkills, setUnlockedSkills, completedQuests, setCompletedQuests, xpHistory, unlockedAchievements, setUnlockedAchievements } = usePlayerData();
   const [isLoading, setIsLoading] = useState(true);
   const cumulativeXp = getTotalXp(unlockedSkills) + xp;
@@ -157,13 +150,12 @@ export default function App() {
   }, []);
 
   const handleJoinClick = () => {
-    setView('setup');
+    navigate('/setup');
   };
 
   const handleProfileComplete = (userData) => {
     setUser(userData);
-    setView('dashboard');
-    setDashboardTab('profile');
+    navigate('/dashboard/profile');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -223,7 +215,7 @@ export default function App() {
 
   const LandingNav = () => (
     <nav className="fixed top-0 left-0 w-full glass-panel border-b border-white/10 flex items-center justify-between px-4 sm:px-8 py-3 sm:py-4 z-[100] shadow-[0_18px_50px_rgba(0,0,0,0.35)]" style={{transform:'translateZ(0)', willChange:'transform'}}>
-      <div className="flex items-center gap-3 group cursor-pointer" onClick={() => { setView('landing'); setLandingTab(null); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
+      <div className="flex items-center gap-3 group cursor-pointer" onClick={() => { goTo('/'); setLandingTab(null); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
         <div className="relative">
           <iconify-icon icon="lucide:triangle" width="32" height="32" className="text-[#c28e3a] rotate-180 stroke-[1.5]"></iconify-icon>
           <div className="absolute inset-0 bg-[#c28e3a] blur-xl opacity-0 group-hover:opacity-40 transition-opacity"></div>
@@ -232,21 +224,21 @@ export default function App() {
       </div>
 
       <div className="hidden lg:flex items-center gap-10 text-white text-[11px] font-black uppercase tracking-[0.2em]">
-        <button onClick={() => { setView('landing'); setLandingTab(null); scrollToSection('hero'); }} className="hover:text-[#c28e3a] transition-all hover:tracking-[0.3em]">ACCUEIL</button>
+        <button onClick={() => { goTo('/'); setLandingTab(null); scrollToSection('hero'); }} className="hover:text-[#c28e3a] transition-all hover:tracking-[0.3em]">ACCUEIL</button>
         <button onClick={() => setLandingTab('waitlist')} className={`transition-all hover:text-[#c28e3a] ${landingTab === 'waitlist' ? 'text-[#c28e3a]' : 'text-zinc-500'}`}>LISTE D'ATTENTE</button>
         <button onClick={() => navigate('/quiz')} className="text-zinc-500 hover:text-[#c28e3a] transition-all">QUIZ SALON</button>
+        <button onClick={() => navigate('/jeux')} className="text-zinc-500 hover:text-[#c28e3a] transition-all">JEUX</button>
         <button onClick={() => {
-          if (user) setView('dashboard');
+          if (user) navigate('/dashboard/profile');
           else handleJoinClick();
         }} className="text-zinc-500 hover:text-white transition-all">MON PROFIL</button>
-        <button onClick={() => setView('spelling')} className={`transition-all hover:text-[#c28e3a] ${landingTab === 'spelling' ? 'text-[#c28e3a]' : 'text-zinc-500'}`}>ORTHOGRAPHE</button>
         <button onClick={() => setLandingTab('blog')} className={`transition-all hover:text-[#c28e3a] ${landingTab === 'blog' ? 'text-[#c28e3a]' : 'text-zinc-500'}`}>HISTOIRE</button>
       </div>
 
       <div className="flex items-center gap-4">
         <button
           onClick={() => {
-            if (user) setView('dashboard');
+            if (user) navigate('/dashboard/profile');
             else handleJoinClick();
           }}
           className="hidden md:flex items-center gap-3 px-6 py-2 bg-zinc-900 border border-white/10 text-white font-black uppercase text-[10px] tracking-widest rounded-xl hover:bg-[#c28e3a] hover:text-black transition-all group active:scale-95 shadow-xl"
@@ -275,11 +267,12 @@ export default function App() {
 
       {isMenuOpen && (
         <div className="fixed top-[60px] left-0 w-full bg-zinc-950/98 backdrop-blur-3xl border-b border-white/10 p-8 flex flex-col gap-6 animate-fade-in z-[99]">
-          <button onClick={() => { setView('landing'); setLandingTab(null); setIsMenuOpen(false); }} className="text-white font-black uppercase tracking-widest text-left">Accueil</button>
-          <button onClick={() => { setView('landing'); setLandingTab('waitlist'); setIsMenuOpen(false); }} className="text-white font-black uppercase tracking-widest text-left">Liste d'attente</button>
+          <button onClick={() => { goTo('/'); setLandingTab(null); setIsMenuOpen(false); }} className="text-white font-black uppercase tracking-widest text-left">Accueil</button>
+          <button onClick={() => { goTo('/'); setLandingTab('waitlist'); setIsMenuOpen(false); }} className="text-white font-black uppercase tracking-widest text-left">Liste d'attente</button>
           <button onClick={() => { handleJoinClick(); setIsMenuOpen(false); }} className="text-white font-black uppercase tracking-widest text-left">Commencer</button>
           <button onClick={() => { navigate('/quiz'); setIsMenuOpen(false); }} className="text-white font-black uppercase tracking-widest text-left">Quiz Salon</button>
-          <button onClick={() => { setView('landing'); setLandingTab('about'); setIsMenuOpen(false); }} className="text-white font-black uppercase tracking-widest text-left">À Propos</button>
+          <button onClick={() => { navigate('/jeux'); setIsMenuOpen(false); }} className="text-white font-black uppercase tracking-widest text-left">Jeux</button>
+          <button onClick={() => { goTo('/'); setLandingTab('about'); setIsMenuOpen(false); }} className="text-white font-black uppercase tracking-widest text-left">À Propos</button>
         </div>
       )}
     </nav>
@@ -324,7 +317,7 @@ export default function App() {
         <div className="flex items-center gap-3 sm:gap-8 min-w-0">
           <div 
             className="flex items-center gap-3 sm:gap-4 cursor-pointer group shrink-0" 
-            onClick={() => { setView('landing'); setLandingTab(null); }}
+            onClick={() => { goTo('/'); setLandingTab(null); }}
           >
             <iconify-icon icon="lucide:triangle" width="24" height="24" className="text-[#c28e3a] rotate-180 group-hover:rotate-0 transition-transform duration-500"></iconify-icon>
             <span className="text-white font-heading font-bold tracking-widest text-base sm:text-lg italic uppercase">Wakkany</span>
@@ -344,7 +337,7 @@ export default function App() {
               <iconify-icon icon={user?.clan?.icon || 'lucide:user'} className="text-[#c28e3a] text-xl"></iconify-icon>
             )}
           </div>
-          <button onClick={() => { setUser(null); setView('landing'); }} className="text-zinc-600 hover:text-red-500 transition-all hover:scale-110 shrink-0">
+          <button onClick={() => { setUser(null); goTo('/'); }} className="text-zinc-600 hover:text-red-500 transition-all hover:scale-110 shrink-0">
             <iconify-icon icon="solar:logout-2-linear" width="24"></iconify-icon>
           </button>
         </div>
@@ -544,28 +537,42 @@ export default function App() {
   };
 
   if (isLoading) return <Preloader onComplete={handlePreloaderComplete} />;
+  if (isSetup) return <ProfileSetup onComplete={handleProfileComplete} />;
+  if (isGames) return <GamesPage />;
 
+  // Affichage du module Quiz lorsqu'on est sur la vue 'quiz'
   if (view === 'quiz') {
     return (
+      // Définition des routes de l'application
       <Routes>
+        {/* Route principale du quiz */}
         <Route path="/quiz" element={<QuizHome />} />
+        {/* Configuration du quiz */}
         <Route path="/quiz/config" element={<QuizConfig />} />
+        {/* Profil du quiz */}
         <Route path="/quiz/profile" element={<PackProfile />} />
+        {/* Jeu du quiz */}
         <Route path="/quiz/play" element={<FamilyGame />} />
+        {/* Accès à l'Académie */}
         <Route path="/quiz/academy" element={<AcademyView />} />
-        <Route path="*" element={<Navigate to="/quiz" replace />} />
+        {/* Route pour la page de jeux dédiée */}
+        <Route path="/quiz/games" element={<GamesPage />} />
+        {/* Rediriger les routes inconnues vers la page d'accueil */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     );
   }
 
-  if (view === 'spelling') {
-    return <SpellingVoiceGame />;
-  }
+  // Vue pour le jeu d'orthographe
+  // Spelling view removed as per request
+  // if (view === 'spelling') {
+  //   return <SpellingVoiceGame />;
+  // }
 
   return (
     <>
       <div className="antialiased text-white min-h-screen bg-zinc-950 animate-fade-in overflow-y-auto">
-        {view === 'landing' ? <LandingNav /> : <DashboardNav />}
+        {view === 'quiz' ? null : view === 'landing' ? <LandingNav /> : <DashboardNav />}
 
       {view === 'landing' ? (
         landingTab === 'waitlist' ? (
@@ -634,7 +641,7 @@ export default function App() {
                   
                   <button
                     onClick={() => {
-                      if (user) setView('dashboard');
+                      if (user) navigate('/dashboard/profile');
                       else handleJoinClick();
                     }}
                     className="relative group overflow-hidden w-full max-w-sm sm:max-w-md px-6 py-4 sm:px-16 sm:py-6 bg-white text-black font-black text-sm sm:text-xl lg:text-2xl uppercase tracking-[0.2em] font-heading italic transition-all duration-500 hover:scale-105 active:scale-95 shadow-[0_20px_50px_rgba(194,142,58,0.3)] rounded-2xl"

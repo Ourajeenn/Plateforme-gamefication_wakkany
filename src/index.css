@@ -16,11 +16,8 @@
     scrollbar-width: none; /* Firefox */
     -ms-overflow-style: none; /* IE and Edge */
     width: 100%;
-    width: 100%;
     overflow-x: hidden;
-    /* No forced overflow-y on html; body will handle scrolling */
-    overscroll-behavior: none; /* Prevent rubber-band scroll trembling on mobile */
-    scroll-behavior: smooth;
+    overflow-y: auto; /* enable vertical scrolling */
   }
 
   html::-webkit-scrollbar, body::-webkit-scrollbar {
@@ -43,7 +40,6 @@
     width: 100%;
     min-height: 100vh;
     overflow-y: auto; /* Allow natural scrolling on body */
-    overscroll-behavior: none; /* Prevent rubber-band scroll trembling on mobile */
     -webkit-overflow-scrolling: auto; /* Disable momentum bounce */
   }
 
@@ -141,6 +137,15 @@
 .animate-float-right {
   animation: floatRight 6s ease-in-out infinite;
   animation-delay: -3s;
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  animation: marquee 18s linear infinite;
 }
 
 /* New animations for Champion's Path */

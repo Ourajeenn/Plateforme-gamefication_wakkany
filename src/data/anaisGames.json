@@ -1,0 +1,16 @@
+[
+  {
+    "slug": "topic-roulette",
+    "title": "Topic Roulette",
+    "emoji": "🎲",
+    "description": "Choisis un sujet au hasard et parle librement. Parfait pour gagner en confiance et structurer tes idées.",
+    "popular": true
+  },
+  {
+    "slug": "parle-ou-perds",
+    "title": "Parle ou Perds",
+    "emoji": "🌋",
+    "description": "Continue de parler avant que la lave ne te rattrape. Un jeu pour oser, improviser et rester fluide.",
+    "popular": false
+  }
+]
