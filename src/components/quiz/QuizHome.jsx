@@ -64,6 +64,15 @@ export default function QuizHome() {
             <h2 className="text-3xl font-heading font-black italic uppercase">Paramètres</h2>
             <p className="text-zinc-500 text-sm mt-2">Difficulté & Temps Limite</p>
           </button>
+
+          <button 
+            onClick={() => navigate('/quiz/games')}
+            className="group relative bg-zinc-900/80 border-2 border-[#c28e3a]/50 p-10 rounded-[40px] hover:border-[#c28e3a] hover:bg-[#c28e3a]/10 transition-all duration-300 transform hover:scale-105 active:scale-95"
+          >
+            <iconify-icon icon="lucide:gamepad2" width="50" className="text-[#c28e3a] mb-4"></iconify-icon>
+            <h2 className="text-3xl font-heading font-black italic uppercase">Jeux Vocaux</h2>
+            <p className="text-zinc-500 text-sm mt-2">Topic Roulette & Parle ou Perds</p>
+          </button>
         </div>
 
         <button 
