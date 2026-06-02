@@ -16,6 +16,23 @@ export default function QuizHome() {
       {/* Background FX */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_#c28e3a20_0%,_#000_80%)]"></div>
       
+      {/* Retour au QG - Top Left */}
+      <button 
+        onClick={() => navigate('/')}
+        className="absolute top-8 left-8 text-zinc-600 uppercase font-bold tracking-widest text-sm hover:text-white transition-colors z-20"
+      >
+        Retour au QG
+      </button>
+
+      {/* Settings - Top Right */}
+      <button 
+        onClick={() => navigate('/quiz/config')}
+        className="absolute top-8 right-8 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-zinc-900/60 border border-white/20 hover:border-[#c28e3a] hover:bg-[#c28e3a]/20 transition-all text-sm font-bold uppercase tracking-wide text-[#c28e3a] z-20"
+      >
+        <iconify-icon icon="lucide:settings" width="16"></iconify-icon>
+        Paramètres
+      </button>
+      
       <div className="relative z-10 w-full max-w-4xl text-center space-y-12">
         <div className="animate-scale-up">
           <iconify-icon icon="lucide:swords" width="80" className="text-[#c28e3a] mb-6 drop-shadow-[0_0_20px_#c28e3a]"></iconify-icon>
@@ -63,23 +80,6 @@ export default function QuizHome() {
             <iconify-icon icon="lucide:gamepad2" width="50" className="text-[#c28e3a] mb-4"></iconify-icon>
             <h2 className="text-3xl font-heading font-black italic uppercase">Jeux Vocaux</h2>
             <p className="text-zinc-500 text-sm mt-2">Topic Roulette & Parle ou Perds</p>
-          </button>
-        </div>
-
-        <div className="flex items-center justify-between mt-16 gap-4">
-          <button 
-            onClick={() => navigate('/')}
-            className="text-zinc-600 uppercase font-bold tracking-widest text-sm hover:text-white transition-colors"
-          >
-            Retour au QG
-          </button>
-
-          <button 
-            onClick={() => navigate('/quiz/config')}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-zinc-900/60 border border-white/20 hover:border-[#c28e3a] hover:bg-[#c28e3a]/20 transition-all text-sm font-bold uppercase tracking-wide text-[#c28e3a]"
-          >
-            <iconify-icon icon="lucide:settings" width="16"></iconify-icon>
-            Paramètres
           </button>
         </div>
       </div>

@@ -10,9 +10,7 @@ export default function GamesGrid() {
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-heading font-black uppercase tracking-tight leading-tight">
             Choisis ton jeu, parle, joue et progresse
           </h1>
-          <p className="mt-6 text-zinc-400 max-w-2xl mx-auto text-sm sm:text-base leading-7">
-            Inspiré d’Anaïs Living, ce module propose des cartes de jeux expressifs sans logo ni éléments superflus. Conserve l’esprit du lien original avec une présentation simple et réutilisable.
-          </p>
+
         </div>
 
         <div className="grid gap-6 md:grid-cols-2">
