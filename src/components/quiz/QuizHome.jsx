@@ -76,8 +76,16 @@ export default function QuizHome() {
         </div>
 
         <button 
+          onClick={() => navigate('/quiz/config')}
+          className="mt-8 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-zinc-900/60 border border-white/20 hover:border-[#c28e3a] hover:bg-[#c28e3a]/20 transition-all text-sm font-bold uppercase tracking-wide text-[#c28e3a]"
+        >
+          <iconify-icon icon="lucide:settings" width="16"></iconify-icon>
+          Paramètres
+        </button>
+
+        <button 
           onClick={() => navigate('/')}
-          className="mt-16 text-zinc-600 uppercase font-bold tracking-widest text-sm hover:text-white transition-colors"
+          className="mt-8 text-zinc-600 uppercase font-bold tracking-widest text-sm hover:text-white transition-colors"
         >
           Retour au QG
         </button>
