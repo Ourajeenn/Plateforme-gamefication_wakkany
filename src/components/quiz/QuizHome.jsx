@@ -57,15 +57,6 @@ export default function QuizHome() {
           </button>
 
           <button 
-            onClick={() => navigate('/quiz/config')}
-            className="group relative bg-zinc-900/80 border-2 border-white/10 p-10 rounded-[40px] hover:border-[#c28e3a] hover:bg-[#c28e3a]/5 transition-all duration-300 transform hover:scale-105 active:scale-95"
-          >
-            <iconify-icon icon="lucide:settings" width="50" className="text-[#c28e3a] mb-4"></iconify-icon>
-            <h2 className="text-3xl font-heading font-black italic uppercase">Paramètres</h2>
-            <p className="text-zinc-500 text-sm mt-2">Difficulté & Temps Limite</p>
-          </button>
-
-          <button 
             onClick={() => navigate('/quiz/games')}
             className="group relative bg-zinc-900/80 border-2 border-[#c28e3a]/50 p-10 rounded-[40px] hover:border-[#c28e3a] hover:bg-[#c28e3a]/10 transition-all duration-300 transform hover:scale-105 active:scale-95"
           >
@@ -75,20 +66,22 @@ export default function QuizHome() {
           </button>
         </div>
 
-        <button 
-          onClick={() => navigate('/quiz/config')}
-          className="mt-8 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-zinc-900/60 border border-white/20 hover:border-[#c28e3a] hover:bg-[#c28e3a]/20 transition-all text-sm font-bold uppercase tracking-wide text-[#c28e3a]"
-        >
-          <iconify-icon icon="lucide:settings" width="16"></iconify-icon>
-          Paramètres
-        </button>
+        <div className="flex items-center justify-between mt-16 gap-4">
+          <button 
+            onClick={() => navigate('/')}
+            className="text-zinc-600 uppercase font-bold tracking-widest text-sm hover:text-white transition-colors"
+          >
+            Retour au QG
+          </button>
 
-        <button 
-          onClick={() => navigate('/')}
-          className="mt-8 text-zinc-600 uppercase font-bold tracking-widest text-sm hover:text-white transition-colors"
-        >
-          Retour au QG
-        </button>
+          <button 
+            onClick={() => navigate('/quiz/config')}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-zinc-900/60 border border-white/20 hover:border-[#c28e3a] hover:bg-[#c28e3a]/20 transition-all text-sm font-bold uppercase tracking-wide text-[#c28e3a]"
+          >
+            <iconify-icon icon="lucide:settings" width="16"></iconify-icon>
+            Paramètres
+          </button>
+        </div>
       </div>
     </div>
   );
