@@ -5,7 +5,8 @@
   },
   "extends": [
     "eslint:recommended",
-    "plugin:react/recommended"
+    "plugin:react/recommended",
+    "plugin:security/recommended-legacy"
   ],
   "plugins": ["security"],
   "parserOptions": {
@@ -16,8 +17,9 @@
     "sourceType": "module"
   },
   "settings": {"react": {"version": "detect"}},
-    "rules": {
-      "react/react-in-jsx-scope": "off",
-      "react/prop-types": "off"
-    }
+  "rules": {
+    "react/react-in-jsx-scope": "off",
+    "react/prop-types": "off",
+    "security/detect-object-injection": "off"
+  }
 }

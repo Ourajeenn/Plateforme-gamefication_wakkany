@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { storage } from '../utils/storageHelpers';
 import { supabase } from '../utils/supabaseClient';
+import { isSupabaseConfigured } from '../utils/isSupabaseConfigured';
 
 const MOCK_HISTORY = [
     { day: 'Lun', xp: 20 },
@@ -12,6 +13,23 @@ const MOCK_HISTORY = [
     { day: 'Dim', xp: 190 },
 ];
 
+function applyPlayerData(playerData, setters) {
+    if (!playerData) return false;
+
+    if (playerData.spellingScore === undefined) {
+        playerData.spellingScore = 0;
+    }
+
+    setters.setUser(playerData.user);
+    setters.setXp(playerData.xp || 0);
+    setters.setUnlockedSkills(playerData.unlockedSkills || []);
+    setters.setCompletedQuests(playerData.completedQuests || []);
+    setters.setUnlockedAchievements(playerData.unlockedAchievements || []);
+    if (playerData.xpHistory) setters.setXpHistory(playerData.xpHistory);
+    if (playerData.spellingScore !== undefined) setters.setSpellingScore(playerData.spellingScore);
+    return true;
+}
+
 export default function usePlayerData() {
     const [user, setUser] = useState(null);
     const [xp, setXp] = useState(0);
@@ -21,17 +39,31 @@ export default function usePlayerData() {
     const [unlockedAchievements, setUnlockedAchievements] = useState([]);
     const [xpHistory, setXpHistory] = useState(MOCK_HISTORY);
     const [isLoaded, setIsLoaded] = useState(false);
+    const [authUserId, setAuthUserId] = useState(null);
 
-    // Initial load
     useEffect(() => {
         async function loadSession() {
-            const savedSession = localStorage.getItem('wakkany_active_session');
-            
-            // Fallback for previous data format migration
-            const legacyUser = localStorage.getItem('wakkany_user');
-            
-            if (savedSession || legacyUser) {
+            if (isSupabaseConfigured()) {
+                const { data: { session } } = await supabase.auth.getSession();
+                if (!session?.user) {
+                    setIsLoaded(true);
+                    return;
+                }
 
+                setAuthUserId(session.user.id);
+                const playerData = await storage.getItem('player:current', { shared: false });
+                applyPlayerData(playerData, {
+                    setUser, setXp, setUnlockedSkills, setCompletedQuests,
+                    setUnlockedAchievements, setXpHistory, setSpellingScore,
+                });
+                setIsLoaded(true);
+                return;
+            }
+
+            const savedSession = localStorage.getItem('wakkany_active_session');
+            const legacyUser = localStorage.getItem('wakkany_user');
+
+            if (savedSession || legacyUser) {
                 let username = savedSession;
                 if (!username && legacyUser) {
                     const parsedUser = JSON.parse(legacyUser);
@@ -40,20 +72,12 @@ export default function usePlayerData() {
 
                 if (username) {
                     const playerData = await storage.getItem(`player:${username.toLowerCase()}`, { shared: false });
-            // Initialize spellingScore if missing
-            if (playerData && playerData.spellingScore === undefined) {
-              playerData.spellingScore = 0;
-            }
-                    
-                    if (playerData) {
-                        setUser(playerData.user);
-                        setXp(playerData.xp || 0);
-                        setUnlockedSkills(playerData.unlockedSkills || []);
-                        setCompletedQuests(playerData.completedQuests || []);
-                        setUnlockedAchievements(playerData.unlockedAchievements || []);
-                        if (playerData.xpHistory) setXpHistory(playerData.xpHistory);
-                    } else if (legacyUser) {
-                        // Migration from old storage structure
+                    const loaded = applyPlayerData(playerData, {
+                        setUser, setXp, setUnlockedSkills, setCompletedQuests,
+                        setUnlockedAchievements, setXpHistory, setSpellingScore,
+                    });
+
+                    if (!loaded && legacyUser) {
                         setUser(JSON.parse(legacyUser));
                         setXp(parseInt(localStorage.getItem('wakkany_xp') || '0', 10));
                         setUnlockedSkills(JSON.parse(localStorage.getItem('wakkany_skills') || '[]'));
@@ -62,23 +86,44 @@ export default function usePlayerData() {
                     }
                 }
             }
-  
-        setIsLoaded(true);
+
+            setIsLoaded(true);
         }
+
         loadSession();
+
+        if (!isSupabaseConfigured()) return undefined;
+
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+            if (!session?.user) {
+                setAuthUserId(null);
+                setUser(null);
+                return;
+            }
+
+            setAuthUserId(session.user.id);
+            const playerData = await storage.getItem('player:current', { shared: false });
+            applyPlayerData(playerData, {
+                setUser, setXp, setUnlockedSkills, setCompletedQuests,
+                setUnlockedAchievements, setXpHistory, setSpellingScore,
+            });
+        });
+
+        return () => subscription.unsubscribe();
     }, []);
 
-    // Save on changes
     useEffect(() => {
         if (!isLoaded) return;
 
         if (user) {
-            localStorage.setItem('wakkany_active_session', user.name);
-            
+            if (!isSupabaseConfigured()) {
+                localStorage.setItem('wakkany_active_session', user.name);
+            }
+
             let newHistory = [...xpHistory];
             if (newHistory.length > 0 && newHistory[newHistory.length - 1].xp !== xp) {
-                 newHistory[newHistory.length - 1] = { ...newHistory[newHistory.length - 1], xp };
-                 setXpHistory(newHistory);
+                newHistory[newHistory.length - 1] = { ...newHistory[newHistory.length - 1], xp };
+                setXpHistory(newHistory);
             }
 
             const playerData = {
@@ -88,32 +133,28 @@ export default function usePlayerData() {
                 completedQuests,
                 unlockedAchievements,
                 xpHistory: newHistory,
-                spellingScore
+                spellingScore,
             };
-            
-            storage.setItem(`player:${user.name.toLowerCase()}`, playerData, { shared: false });
-        } else {
+
+            const storageKey = isSupabaseConfigured()
+                ? 'player:current'
+                : `player:${user.name.toLowerCase()}`;
+            storage.setItem(storageKey, playerData, { shared: false });
+        } else if (!isSupabaseConfigured()) {
             localStorage.removeItem('wakkany_active_session');
         }
     }, [user, xp, unlockedSkills, completedQuests, unlockedAchievements, isLoaded]);
 
-    // Supabase Realtime synchronization for profile and XP updates
     useEffect(() => {
-        if (!user) return;
-
-        const isSupabaseConfigured = 
-            import.meta.env.VITE_SUPABASE_URL && 
-            import.meta.env.VITE_SUPABASE_URL !== 'https://placeholder.supabase.co';
-
-        if (!isSupabaseConfigured) return;
+        if (!user || !authUserId || !isSupabaseConfigured()) return;
 
         const channel = supabase
-            .channel(`player-realtime-${user.name.toLowerCase()}`)
-            .on('postgres_changes', { 
-                event: 'UPDATE', 
-                schema: 'public', 
+            .channel(`player-realtime-${authUserId}`)
+            .on('postgres_changes', {
+                event: 'UPDATE',
+                schema: 'public',
                 table: 'profiles',
-                filter: `pseudo=eq.${user.name}` 
+                filter: `id=eq.${authUserId}`,
             }, (payload) => {
                 if (payload.new && payload.new.xp !== xp) {
                     setXp(payload.new.xp || 0);
@@ -124,7 +165,7 @@ export default function usePlayerData() {
         return () => {
             supabase.removeChannel(channel);
         };
-    }, [user, xp]);
+    }, [user, xp, authUserId]);
 
     return {
         user, setUser,
@@ -133,6 +174,7 @@ export default function usePlayerData() {
         completedQuests, setCompletedQuests,
         unlockedAchievements, setUnlockedAchievements,
         xpHistory,
-        spellingScore, setSpellingScore
+        spellingScore, setSpellingScore,
+        isLoaded,
     };
 }

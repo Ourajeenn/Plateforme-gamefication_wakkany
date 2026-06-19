@@ -1,5 +1,12 @@
 [
   {
+    "slug": "shadowing",
+    "title": "Le Shadowing",
+    "emoji": "🎙️",
+    "description": "Ma méthode pour mieux parler + les vidéos que je regarde.",
+    "popular": false
+  },
+  {
     "slug": "topic-roulette",
     "title": "Topic Roulette",
     "emoji": "🎲",

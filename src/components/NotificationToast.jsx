@@ -34,15 +34,23 @@ function Toast({ notif, onRemove }) {
             case 'xp': return 'lucide:trending-up';
             case 'achievement': return 'lucide:trophy';
             case 'level': return 'lucide:star';
+            case 'chat': return 'lucide:message-square';
+            case 'error': return 'lucide:alert-circle';
+            case 'success': return 'lucide:check-circle';
+            case 'info': return 'lucide:info';
             default: return 'lucide:bell';
         }
     };
 
     const getColor = () => {
         switch (notif.type) {
-            case 'xp': return '#c28e3a';
-            case 'achievement': return '#eab308';
-            case 'level': return '#ffffff';
+            case 'xp': return '#c28e3a'; // gold
+            case 'achievement': return '#eab308'; // yellow
+            case 'level': return '#ffffff'; // white
+            case 'chat': return '#3b82f6'; // blue
+            case 'error': return '#ef4444'; // red
+            case 'success': return '#22c55e'; // green
+            case 'info': return '#a855f7'; // purple
             default: return '#ffffff';
         }
     };
@@ -62,7 +70,14 @@ function Toast({ notif, onRemove }) {
             
             <div className="flex-1">
                 <p className="text-[10px] font-black uppercase tracking-[0.3em]" style={{ color: getColor() }}>
-                    {notif.type === 'xp' ? 'Gain d\'XP' : notif.type === 'achievement' ? 'Succès Débloqué' : 'Niveau Supérieur'}
+                    {notif.type === 'xp' ? 'Gain d\'XP' 
+                     : notif.type === 'achievement' ? 'Succès Débloqué' 
+                     : notif.type === 'level' ? 'Niveau Supérieur'
+                     : notif.type === 'chat' ? 'Nouveau Message'
+                     : notif.type === 'error' ? 'Erreur'
+                     : notif.type === 'success' ? 'Succès'
+                     : notif.type === 'info' ? 'Information'
+                     : 'Notification'}
                 </p>
                 <p className="text-white font-heading font-bold italic uppercase text-sm tracking-tight">
                     {notif.message}

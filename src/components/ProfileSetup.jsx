@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import AuthForm from './AuthForm';
+import { isSupabaseConfigured } from '../utils/isSupabaseConfigured';
 
 const FACTIONS = [
     { id: 'heroes', name: 'Légion Héroïque', icon: 'lucide:shield-flash', desc: 'Justice & Pouvoirs Cosmiques', image: '/assets/wakkany_heroes.png' },
@@ -7,11 +9,12 @@ const FACTIONS = [
     { id: 'cars', name: 'Syndicat Mécanique', icon: 'lucide:car-front', desc: 'Vitesse & Ingénierie Future', image: '/assets/wakkany_cars.png' },
 ];
 
-export default function ProfileSetup({ onComplete }) {
+export default function ProfileSetup({ onComplete, isAuthenticated = true }) {
     const [name, setName] = useState('');
     const [academy, setAcademy] = useState('');
     const [selectedClan, setSelectedClan] = useState(FACTIONS[0]);
-    const [step, setStep] = useState(1);
+    const authRequired = isSupabaseConfigured();
+    const [step, setStep] = useState(authRequired && !isAuthenticated ? 0 : 1);
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -24,7 +27,7 @@ export default function ProfileSetup({ onComplete }) {
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-xl p-4 sm:p-6">
             <div className="w-full max-w-2xl bg-zinc-900 border border-white/10 rounded-3xl overflow-y-auto max-h-[95vh] shadow-2xl relative flex flex-col">
                 {/* Progress Bar */}
-                <div className="absolute top-0 left-0 h-1 bg-[#c28e3a] transition-all duration-500" style={{ width: step === 1 ? '50%' : '100%' }}></div>
+                <div className="absolute top-0 left-0 h-1 bg-[#c28e3a] transition-all duration-500" style={{ width: step === 0 ? '25%' : step === 1 ? '50%' : '100%' }}></div>
 
                 <div className="p-6 sm:p-10 flex-1">
                     <div className="mb-8 sm:mb-10 text-center">
@@ -32,8 +35,10 @@ export default function ProfileSetup({ onComplete }) {
                         <h1 className="text-white text-3xl sm:text-4xl font-heading font-bold italic uppercase tracking-tighter">FORGEZ VOTRE LÉGENDE</h1>
                     </div>
 
-                    <form onSubmit={handleSubmit} className="space-y-8">
-                        {step === 1 ? (
+                    <div className="space-y-8">
+                        {step === 0 ? (
+                            <AuthForm onAuthenticated={() => setStep(1)} />
+                        ) : step === 1 ? (
                             <div className="space-y-6 animate-scale-up">
                                 <div>
                                     <label className="block text-zinc-500 text-[10px] font-black uppercase tracking-widest mb-3">Nom de Guerre</label>
@@ -67,7 +72,7 @@ export default function ProfileSetup({ onComplete }) {
                                 </button>
                             </div>
                         ) : (
-                            <div className="space-y-8 animate-scale-up">
+                            <form onSubmit={handleSubmit} className="space-y-8 animate-scale-up">
                                 <div>
                                     <label className="block text-zinc-500 text-[10px] font-black uppercase tracking-widest mb-6 text-center">Choisissez votre Faction Multiverselle</label>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -122,9 +127,9 @@ export default function ProfileSetup({ onComplete }) {
                                         Finaliser l'Identité
                                     </button>
                                 </div>
-                            </div>
+                            </form>
                         )}
-                    </form>
+                    </div>
                 </div>
             </div>
         </div>

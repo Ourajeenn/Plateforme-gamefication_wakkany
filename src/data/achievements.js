@@ -54,5 +54,24 @@ export const ACHIEVEMENTS = [
         icon: 'lucide:trophy',
         condition: (data) => data.xp >= 500,
         color: '#eab308'
+    },
+    {
+        id: 'social_butterfly',
+        title: 'Voix de la Sagesse',
+        desc: 'Vous avez rejoint une Académie.',
+        icon: 'lucide:messages-square',
+        condition: (data) => data.user && data.user.academy,
+        color: '#a855f7'
+    },
+    {
+        id: 'polymath',
+        title: 'Esprit Omniscient',
+        desc: 'Débloquer au moins 1 compétence dans 3 branches différentes.',
+        icon: 'lucide:brain-circuit',
+        condition: (data) => {
+            const branches = new Set(data.unlockedSkills.map(s => s[0]));
+            return branches.size >= 3;
+        },
+        color: '#ec4899'
     }
 ];

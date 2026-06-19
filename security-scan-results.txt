@@ -1,0 +1,60 @@
+﻿Scanning repository for potential secrets...
+C:\Users\jenra\Downloads\Projet personnel 2026\plateforme wakkany\AUDIT_SECURITY.md:14: | Secrets Expos├®s | Ô£à PASS | Aucun secret hardcod├® en production |
+C:\Users\jenra\Downloads\Projet personnel 2026\plateforme wakkany\AUDIT_SECURITY.md:129: ### 5. **Secrets Management**
+C:\Users\jenra\Downloads\Projet personnel 2026\plateforme wakkany\AUDIT_SECURITY.md:131: - Utiliser un gestionnaire de secrets (GitHub Secrets, Vercel Secrets, etc.)
+C:\Users\jenra\Downloads\Projet personnel 2026\plateforme wakkany\AUDIT_SECURITY.md:209: # V├®rifier les secrets dans git history
+C:\Users\jenra\Downloads\Projet personnel 2026\plateforme wakkany\AUDIT_SECURITY.md:210: git log -p | grep -i "api_key\|secret\|password" || echo "Ô£ô No secrets found"
+C:\Users\jenra\Downloads\Projet personnel 2026\plateforme wakkany\AUDIT_SECURITY.md:213: git ls-files | grep -E "\.env|secret|key|password" || echo "Ô£ô No sensitive files tracked"
+C:\Users\jenra\Downloads\Projet personnel 2026\plateforme wakkany\package.json:14: "security:scan": "node scripts/scan-secrets.js",
+C:\Users\jenra\Downloads\Projet personnel 2026\plateforme wakkany\scripts\scan-secrets.js:6: const secretRegex = /sk_live|sk_test|secret|password|api_key|apikey|access_token|auth_token|-----BEGIN PRIVATE KEY-----/i;
+C:\Users\jenra\Downloads\Projet personnel 2026\plateforme wakkany\scripts\scan-secrets.js:24: console.log('Scanning repository for potential secrets...');
+C:\Users\jenra\Downloads\Projet personnel 2026\plateforme wakkany\scripts\scan-secrets.js:32: if (secretRegex.test(ln)) {
+C:\Users\jenra\Downloads\Projet personnel 2026\plateforme wakkany\scripts\scan-secrets.js:43: console.log('No obvious secrets found.');
+C:\Users\jenra\Downloads\Projet personnel 2026\plateforme wakkany\scripts\scan-secrets.js:46: console.log(`Found ${found} potential secret(s). Review the output above.`);
+C:\Users\jenra\Downloads\Projet personnel 2026\plateforme wakkany\SECURITY_ACTION_PLAN.md:122: export async function protectedLogin(email, password) {
+C:\Users\jenra\Downloads\Projet personnel 2026\plateforme wakkany\SECURITY_ACTION_PLAN.md:243: ### 10. **[TODO] Secrets Management**
+C:\Users\jenra\Downloads\Projet personnel 2026\plateforme wakkany\SECURITY_ACTION_PLAN.md:261: VITE_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+C:\Users\jenra\Downloads\Projet personnel 2026\plateforme wakkany\SECURITY_ACTION_PLAN.md:262: VITE_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_KEY }}
+C:\Users\jenra\Downloads\Projet personnel 2026\plateforme wakkany\SECURITY_ACTION_PLAN.md:372: | 10 | Secrets Mgmt | ÔÅ│ TODO | - | - |
+C:\Users\jenra\Downloads\Projet personnel 2026\plateforme wakkany\SECURITY_BEST_PRACTICES.md:13: 4. Gestion des Secrets
+C:\Users\jenra\Downloads\Projet personnel 2026\plateforme wakkany\SECURITY_BEST_PRACTICES.md:29: export async function loginUser(email, password) {
+C:\Users\jenra\Downloads\Projet personnel 2026\plateforme wakkany\SECURITY_BEST_PRACTICES.md:30: const { data, error } = await supabase.auth.signInWithPassword({
+C:\Users\jenra\Downloads\Projet personnel 2026\plateforme wakkany\SECURITY_BEST_PRACTICES.md:32: password,
+C:\Users\jenra\Downloads\Projet personnel 2026\plateforme wakkany\SECURITY_BEST_PRACTICES.md:71: const token = session?.access_token;
+C:\Users\jenra\Downloads\Projet personnel 2026\plateforme wakkany\SECURITY_BEST_PRACTICES.md:92: #### 1. **Ne pas stocker le password en localStorage**
+C:\Users\jenra\Downloads\Projet personnel 2026\plateforme wakkany\SECURITY_BEST_PRACTICES.md:96: localStorage.setItem('password', password);
+C:\Users\jenra\Downloads\Projet personnel 2026\plateforme wakkany\SECURITY_BEST_PRACTICES.md:99: const token = JSON.parse(localStorage.getItem('auth')).password;
+C:\Users\jenra\Downloads\Projet personnel 2026\plateforme wakkany\SECURITY_BEST_PRACTICES.md:102: #### 2. **Ne pas envoyer le password en plain text**
+C:\Users\jenra\Downloads\Projet personnel 2026\plateforme wakkany\SECURITY_BEST_PRACTICES.md:110: password: 'plaintext123'  // ­ƒö┤ DANGER
+C:\Users\jenra\Downloads\Projet personnel 2026\plateforme wakkany\SECURITY_BEST_PRACTICES.md:119: console.log('Login avec:', email, password);
+C:\Users\jenra\Downloads\Projet personnel 2026\plateforme wakkany\SECURITY_BEST_PRACTICES.md:122: logger.info(`User logged in: ${email} / ${password}`);
+C:\Users\jenra\Downloads\Projet personnel 2026\plateforme wakkany\SECURITY_BEST_PRACTICES.md:170: .from('secret_data')
+C:\Users\jenra\Downloads\Projet personnel 2026\plateforme wakkany\SECURITY_BEST_PRACTICES.md:171: .select('pgp_sym_decrypt(encrypted_value, $1)', secret)
+C:\Users\jenra\Downloads\Projet personnel 2026\plateforme wakkany\SECURITY_BEST_PRACTICES.md:179: #### 1. **Ne pas stocker tokens/secrets en localStorage**
+C:\Users\jenra\Downloads\Projet personnel 2026\plateforme wakkany\SECURITY_BEST_PRACTICES.md:183: localStorage.setItem('auth_token', user.access_token);
+C:\Users\jenra\Downloads\Projet personnel 2026\plateforme wakkany\SECURITY_BEST_PRACTICES.md:184: localStorage.setItem('api_key', 'sk_live_xxx');
+C:\Users\jenra\Downloads\Projet personnel 2026\plateforme wakkany\SECURITY_BEST_PRACTICES.md:254: export async function loginWithRateLimit(email, password) {
+C:\Users\jenra\Downloads\Projet personnel 2026\plateforme wakkany\SECURITY_BEST_PRACTICES.md:257: return await login(email, password);
+C:\Users\jenra\Downloads\Projet personnel 2026\plateforme wakkany\SECURITY_BEST_PRACTICES.md:360: ## ­ƒöæ Gestion des Secrets
+C:\Users\jenra\Downloads\Projet personnel 2026\plateforme wakkany\SECURITY_BEST_PRACTICES.md:362: ### Ô£à ├Ç FAIRE ÔÇö Gestion des Secrets
+C:\Users\jenra\Downloads\Projet personnel 2026\plateforme wakkany\SECURITY_BEST_PRACTICES.md:399: ##### 5. **Utiliser les secrets du CI/CD**
+C:\Users\jenra\Downloads\Projet personnel 2026\plateforme wakkany\SECURITY_BEST_PRACTICES.md:404: VITE_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+C:\Users\jenra\Downloads\Projet personnel 2026\plateforme wakkany\SECURITY_BEST_PRACTICES.md:405: VITE_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+C:\Users\jenra\Downloads\Projet personnel 2026\plateforme wakkany\SECURITY_BEST_PRACTICES.md:410: ### ÔØî ├Ç NE PAS FAIRE ÔÇö Gestion des Secrets
+C:\Users\jenra\Downloads\Projet personnel 2026\plateforme wakkany\SECURITY_BEST_PRACTICES.md:424: #### 2. **Ne pas harcoder les secrets**
+C:\Users\jenra\Downloads\Projet personnel 2026\plateforme wakkany\SECURITY_BEST_PRACTICES.md:428: const API_KEY = 'sk_live_1234567890';
+C:\Users\jenra\Downloads\Projet personnel 2026\plateforme wakkany\SECURITY_BEST_PRACTICES.md:431: const API_KEY = import.meta.env.VITE_API_KEY;
+C:\Users\jenra\Downloads\Projet personnel 2026\plateforme wakkany\SECURITY_BEST_PRACTICES.md:438: const privateKey = 'sk_test_xxxxxxxxxxxxxxxx';
+C:\Users\jenra\Downloads\Projet personnel 2026\plateforme wakkany\SECURITY_BEST_PRACTICES.md:495: #### 5. **D├®sactiver la compl├®tion automatique des passwords**
+C:\Users\jenra\Downloads\Projet personnel 2026\plateforme wakkany\SECURITY_BEST_PRACTICES.md:500: type="password"
+C:\Users\jenra\Downloads\Projet personnel 2026\plateforme wakkany\SECURITY_BEST_PRACTICES.md:501: autocomplete="new-password"
+C:\Users\jenra\Downloads\Projet personnel 2026\plateforme wakkany\SECURITY_BEST_PRACTICES.md:620: - [ ] Pas de hardcoded secrets
+C:\Users\jenra\Downloads\Projet personnel 2026\plateforme wakkany\SECURITY_BEST_PRACTICES.md:625: - [ ] Pas de secrets dans git history
+C:\Users\jenra\Downloads\Projet personnel 2026\plateforme wakkany\SECURITY_BEST_PRACTICES.md:635: # V├®rifier les secrets expos├®s
+C:\Users\jenra\Downloads\Projet personnel 2026\plateforme wakkany\SECURITY_BEST_PRACTICES.md:636: npm install -g git-secrets
+C:\Users\jenra\Downloads\Projet personnel 2026\plateforme wakkany\SECURITY_BEST_PRACTICES.md:637: git secrets --install
+C:\Users\jenra\Downloads\Projet personnel 2026\plateforme wakkany\SECURITY_BEST_PRACTICES.md:638: git secrets --scan
+C:\Users\jenra\Downloads\Projet personnel 2026\plateforme wakkany\SECURITY_BEST_PRACTICES.md:643: # V├®rifier les secrets hardcod├®s
+C:\Users\jenra\Downloads\Projet personnel 2026\plateforme wakkany\SECURITY_BEST_PRACTICES.md:644: grep -r "sk_live\|sk_test\|password\|secret\|token" src/ --include="*.js" --include="*.jsx"
+C:\Users\jenra\Downloads\Projet personnel 2026\plateforme wakkany\src\App.jsx:941: {/* Tab Secret Content */}
+Found 58 potential secret(s). Review the output above.

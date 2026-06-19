@@ -1,9 +1,6 @@
 import { supabase } from './supabaseClient';
 import { getDominantBranch } from './xpHelpers';
-
-const isSupabaseConfigured = 
-  import.meta.env.VITE_SUPABASE_URL && 
-  import.meta.env.VITE_SUPABASE_URL !== 'https://placeholder.supabase.co';
+import { isSupabaseConfigured } from './isSupabaseConfigured';
 
 export const storage = {
   async setItem(key, value, options = { shared: false }) {
@@ -20,7 +17,11 @@ export const storage = {
             .upsert({
               id: authUser.id,
               username: user.name,
-              avatar_state: { faction: user.faction, academy: user.academy },
+              avatar_state: {
+                faction: user.clan?.id || user.faction || 'heroes',
+                academy: user.academy,
+                clan: user.clan || null,
+              },
               xp: xp,
               level: Math.floor(xp / 100) + 1,
               school: user.academy || 'Nomade',
@@ -86,8 +87,8 @@ export const storage = {
               user: {
                 name: profile.username,
                 faction: profile.avatar_state?.faction || 'heroes',
-                academy: profile.school || 'Nomade',
-                clan: null
+                academy: profile.school || profile.avatar_state?.academy || 'Nomade',
+                clan: profile.avatar_state?.clan || null,
               },
               xp: profile.xp || 0,
               unlockedSkills: skills ? skills.map(s => s.skill_id) : [],

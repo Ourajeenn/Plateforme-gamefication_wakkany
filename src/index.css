@@ -10,18 +10,27 @@
   }
 
   html {
-    @apply select-none;
     -webkit-tap-highlight-color: transparent;
     -webkit-touch-callout: none;
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-color: #c28e3a #09090b; /* Firefox stylised scrollbar */
+    scrollbar-width: thin;
     width: 100%;
     overflow-x: hidden;
     overflow-y: auto; /* enable vertical scrolling */
   }
 
+  /* Stylised scrollbar for Webkit */
   html::-webkit-scrollbar, body::-webkit-scrollbar {
-    display: none; /* Chrome, Safari and Opera */
+    width: 8px;
+  }
+  
+  html::-webkit-scrollbar-track, body::-webkit-scrollbar-track {
+    background: #09090b;
+  }
+  
+  html::-webkit-scrollbar-thumb, body::-webkit-scrollbar-thumb {
+    background: #c28e3a;
+    border-radius: 4px;
   }
 
   input, textarea {
@@ -32,11 +41,9 @@
     font-family: 'Monda', sans-serif;
     background-color: #000;
     color: #fff;
-    @apply select-none overflow-x-hidden;
+    @apply overflow-x-hidden;
     -webkit-tap-highlight-color: transparent;
     -webkit-touch-callout: none;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
     width: 100%;
     min-height: 100vh;
     overflow-y: auto; /* Allow natural scrolling on body */
@@ -46,9 +53,33 @@
   h1, h2, h3, h4, h5, h6, .font-heading {
     font-family: 'Cinzel', serif;
   }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, ::before, ::after {
+      animation-delay: -1ms !important;
+      animation-duration: 1ms !important;
+      animation-iteration-count: 1 !important;
+      background-attachment: initial !important;
+      scroll-behavior: auto !important;
+      transition-duration: 0s !important;
+      transition-delay: 0s !important;
+    }
+  }
 }
 
 @layer utilities {
+  @keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+  
+  .animate-marquee {
+    animation: marquee 35s linear infinite;
+  }
+  
+  .animate-marquee:hover {
+    animation-play-state: paused;
+  }
   .clip-button {
     clip-path: polygon(15px 0, 100% 0, calc(100% - 15px) 100%, 0 100%);
   }

@@ -1,0 +1,11 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+# Run secret scan before commit
+npm run security:scan
+if [ $? -ne 0 ]; then
+  echo "Potential secrets found. Commit aborted. Run 'npm run security:scan' to review."
+  exit 1
+fi
+
+npm run lint

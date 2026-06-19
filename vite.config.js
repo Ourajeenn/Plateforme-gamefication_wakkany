@@ -34,8 +34,8 @@ export default defineConfig({
         short_name: 'Wakkany',
         start_url: '/',
         display: 'standalone',
-        background_color: '#000000',
-        theme_color: '#1a73e8',
+        background_color: '#09090b',
+        theme_color: '#09090b',
         icons: [
           {
             src: '/icon-192.png',
@@ -60,9 +60,21 @@ export default defineConfig({
     port: 5179,
     strictPort: false,
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'react-router-dom'],
+          charts: ['recharts'],
+          supabase: ['@supabase/supabase-js'],
+        },
+      },
+    },
+  },
   test: {
     globals: true,
     environment: 'jsdom',
     setupFiles: './src/setupTests.js',
+    exclude: ['node_modules', 'tests/e2e/**'],
   },
 });

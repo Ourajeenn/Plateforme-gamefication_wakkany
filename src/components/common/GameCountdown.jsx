@@ -6,14 +6,12 @@ export default function GameCountdown({ onComplete }) {
   const { playCountdownBeep, playCountdownGo, stopBgMusic } = useSoundFX();
 
   useEffect(() => {
-    // Stop background music as soon as the countdown starts
-    stopBgMusic();
-
     let timer;
     if (count > 0) {
       playCountdownBeep();
       timer = setTimeout(() => setCount(count - 1), 1000);
     } else {
+      stopBgMusic();
       playCountdownGo();
       timer = setTimeout(() => {
         onComplete();
