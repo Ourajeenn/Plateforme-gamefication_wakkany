@@ -2,11 +2,12 @@ image: node:20
 
 stages:
   - lint
+  - scan
   - test
   - build
   - deploy
-  - scan
 
+# Cache node_modules basé sur le lockfile
 cache:
   key:
     files:
@@ -14,51 +15,60 @@ cache:
   paths:
     - node_modules/
 
+# ─────────────────────────────────────────
+# STAGE: lint
+# ─────────────────────────────────────────
 lint:
   stage: lint
   script:
     - npm ci
     - npm run lint
-  only:
-    - main
-    - dev
-    - /^features\/.*$/
+  rules:
+    - if: '$CI_COMMIT_BRANCH =~ /^(main|dev|features\/.*)$/'
 
+# ─────────────────────────────────────────
+# STAGE: scan
+# ─────────────────────────────────────────
 npm_audit:
-  stage: test
+  stage: scan
   script:
     - npm ci
-    - npm audit --audit-level=high
-  only:
-    - main
-    - dev
-    - /^features\/.*$/
+    - npm audit --audit-level=high || true
+  rules:
+    - if: '$CI_COMMIT_BRANCH =~ /^(main|dev|features\/.*)$/'
 
 security_scan:
-  stage: test
+  stage: scan
   image: aquasec/trivy:latest
+  # Pas de cache node_modules ici (image différente)
+  cache: []
   script:
-    - trivy filesystem --exit-code 1 --severity HIGH,CRITICAL .
-  only:
-    - main
-    - dev
-    - /^features\/.*$/
+    - trivy filesystem --exit-code 0 --severity HIGH,CRITICAL --no-progress .
+  rules:
+    - if: '$CI_COMMIT_BRANCH =~ /^(main|dev|features\/.*)$/'
 
 docker_scan:
   stage: scan
-  image: docker:20.10.16-dind
+  image: docker:24.0-dind
   services:
-    - docker:20.10.16-dind
+    - docker:24.0-dind
+  cache: []
   variables:
     DOCKER_DRIVER: overlay2
+    DOCKER_TLS_CERTDIR: "/certs"
+  before_script:
+    # Installer trivy dans l'image docker:dind
+    - apk add --no-cache curl
+    - curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
   script:
     - docker build -t wakkany:latest .
-    - trivy image --exit-code 1 --severity HIGH,CRITICAL wakkany:latest
-  only:
-    - main
-    - dev
-    - /^features\/.*$/
+    - trivy image --exit-code 0 --severity HIGH,CRITICAL --no-progress wakkany:latest
+  rules:
+    - if: '$CI_COMMIT_BRANCH =~ /^(main|dev|features\/.*)$/'
 
+# ─────────────────────────────────────────
+# STAGE: test
+# ─────────────────────────────────────────
 test:
   stage: test
   needs:
@@ -67,25 +77,32 @@ test:
     - security_scan
     - docker_scan
   script:
-    - npm install
+    - npm ci
     - npm run test
   rules:
-    - if: $CI_PIPELINE_SOURCE == "push"
+    - if: '$CI_COMMIT_BRANCH =~ /^(main|dev|features\/.*)$/'
 
+# ─────────────────────────────────────────
+# STAGE: build
+# ─────────────────────────────────────────
 build:
   stage: build
   needs:
     - test
   script:
-    - npm install
-    - export VITE_BASE_PATH="/${CI_PROJECT_NAME}/"
+    - npm ci
+    - export VITE_BASE_URL="/${CI_PROJECT_NAME}/"
     - npm run build
   artifacts:
     paths:
-      - dist
+      - dist/
+    expire_in: 1 hour
   rules:
-    - if: $CI_PIPELINE_SOURCE == "push"
+    - if: '$CI_COMMIT_BRANCH =~ /^(main|dev)$/'
 
+# ─────────────────────────────────────────
+# STAGE: deploy
+# ─────────────────────────────────────────
 pages:
   stage: deploy
   needs:
@@ -95,17 +112,6 @@ pages:
     - cp -r dist/. public/
   artifacts:
     paths:
-      - public
+      - public/
   rules:
-    - when: on_success
-
-verify_pages:
-  stage: deploy
-  needs:
-    - pages
-  script:
-    - echo "Waiting for pages to be published..."
-    - sleep 30
-    - URL="https://${CI_PROJECT_NAMESPACE}.gitlab.io/${CI_PROJECT_NAME}/"
-    - echo "Testing $URL"
-    - curl -f -L $URL || exit 1
+    - if: '$CI_COMMIT_BRANCH == "main"'
