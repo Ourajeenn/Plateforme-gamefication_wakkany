@@ -16,12 +16,7 @@ export default function Preloader({ onComplete }) {
 
     document.addEventListener('click', playOnInteraction);
 
-    const autoAdvance = window.setTimeout(() => {
-      if (onComplete) onComplete();
-    }, 2200);
-
     return () => {
-      window.clearTimeout(autoAdvance);
       document.removeEventListener('click', playOnInteraction);
     };
   }, [onComplete]);

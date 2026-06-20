@@ -6,6 +6,7 @@ import NotificationToast from './components/NotificationToast';
 import DashboardNav from './components/layout/DashboardNav';
 import PageLoader from './components/common/PageLoader';
 import ChatWidget from './components/common/ChatWidget';
+import AudioController from './components/common/AudioController';
 import usePlayerData from './hooks/usePlayerData';
 import useAuth from './hooks/useAuth';
 import { signOut } from './utils/auth';
@@ -158,67 +159,59 @@ export default function App() {
     playLevelUp();
   }, [setUser, addNotification, playLevelUp]);
 
-  if (isLoading || authLoading || !isLoaded) {
-    return <Preloader onComplete={handlePreloaderComplete} />;
-  }
-
   if (isDashboard && authRequired && (!isAuthenticated || !user)) {
     return <Navigate to="/setup" replace />;
   }
 
-  if (isSetup) {
-    return <ProfileSetup onComplete={handleProfileComplete} isAuthenticated={isAuthenticated} />;
-  }
-
-  if (isGames) {
-    return (
-      <Suspense fallback={<PageLoader />}>
-        <GamesPage />
-      </Suspense>
-    );
-  }
-
-  if (isQuiz) {
-    return (
-      <Suspense fallback={<PageLoader />}>
-        <QuizRoutes />
-      </Suspense>
-    );
-  }
-
   return (
     <>
-      <div className="antialiased text-white min-h-screen bg-zinc-950 animate-fade-in overflow-y-auto">
-        {isDashboard ? <DashboardNav user={user} onLogout={handleLogout} /> : null}
+      {isLoading || authLoading || !isLoaded ? (
+        <Preloader onComplete={handlePreloaderComplete} />
+      ) : isSetup ? (
+        <ProfileSetup onComplete={handleProfileComplete} isAuthenticated={isAuthenticated} />
+      ) : isGames ? (
+        <Suspense fallback={<PageLoader />}>
+          <GamesPage />
+        </Suspense>
+      ) : isQuiz ? (
+        <Suspense fallback={<PageLoader />}>
+          <QuizRoutes />
+        </Suspense>
+      ) : (
+        <div className="antialiased text-white min-h-screen bg-zinc-950 animate-fade-in overflow-y-auto">
+          {isDashboard ? <DashboardNav user={user} onLogout={handleLogout} /> : null}
 
-        {isDashboard ? (
-          <Suspense fallback={<PageLoader />}>
-            <DashboardPage
-              user={user}
-              dashboardTab={dashboardTab}
-              cumulativeXp={cumulativeXp}
-              xp={xp}
-              unlockedSkills={unlockedSkills}
-              unlockedAchievements={unlockedAchievements}
-              completedQuests={completedQuests}
-              xpHistory={xpHistory}
-              flashQuests={flashQuests}
-              setXp={setXp}
-              setUnlockedAchievements={setUnlockedAchievements}
-              onCompleteQuest={handleCompleteQuest}
-              onUnlockSkill={handleUnlockSkill}
-              onResetSkills={handleResetSkills}
-              onUpdateClan={handleUpdateClan}
-              playUnlock={playUnlock}
-            />
-          </Suspense>
-        ) : (
-          <Suspense fallback={<PageLoader />}>
-            <LandingPage user={user} onJoin={handleJoinClick} />
-          </Suspense>
-        )}
-      </div>
+          {isDashboard ? (
+            <Suspense fallback={<PageLoader />}>
+              <DashboardPage
+                user={user}
+                dashboardTab={dashboardTab}
+                cumulativeXp={cumulativeXp}
+                xp={xp}
+                unlockedSkills={unlockedSkills}
+                unlockedAchievements={unlockedAchievements}
+                completedQuests={completedQuests}
+                xpHistory={xpHistory}
+                flashQuests={flashQuests}
+                setXp={setXp}
+                setUnlockedAchievements={setUnlockedAchievements}
+                onCompleteQuest={handleCompleteQuest}
+                onUnlockSkill={handleUnlockSkill}
+                onResetSkills={handleResetSkills}
+                onUpdateClan={handleUpdateClan}
+                playUnlock={playUnlock}
+              />
+            </Suspense>
+          ) : (
+            <Suspense fallback={<PageLoader />}>
+              <LandingPage user={user} onJoin={handleJoinClick} />
+            </Suspense>
+          )}
+        </div>
+      )}
 
+      {/* Global Elements */}
+      <AudioController />
       <NotificationToast notifications={toasts} removeNotification={removeToast} />
 
       <button
