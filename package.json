@@ -13,7 +13,7 @@
     "deploy": "gh-pages -d dist",
     "security:scan": "node scripts/scan-secrets.js",
     "security:audit": "npm audit --audit-level=moderate || true",
-    "prepare": "husky install"
+    "prepare": "husky install || true"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.105.4",
