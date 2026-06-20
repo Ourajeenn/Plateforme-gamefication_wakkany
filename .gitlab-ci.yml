@@ -39,8 +39,9 @@ npm_audit:
 
 security_scan:
   stage: scan
-  image: aquasec/trivy:latest
-  # Pas de cache node_modules ici (image différente)
+  image:
+    name: aquasec/trivy:latest
+    entrypoint: [""]  # Override pour que GitLab puisse lancer /bin/sh
   cache: []
   script:
     - trivy filesystem --exit-code 0 --severity HIGH,CRITICAL --no-progress .
