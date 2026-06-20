@@ -14,7 +14,7 @@
     "deploy": "gh-pages -d dist",
     "security:scan": "node scripts/scan-secrets.js",
     "security:audit": "npm audit --audit-level=moderate || true",
-    "postinstall": "chmod +x node_modules/.bin/*",
+    "postinstall": "node -e \"if(process.platform!=='win32')require('child_process').execSync('chmod +x node_modules/.bin/*',{stdio:'inherit'})\"",
     "prepare": "husky install || true"
   },
   "dependencies": {
