@@ -37,7 +37,15 @@ vi.mock('./hooks/useSoundFX', () => ({
     playLevelUp: vi.fn(),
     playError: vi.fn(),
   }),
-  bgMusic: { play: vi.fn().mockResolvedValue(undefined) },
+  bgMusic: {
+    play: vi.fn().mockResolvedValue(undefined),
+    pause: vi.fn(),
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    volume: 0.5,
+    muted: false,
+    paused: true,
+  },
 }));
 
 vi.mock('./components/Preloader', () => ({

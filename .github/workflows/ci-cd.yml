@@ -214,8 +214,9 @@ jobs:
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
         run: |
           npm install -g vercel
-          vercel deploy ./dist --prebuilt --prod --token "$VERCEL_TOKEN" \
-            --scope "$VERCEL_ORG_ID" 2>&1 | tee vercel_output.txt
+          cp vercel.json ./dist/
+          vercel deploy ./dist --prod --token "$VERCEL_TOKEN" \
+            --scope "$VERCEL_ORG_ID" --yes 2>&1 | tee vercel_output.txt
           DEPLOY_URL=$(grep -Eo 'https://[a-zA-Z0-9.-]+\.vercel\.app' vercel_output.txt | tail -1)
           echo "deploy_url=$DEPLOY_URL" >> "$GITHUB_ENV"
 

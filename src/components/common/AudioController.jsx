@@ -8,7 +8,7 @@ export default function AudioController() {
   const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
-    if (!bgMusic) return;
+    if (!bgMusic || typeof bgMusic.addEventListener !== 'function') return;
 
     const handlePlay = () => setIsPlaying(true);
     const handlePause = () => setIsPlaying(false);
@@ -27,13 +27,15 @@ export default function AudioController() {
     setVolume(bgMusic.volume);
 
     return () => {
-      bgMusic.removeEventListener('play', handlePlay);
-      bgMusic.removeEventListener('pause', handlePause);
-      bgMusic.removeEventListener('volumechange', handleVolume);
+      if (bgMusic && typeof bgMusic.removeEventListener === 'function') {
+        bgMusic.removeEventListener('play', handlePlay);
+        bgMusic.removeEventListener('pause', handlePause);
+        bgMusic.removeEventListener('volumechange', handleVolume);
+      }
     };
   }, []);
 
-  if (!bgMusic) return null;
+  if (!bgMusic || typeof bgMusic.addEventListener !== 'function') return null;
 
   const togglePlay = () => {
     if (bgMusic.paused) {
