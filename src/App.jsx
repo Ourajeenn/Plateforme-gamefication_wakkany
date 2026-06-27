@@ -48,7 +48,8 @@ export default function App() {
 
   const handlePreloaderComplete = useCallback(() => {
     setIsLoading(false);
-  }, []);
+    navigate('/');
+  }, [navigate]);
 
   const addNotification = useCallback((type, message) => {
     const id = Date.now();
@@ -220,10 +221,11 @@ export default function App() {
         aria-label="Retourner en haut de la page"
         className={`fixed bottom-24 right-8 z-[100] w-14 h-14 bg-[#c28e3a] text-black rounded-2xl shadow-2xl transition-all duration-500 flex items-center justify-center hover:scale-110 active:scale-95 group ${showScrollTop ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0 pointer-events-none'}`}
       >
-        <iconify-icon icon="lucide:arrow-up" width="24" className="relative z-10"></iconify-icon>
+        <iconify-icon icon="mdi:arrow-up" width="24" className="relative z-10"></iconify-icon>
       </button>
 
       {isAuthenticated && user && <ChatWidget user={user} />}
     </>
   );
 }
+
