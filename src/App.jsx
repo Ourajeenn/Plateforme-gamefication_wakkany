@@ -250,7 +250,7 @@ export default function App() {
         <iconify-icon icon="mdi:arrow-up" width="24" className="relative z-10"></iconify-icon>
       </button>
 
-      {isAuthenticated && user && <ChatWidget user={user} />}
+      {user && <ChatWidget user={user} />}
     </>
   );
 }
