@@ -7,8 +7,10 @@ import DashboardNav from './components/layout/DashboardNav';
 import PageLoader from './components/common/PageLoader';
 import ChatWidget from './components/common/ChatWidget';
 import AudioController from './components/common/AudioController';
+import OfflineBanner from './components/common/OfflineBanner';
 import usePlayerData from './hooks/usePlayerData';
 import useAuth from './hooks/useAuth';
+import { useNetworkStatus } from './hooks/useNetworkStatus';
 import { signOut } from './utils/auth';
 import { ACHIEVEMENTS } from './data/achievements';
 import { realtime } from './utils/realtime';
@@ -16,6 +18,9 @@ import { getTotalXp } from './utils/xpHelpers';
 import { getLevel } from './data/levels';
 import { useSoundFX } from './hooks/useSoundFX';
 import useNotifications from './hooks/useNotifications';
+import { flushOfflineQueue, getOfflineQueueLength } from './utils/offlineQueue';
+import { supabase } from './utils/supabaseClient';
+import { isSupabaseConfigured } from './utils/isSupabaseConfigured';
 import { DashboardPage, QuizRoutes, GamesPage, LandingPage } from './routes/lazyComponents';
 
 export default function App() {
@@ -46,10 +51,30 @@ export default function App() {
   const cumulativeXp = getTotalXp(unlockedSkills) + xp;
   const { playClick, playUnlock, playLevelUp } = useSoundFX();
 
+  const { isOnline, wasOffline } = useNetworkStatus();
+
   const handlePreloaderComplete = useCallback(() => {
     setIsLoading(false);
     navigate('/');
   }, [navigate]);
+
+  // Synchronise la file d'attente offline dès la reconnexion
+  useEffect(() => {
+    if (isOnline && wasOffline && isSupabaseConfigured()) {
+      const pending = getOfflineQueueLength();
+      if (pending > 0) {
+        flushOfflineQueue(supabase).then(({ synced, failed }) => {
+          if (synced > 0) {
+            addNotification('success', `${synced} action(s) synchronisée(s) avec le serveur.`);
+          }
+          if (failed > 0) {
+            console.warn(`[Offline] ${failed} opération(s) n'ont pas pu être synchronisées.`);
+          }
+        });
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOnline, wasOffline]);
 
   const addNotification = useCallback((type, message) => {
     const id = Date.now();
@@ -212,6 +237,7 @@ export default function App() {
       )}
 
       {/* Global Elements */}
+      <OfflineBanner />
       <AudioController />
       <NotificationToast notifications={toasts} removeNotification={removeToast} />
 
