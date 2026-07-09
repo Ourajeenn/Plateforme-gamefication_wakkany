@@ -10,3 +10,4 @@ export const normalizeText = (text) => {
 export const checkWordMatch = (input, target) => {
   return normalizeText(input) === normalizeText(target);
 };
+

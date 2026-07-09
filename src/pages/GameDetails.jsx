@@ -637,3 +637,4 @@ export default function GameDetails() {
 
   return <NotFoundPage navigate={navigate} />;
 }
+

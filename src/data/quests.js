@@ -17,3 +17,4 @@ export const QUESTS = [
 
   { id: "q9", title: "Épreuve Légendaire: La Collision", lore: "Les 4 univers entrent en collision. Seul le plus fort survivra.", branch: "all", nodeReq: "ultimate", difficulty: "Légendaire", xpReward: 150, riddleTheme: "multivers et destinée" }
 ];
+

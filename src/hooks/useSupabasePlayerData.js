@@ -100,3 +100,4 @@ export default function useSupabasePlayerData(userId) {
 
     return { playerData, loading, error, updateXp, unlockSkill };
 }
+

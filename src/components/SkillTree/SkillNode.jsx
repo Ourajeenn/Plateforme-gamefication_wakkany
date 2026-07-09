@@ -228,3 +228,4 @@ export default function SkillNode({ node, branch, isUnlocked, isAvailable, onUnl
     </div>
   );
 }
+

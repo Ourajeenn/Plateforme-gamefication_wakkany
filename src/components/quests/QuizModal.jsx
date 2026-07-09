@@ -132,7 +132,7 @@ export default function QuizModal({ quest, onClose, onSuccess, onPenalty }) {
       <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/95 backdrop-blur-2xl p-6">
          <div className="w-full max-w-lg bg-zinc-950 border border-white/10 rounded-[40px] p-12 text-center animate-scale-up">
             <div className={`w-24 h-24 rounded-full mx-auto flex items-center justify-center mb-8 border-2 ${passed ? 'bg-green-500/10 border-green-500 text-green-500' : 'bg-red-500/10 border-red-500 text-red-500'}`}>
-               <iconify-icon icon={passed ? "lucide:trophy" : "lucide:alert-triangle"} width="48"></iconify-icon>
+               <iconify-icon icon={passed ? "mdi:trophy" : "mdi:alert-triangle"} width="48"></iconify-icon>
             </div>
             <h2 className="text-white text-3xl font-heading font-black italic uppercase mb-2">
                {passed ? 'DÉBRIEFING POSITIF' : 'ÉCHEC DE LA MISSION'}
@@ -190,12 +190,12 @@ export default function QuizModal({ quest, onClose, onSuccess, onPenalty }) {
                    QUESTION {currentIndex + 1} / {questions.length}
                 </span>
                 <div className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-widest ${timeLeft <= 5 ? 'text-red-500 animate-pulse' : 'text-zinc-600'}`}>
-                   <iconify-icon icon="lucide:clock" width="12"></iconify-icon>
+                   <iconify-icon icon="mdi:clock" width="12"></iconify-icon>
                    00:{timeLeft.toString().padStart(2, '0')}
                 </div>
                 {wrongCount > 0 && (
                    <div className="flex items-center gap-1 text-red-500 text-[8px] font-black uppercase tracking-widest bg-red-500/10 px-2 py-1 rounded-md border border-red-500/20">
-                      <iconify-icon icon="lucide:minus" width="8"></iconify-icon>
+                      <iconify-icon icon="mdi:minus" width="8"></iconify-icon>
                       {wrongCount === 1 ? '1 XP' : '3 XP'}
                    </div>
                 )}
@@ -205,13 +205,13 @@ export default function QuizModal({ quest, onClose, onSuccess, onPenalty }) {
               </h2>
             </div>
             <button onClick={onClose} className="w-10 h-10 rounded-xl bg-zinc-900 border border-white/5 flex items-center justify-center text-zinc-500 hover:text-white transition-all">
-              <iconify-icon icon="lucide:x" width="20"></iconify-icon>
+              <iconify-icon icon="mdi:x" width="20"></iconify-icon>
             </button>
           </div>
 
           <div className="space-y-8">
             <div className="bg-zinc-900/50 border border-white/5 p-8 rounded-3xl relative group">
-              <iconify-icon icon="lucide:quote-left" width="24" className="absolute -top-3 -left-3 text-zinc-800"></iconify-icon>
+              <iconify-icon icon="mdi:quote-left" width="24" className="absolute -top-3 -left-3 text-zinc-800"></iconify-icon>
               <p className="text-white text-xl font-monda text-center leading-relaxed italic">
                 {currentQuestion.question}
               </p>
@@ -256,7 +256,7 @@ export default function QuizModal({ quest, onClose, onSuccess, onPenalty }) {
             {showExplanation && (
               <div className={`p-6 rounded-2xl border animate-scale-up ${status === 'correct' ? 'bg-green-500/10 border-green-500/20' : 'bg-red-500/10 border-red-500/20'}`}>
                 <div className="flex items-center gap-3 mb-2">
-                   <iconify-icon icon={status === 'correct' ? "lucide:check-circle" : "lucide:alert-circle"} width="20" className={status === 'correct' ? 'text-green-500' : 'text-red-500'}></iconify-icon>
+                   <iconify-icon icon={status === 'correct' ? "mdi:check-circle" : "mdi:alert-circle"} width="20" className={status === 'correct' ? 'text-green-500' : 'text-red-500'}></iconify-icon>
                    <span className={`text-xs font-black uppercase tracking-widest ${status === 'correct' ? 'text-green-500' : 'text-red-500'}`}>
                      {status === 'correct' ? 'ANALYSE CORRECTE' : 'ERREUR DÉTECTÉE'}
                    </span>
@@ -280,7 +280,7 @@ export default function QuizModal({ quest, onClose, onSuccess, onPenalty }) {
                 `}
               >
                 {status === 'checking' ? (
-                  <iconify-icon icon="lucide:loader-2" className="animate-spin" width="24"></iconify-icon>
+                  <iconify-icon icon="mdi:loader-2" className="animate-spin" width="24"></iconify-icon>
                 ) : status === 'correct' ? (
                   'RÉPONSE VALIDÉE'
                 ) : status === 'wrong' ? (
@@ -296,3 +296,4 @@ export default function QuizModal({ quest, onClose, onSuccess, onPenalty }) {
     </div>
   );
 }
+

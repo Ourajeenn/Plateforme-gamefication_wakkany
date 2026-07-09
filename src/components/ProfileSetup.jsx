@@ -3,10 +3,10 @@ import AuthForm from './AuthForm';
 import { isSupabaseConfigured } from '../utils/isSupabaseConfigured';
 
 const FACTIONS = [
-    { id: 'heroes', name: 'Légion Héroïque', icon: 'lucide:shield-flash', desc: 'Justice & Pouvoirs Cosmiques', image: '/assets/wakkany_heroes.png' },
-    { id: 'warriors', name: 'Ordre Antique', icon: 'lucide:swords', desc: 'Mythes & Force Brute', image: '/assets/wakkany_warriors.png' },
-    { id: 'dinos', name: 'Ère Primaire', icon: 'lucide:bone', desc: 'Instinct de Survie Jurassique', image: '/assets/wakkany_dinos.png' },
-    { id: 'cars', name: 'Syndicat Mécanique', icon: 'lucide:car-front', desc: 'Vitesse & Ingénierie Future', image: '/assets/wakkany_cars.png' },
+    { id: 'heroes', name: 'Légion Héroïque', icon: 'mdi:shield-flash', desc: 'Justice & Pouvoirs Cosmiques', image: '/assets/wakkany_heroes.png' },
+    { id: 'warriors', name: 'Ordre Antique', icon: 'mdi:swords', desc: 'Mythes & Force Brute', image: '/assets/wakkany_warriors.png' },
+    { id: 'dinos', name: 'Ère Primaire', icon: 'mdi:bone', desc: 'Instinct de Survie Jurassique', image: '/assets/wakkany_dinos.png' },
+    { id: 'cars', name: 'Syndicat Mécanique', icon: 'mdi:car-front', desc: 'Vitesse & Ingénierie Future', image: '/assets/wakkany_cars.png' },
 ];
 
 export default function ProfileSetup({ onComplete, isAuthenticated = true }) {
@@ -94,7 +94,7 @@ export default function ProfileSetup({ onComplete, isAuthenticated = true }) {
                                                     }`}>{clan.name}</span>
                                                 {selectedClan.id === clan.id && (
                                                     <div className="absolute -top-2 -right-2 w-6 h-6 bg-[#c28e3a] rounded-lg flex items-center justify-center shadow-lg animate-bounce-slow">
-                                                        <iconify-icon icon="lucide:check" width="12" height="12" className="text-black"></iconify-icon>
+                                                        <iconify-icon icon="mdi:check" width="12" height="12" className="text-black"></iconify-icon>
                                                     </div>
                                                 )}
                                             </button>
@@ -135,4 +135,5 @@ export default function ProfileSetup({ onComplete, isAuthenticated = true }) {
         </div>
     );
 }
+
 

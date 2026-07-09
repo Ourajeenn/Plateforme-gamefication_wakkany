@@ -3,7 +3,7 @@ export default function AboutPage({ onBack }) {
     <div className="min-h-screen bg-zinc-950 pt-40 px-6 pb-24">
       <div className="max-w-6xl mx-auto">
         <button onClick={onBack} type="button" className="flex items-center gap-2 text-[#c28e3a] uppercase font-bold text-xs tracking-[0.3em] mb-12 hover:gap-4 transition-all">
-          <iconify-icon icon="lucide:arrow-left"></iconify-icon> Back to Home
+          <iconify-icon icon="mdi:arrow-left"></iconify-icon> Back to Home
         </button>
         <h1 className="text-white text-6xl font-heading font-bold italic uppercase mb-16 text-center">LE MULTIVERS WAKKANY</h1>
 
@@ -14,7 +14,7 @@ export default function AboutPage({ onBack }) {
               subtitle: "L'Événement Fondateur",
               desc: 'Une anomalie temporelle cataclysmique a brisé les barrières de la réalité, provoquant la fusion brutale de quatre dimensions distinctes.',
               points: ['Légion Héroïque (Guerriers de Lumière)', 'Ordre Antique (Mages et Érudits)', 'Ère Primaire (Bêtes et Dinosaures)', 'Syndicat Mécanique (Cyborgs)'],
-              icon: 'lucide:shield-check',
+              icon: 'mdi:shield-check',
               color: '#3b82f6',
             },
             {
@@ -22,7 +22,7 @@ export default function AboutPage({ onBack }) {
               subtitle: 'Source de Pouvoir',
               desc: 'Le flux quantique, ou Aether, irrigue désormais toutes les entités du multivers. Il est la source de toute magie et de la technologie avancée.',
               points: ['Modification de l\'ADN', 'Alimentation des Noyaux Mécaniques', 'Contrôle des Éléments', 'Évolution par l\'Expérience (XP)'],
-              icon: 'lucide:sparkles',
+              icon: 'mdi:sparkles',
               color: '#a855f7',
             },
             {
@@ -30,7 +30,7 @@ export default function AboutPage({ onBack }) {
               subtitle: 'Le Choc des Mondes',
               desc: 'Pour éviter une guerre totale destructrice, les conflits se règlent désormais dans l\'Arène, un cycle infini de combats titanesques.',
               points: ['Combats Inter-dimensionnels', 'Forges de Nouvelles Légendes', 'Système de Rangs et Badges', 'Conquête de Territoires'],
-              icon: 'lucide:swords',
+              icon: 'mdi:swords',
               color: '#f43f5e',
             },
           ].map((item, idx) => (
@@ -49,7 +49,7 @@ export default function AboutPage({ onBack }) {
               <ul className="space-y-3 mt-auto">
                 {item.points.map((point, i) => (
                   <li key={i} className="flex items-start gap-3 text-zinc-300 text-sm font-monda">
-                    <iconify-icon icon="lucide:check" width="16" className="text-[#c28e3a] mt-0.5 shrink-0"></iconify-icon>
+                    <iconify-icon icon="mdi:check" width="16" className="text-[#c28e3a] mt-0.5 shrink-0"></iconify-icon>
                     <span>{point}</span>
                   </li>
                 ))}
@@ -68,3 +68,4 @@ export default function AboutPage({ onBack }) {
     </div>
   );
 }
+

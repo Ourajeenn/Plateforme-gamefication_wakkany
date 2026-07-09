@@ -155,3 +155,4 @@ export const getNextEncounter = (level, defeated) => {
   const levelEncounters = getEncountersByLevel(level);
   return levelEncounters.find(b => !defeated.includes(b.id)) || null;
 };
+

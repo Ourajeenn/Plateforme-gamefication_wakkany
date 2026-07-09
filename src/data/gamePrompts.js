@@ -249,3 +249,4 @@ export const parleOuPerdsPrompts = [
   "Ce que la colère essaie vraiment de te dire.",
   "La fatigue invisible d'être 'celui qui va bien'.",
 ];
+

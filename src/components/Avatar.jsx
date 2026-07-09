@@ -153,3 +153,4 @@ export default function Avatar({ xp, unlockedSkills = [] }) {
     </div>
   );
 }
+

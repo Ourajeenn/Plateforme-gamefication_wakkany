@@ -1,10 +1,10 @@
 export const FAMILY_THEMES = [
-  { id: 'culture', name: 'Culture Générale', icon: 'lucide:globe', color: 'bg-blue-500' },
-  { id: 'cinema', name: 'Films & Séries', icon: 'lucide:film', color: 'bg-purple-500' },
-  { id: 'animaux', name: 'Animaux', icon: 'lucide:cat', color: 'bg-green-500' },
-  { id: 'sport', name: 'Sport', icon: 'lucide:trophy', color: 'bg-orange-500' },
-  { id: 'musique', name: 'Musique', icon: 'lucide:music', color: 'bg-pink-500' },
-  { id: 'rpg', name: 'Hunter & RPG (Wakkany)', icon: 'lucide:swords', color: 'bg-indigo-600' }
+  { id: 'culture', name: 'Culture Générale', icon: 'mdi:globe', color: 'bg-blue-500' },
+  { id: 'cinema', name: 'Films & Séries', icon: 'mdi:film', color: 'bg-purple-500' },
+  { id: 'animaux', name: 'Animaux', icon: 'mdi:cat', color: 'bg-green-500' },
+  { id: 'sport', name: 'Sport', icon: 'mdi:trophy', color: 'bg-orange-500' },
+  { id: 'musique', name: 'Musique', icon: 'mdi:music', color: 'bg-pink-500' },
+  { id: 'rpg', name: 'Hunter & RPG (Wakkany)', icon: 'mdi:swords', color: 'bg-indigo-600' }
 ];
 
 export const FAMILY_QUESTIONS = [
@@ -155,3 +155,4 @@ export const FAMILY_QUESTIONS = [
     answer: 'Prêtre'
   }
 ];
+

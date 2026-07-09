@@ -55,3 +55,4 @@ export default function usePresentation() {
 
   return { topic, status, timeRemaining, score, selectRandomTopic, startPresentation, finishPresentation, reset };
 }
+

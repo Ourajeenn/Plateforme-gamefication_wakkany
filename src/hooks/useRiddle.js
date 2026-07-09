@@ -49,3 +49,4 @@ export default function useRiddle() {
 
   return { generateRiddle, currentRiddle, loading, error };
 }
+

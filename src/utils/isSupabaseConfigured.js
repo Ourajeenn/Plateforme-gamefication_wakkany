@@ -6,3 +6,4 @@ export function isSupabaseConfigured() {
     import.meta.env.VITE_SUPABASE_ANON_KEY !== 'placeholder-anon-key'
   );
 }
+

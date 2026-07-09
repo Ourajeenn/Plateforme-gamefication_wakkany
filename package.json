@@ -4,9 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host",
     "build": "node node_modules/vite/bin/vite.js build",
-
     "preview": "vite preview",
     "lint": "eslint src",
     "test": "vitest run",
@@ -14,12 +13,14 @@
     "deploy": "gh-pages -d dist",
     "security:scan": "node scripts/scan-secrets.js",
     "security:audit": "npm audit --audit-level=moderate || true",
+    "semgrep": "python -m semgrep --config .semgrep.yml --error --quiet .",
     "postinstall": "node -e \"if(process.platform!=='win32')require('child_process').execSync('chmod +x node_modules/.bin/*',{stdio:'inherit'})\"",
     "prepare": "husky install || true"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.105.4",
     "iconify-icon": "^2.1.0",
+    "qrcode.react": "^4.2.0",
     "rate-limiter-flexible": "^11.2.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

@@ -68,7 +68,7 @@ export default function LevelEvolutionMap({ xp }) {
                     {/* Icône de bâtiment imagée */}
                     <div className="mt-4 flex justify-end">
                       <iconify-icon 
-                        icon={isUnlocked ? 'lucide:castle' : 'lucide:lock'} 
+                        icon='mdi:update' 
                         width="32" 
                         className={isUnlocked ? 'text-[#c28e3a]' : 'text-zinc-700'}
                       ></iconify-icon>
@@ -83,3 +83,4 @@ export default function LevelEvolutionMap({ xp }) {
     </div>
   );
 }
+

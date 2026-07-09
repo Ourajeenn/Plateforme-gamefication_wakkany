@@ -2,11 +2,11 @@ import React from 'react';
 
 export default function BottomNav({ activeTab, setActiveTab, hasNotifications }) {
     const tabs = [
-        { id: 'profile', label: 'Profil', icon: 'lucide:user' },
-        { id: 'quests', label: 'Quêtes', icon: 'lucide:scroll', special: true },
-        { id: 'skills', label: 'Skills', icon: 'lucide:git-branch' },
-        { id: 'rankings', label: 'Hall', icon: 'lucide:trophy' },
-        { id: 'quiz', label: 'Quiz', icon: 'lucide:gamepad-2' },
+        { id: 'profile', label: 'Profil', icon: 'mdi:account' },
+        { id: 'quests', label: 'Quêtes', icon: 'mdi:scroll', special: true },
+        { id: 'skills', label: 'Skills', icon: 'mdi:git' },
+        { id: 'rankings', label: 'Hall', icon: 'mdi:trophy' },
+        { id: 'quiz', label: 'Quiz', icon: 'mdi:gamepad-variant' },
     ];
 
     return (
@@ -22,6 +22,8 @@ export default function BottomNav({ activeTab, setActiveTab, hasNotifications })
                         return (
                             <button
                                 key={tab.id}
+                                type="button"
+                                aria-label={tab.label}
                                 onClick={() => setActiveTab(tab.id)}
                                 className="relative -top-4 flex flex-col items-center group"
                             >
@@ -43,6 +45,8 @@ export default function BottomNav({ activeTab, setActiveTab, hasNotifications })
                     return (
                         <button
                             key={tab.id}
+                            type="button"
+                            aria-label={tab.label}
                             onClick={() => setActiveTab(tab.id)}
                             className="flex flex-col items-center justify-center py-2 px-1 flex-1 gap-1"
                         >
@@ -66,3 +70,4 @@ export default function BottomNav({ activeTab, setActiveTab, hasNotifications })
         </nav>
     );
 }
+

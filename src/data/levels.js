@@ -17,3 +17,4 @@ export const getXpToNextLevel = (xp) => {
   if (!next) return 0;
   return next.xp - xp;
 };
+

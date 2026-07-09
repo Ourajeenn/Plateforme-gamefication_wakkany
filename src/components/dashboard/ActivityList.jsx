@@ -20,7 +20,7 @@ export default function ActivityList() {
       {events.map((event) => (
         <div key={event.id} className="flex items-center gap-4 bg-black/40 p-3 rounded-xl border border-white/5 animate-fade-in">
           <div className="w-8 h-8 rounded-lg bg-[#c28e3a]/10 flex items-center justify-center border border-[#c28e3a]/20">
-            <iconify-icon icon={event.type === 'QUEST_COMPLETE' ? 'lucide:scroll' : 'lucide:git-branch'} className="text-[#c28e3a]" width="14"></iconify-icon>
+            <iconify-icon icon={event.type === 'QUEST_COMPLETE' ? 'mdi:scroll' : 'mdi:git-branch'} className="text-[#c28e3a]" width="14"></iconify-icon>
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-[11px] text-zinc-300 truncate">
@@ -33,3 +33,4 @@ export default function ActivityList() {
     </div>
   );
 }
+

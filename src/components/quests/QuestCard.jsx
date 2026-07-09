@@ -35,12 +35,12 @@ export default function QuestCard({ quest, isLocked, isCompleted, branchColor, g
             <div className="flex items-center justify-between mt-auto">
                 {isLocked ? (
                     <div className="flex items-center gap-3 text-zinc-600 bg-black/40 px-4 py-2 rounded-xl">
-                        <iconify-icon icon="lucide:lock" width="16"></iconify-icon>
+                        <iconify-icon icon="mdi:lock" width="16"></iconify-icon>
                         <span className="text-[10px] uppercase font-bold tracking-widest">Requis : <span className="text-zinc-400">{getReqName(quest.nodeReq)}</span></span>
                     </div>
                 ) : isCompleted ? (
                     <div className="flex items-center gap-3 text-green-500 bg-green-500/10 px-6 py-3 rounded-xl border border-green-500/20 w-full justify-center">
-                        <iconify-icon icon="lucide:check-circle" width="18"></iconify-icon>
+                        <iconify-icon icon="mdi:check-circle" width="18"></iconify-icon>
                         <span className="text-xs uppercase font-black tracking-[0.2em]">Mission Accomplie</span>
                     </div>
                 ) : (
@@ -55,3 +55,4 @@ export default function QuestCard({ quest, isLocked, isCompleted, branchColor, g
         </div>
     );
 }
+

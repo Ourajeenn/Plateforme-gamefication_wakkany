@@ -19,9 +19,9 @@ export default function SubjectCard({ topic }) {
       <div>
         <h4 className="text-zinc-400 text-xs font-bold uppercase tracking-widest mb-3">Plan suggéré</h4>
         <ul className="space-y-2 mb-6">
-          <li className="flex items-center gap-2 text-zinc-300 font-monda text-sm"><iconify-icon icon="lucide:check-circle" className="text-[#c28e3a]"></iconify-icon> Introduction (contexte)</li>
-          <li className="flex items-center gap-2 text-zinc-300 font-monda text-sm"><iconify-icon icon="lucide:check-circle" className="text-[#c28e3a]"></iconify-icon> Développement (arguments)</li>
-          <li className="flex items-center gap-2 text-zinc-300 font-monda text-sm"><iconify-icon icon="lucide:check-circle" className="text-[#c28e3a]"></iconify-icon> Conclusion (ouverture)</li>
+          <li className="flex items-center gap-2 text-zinc-300 font-monda text-sm"><iconify-icon icon="mdi:check-circle" className="text-[#c28e3a]"></iconify-icon> Introduction (contexte)</li>
+          <li className="flex items-center gap-2 text-zinc-300 font-monda text-sm"><iconify-icon icon="mdi:check-circle" className="text-[#c28e3a]"></iconify-icon> Développement (arguments)</li>
+          <li className="flex items-center gap-2 text-zinc-300 font-monda text-sm"><iconify-icon icon="mdi:check-circle" className="text-[#c28e3a]"></iconify-icon> Conclusion (ouverture)</li>
         </ul>
       </div>
 
@@ -38,3 +38,4 @@ export default function SubjectCard({ topic }) {
     </div>
   );
 }
+

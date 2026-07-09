@@ -22,3 +22,4 @@ export default function QuizRoutes() {
     </Suspense>
   );
 }
+

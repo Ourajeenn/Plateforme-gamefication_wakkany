@@ -1,16 +1,18 @@
-import React, { useEffect } from 'react';
-import { useSoundFX, bgMusic } from '../hooks/useSoundFX';
+import React, { useEffect, useState } from 'react';
+import { useSoundFX, getBgMusic } from '../hooks/useSoundFX';
 
 export default function Preloader({ onComplete }) {
   const { playPreloaderLightning } = useSoundFX();
+  const bgMusic = getBgMusic();
+  const [bgImageLoaded, setBgImageLoaded] = useState(false);
 
   useEffect(() => {
     // Tente de lancer la musique immédiatement (souvent bloqué par le navigateur)
-    bgMusic.play().catch(() => console.log("Autoplay bloqué, attente d'une interaction..."));
+    bgMusic?.play().catch(() => console.log("Autoplay bloqué, attente d'une interaction..."));
 
     // Lancer la musique au tout premier clic n'importe où sur la page
     const playOnInteraction = () => {
-      bgMusic.play().catch(e => console.log(e));
+      bgMusic?.play().catch((e) => console.log(e));
       document.removeEventListener('click', playOnInteraction);
     };
 
@@ -19,7 +21,7 @@ export default function Preloader({ onComplete }) {
     return () => {
       document.removeEventListener('click', playOnInteraction);
     };
-  }, [onComplete]);
+  }, [bgMusic, onComplete]);
 
   const lightningRef = React.useRef(null);
 
@@ -57,18 +59,69 @@ export default function Preloader({ onComplete }) {
         .animate-auto-zoom {
           animation: autoZoom 1.5s ease-in-out infinite;
         }
+        /* Minimal placeholder spinner affichable immédiatement */
+        .preloader-spinner {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 64px;
+          height: 64px;
+          border: 4px solid rgba(255, 255, 255, 0.3);
+          border-top: 4px solid #fff;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
       `}</style>
       
-      {/* Conteneur de l'image de fond */}
-      <img src={`${import.meta.env.BASE_URL}assets/wakkany_1.png`} className="absolute inset-0 w-full h-full object-cover" alt="Preloader background" />
+      {/* Conteneur de l'image de fond — charger en lazy si pas encore visible */}
+      {bgImageLoaded && (
+        <img
+          src={`${import.meta.env.BASE_URL}assets/wakkany_1.png`}
+          width="1376"
+          height="768"
+          decoding="async"
+          loading="lazy"
+          className="absolute inset-0 w-full h-full object-cover"
+          alt="Preloader background"
+        />
+      )}
       
-      {/* Effet d'éclairs (Lightning) */}
-      <div ref={lightningRef} className="absolute inset-0 bg-white mix-blend-overlay pointer-events-none animate-lightning"></div>
+      {/* Fallback: spinner minimal si l'image n'a pas encore chargé */}
+      {!bgImageLoaded && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black">
+          <div className="preloader-spinner"></div>
+        </div>
+      )}
+      
+      {/* Charger l'image en arrière-plan sans bloquer le rendu */}
+      {!bgImageLoaded && (
+        <img
+          src={`${import.meta.env.BASE_URL}assets/wakkany_1.png`}
+          width="1376"
+          height="768"
+          decoding="async"
+          className="hidden"
+          alt="Preload"
+          onLoad={() => setBgImageLoaded(true)}
+        />
+      )}
+      
+      {/* Effet d'éclairs (Lightning) — seulement si image chargée */}
+      {bgImageLoaded && (
+        <div ref={lightningRef} className="absolute inset-0 bg-white mix-blend-overlay pointer-events-none animate-lightning"></div>
+      )}
       
       {/* Voile sombre pour faire ressortir le bouton sans flouter l'image */}
-      <div className="absolute inset-0 bg-black/40"></div>
+      {bgImageLoaded && (
+        <div className="absolute inset-0 bg-black/40"></div>
+      )}
 
       {/* Conteneur de positionnement du bouton */}
+
       <div className="absolute bottom-[15%] left-1/2 -translate-x-1/2">
         {/* Bouton START avec animation de respiration (breathe) */}
         <button 
@@ -95,3 +148,4 @@ export default function Preloader({ onComplete }) {
     </div>
   );
 }
+

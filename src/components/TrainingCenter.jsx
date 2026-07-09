@@ -113,7 +113,7 @@ export default function TrainingCenter({ xp, unlockedSkills, completedQuests, on
                 <div className="mt-8 flex items-center justify-between">
                    <span className="text-[10px] font-black text-zinc-600 uppercase tracking-widest">+25 XP</span>
                    <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-white group-hover:text-black transition-all">
-                     <iconify-icon icon="lucide:arrow-right" width="16"></iconify-icon>
+                     <iconify-icon icon="mdi:arrow-right" width="16"></iconify-icon>
                    </div>
                 </div>
               </button>
@@ -163,12 +163,12 @@ export default function TrainingCenter({ xp, unlockedSkills, completedQuests, on
                     <div className="mt-auto">
                         {isLocked ? (
                             <div className="flex items-center gap-3 text-zinc-600 bg-black/40 px-6 py-3 rounded-2xl border border-white/5">
-                                <iconify-icon icon="lucide:lock" width="16"></iconify-icon>
+                                <iconify-icon icon="mdi:lock" width="16"></iconify-icon>
                                 <span className="text-[10px] uppercase font-bold tracking-widest">Requis : <span className="text-zinc-400">{getReqName(quest.nodeReq)}</span></span>
                             </div>
                         ) : isCompleted ? (
                             <div className="flex items-center gap-3 text-green-500 bg-green-500/10 px-8 py-4 rounded-2xl border border-green-500/20 w-full justify-center">
-                                <iconify-icon icon="lucide:check-circle" width="20"></iconify-icon>
+                                <iconify-icon icon="mdi:check-circle" width="20"></iconify-icon>
                                 <span className="text-xs uppercase font-black tracking-[0.3em]">Mission Accomplie</span>
                             </div>
                         ) : (
@@ -191,7 +191,7 @@ export default function TrainingCenter({ xp, unlockedSkills, completedQuests, on
       <div className="bg-zinc-950/50 border border-white/5 p-12 rounded-[60px] flex flex-col items-center text-center gap-8 relative overflow-hidden group">
          <div className="absolute inset-0 bg-[#c28e3a]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000"></div>
          <div className="w-24 h-24 rounded-[30px] bg-[#c28e3a]/10 flex items-center justify-center border border-[#c28e3a]/20 shadow-2xl relative z-10">
-            <iconify-icon icon="lucide:zap" width="48" className="text-[#c28e3a]"></iconify-icon>
+            <iconify-icon icon="mdi:zap" width="48" className="text-[#c28e3a]"></iconify-icon>
          </div>
          <div className="relative z-10">
            <h3 className="text-white text-4xl font-heading font-bold italic uppercase mb-4 tracking-tighter">FAILLE TEMPORELLE</h3>
@@ -221,3 +221,4 @@ export default function TrainingCenter({ xp, unlockedSkills, completedQuests, on
     </div>
   );
 }
+

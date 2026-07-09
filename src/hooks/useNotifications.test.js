@@ -61,3 +61,4 @@ describe('useNotifications', () => {
     expect(supabase.from).toHaveBeenCalledWith('notifications');
   });
 });
+

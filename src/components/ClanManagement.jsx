@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 
 export default function ClanManagement({ user, onUpdateClan }) {
     const [clanName, setClanName] = useState(user?.clan?.name || '');
-    const [selectedIcon, setSelectedIcon] = useState(user?.clan?.icon || 'lucide:shield');
+    const [selectedIcon, setSelectedIcon] = useState(user?.clan?.icon || 'mdi:shield');
     const [selectedColor, setSelectedColor] = useState(user?.clan?.color || '#c28e3a');
 
-    const icons = ['lucide:shield', 'lucide:swords', 'lucide:zap', 'lucide:crown', 'lucide:flame', 'lucide:skull', 'lucide:eye', 'lucide:star'];
+    const icons = ['mdi:shield', 'mdi:swords', 'mdi:zap', 'mdi:crown', 'mdi:flame', 'mdi:skull', 'mdi:eye', 'mdi:star'];
     const colors = ['#c28e3a', '#ef4444', '#3b82f6', '#10b981', '#a855f7', '#f59e0b', '#ec4899', '#64748b'];
 
     const handleSave = () => {
@@ -104,3 +104,4 @@ export default function ClanManagement({ user, onUpdateClan }) {
         </div>
     );
 }
+

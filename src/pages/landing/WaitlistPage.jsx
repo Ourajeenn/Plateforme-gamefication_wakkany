@@ -7,7 +7,7 @@ export default function WaitlistPage({ onBack }) {
     <div className="min-h-screen bg-zinc-950 pt-40 px-6 pb-24">
       <div className="max-w-4xl mx-auto">
         <button onClick={onBack} type="button" className="flex items-center gap-2 text-[#c28e3a] uppercase font-bold text-xs tracking-[0.3em] mb-12 hover:gap-4 transition-all">
-          <iconify-icon icon="lucide:arrow-left"></iconify-icon> Back to Home
+          <iconify-icon icon="mdi:arrow-left"></iconify-icon> Back to Home
         </button>
         <h1 className="text-white text-6xl font-heading font-bold italic uppercase mb-8">Join the Elite</h1>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
@@ -27,7 +27,7 @@ export default function WaitlistPage({ onBack }) {
           <div className="glass-panel p-10 rounded-3xl">
             {waitlistStatus === 'success' ? (
               <div className="text-center py-12 animate-scale-up">
-                <iconify-icon icon="lucide:check-circle" width="64" className="text-[#c28e3a] mb-6"></iconify-icon>
+                <iconify-icon icon="mdi:check-circle" width="64" className="text-[#c28e3a] mb-6"></iconify-icon>
                 <h3 className="text-white text-2xl font-bold uppercase mb-4">Transmission Reçue</h3>
                 <p className="text-zinc-500 font-monda">Votre signal a été capté. Vous serez informé dès que le portail sera stabilisé.</p>
                 <button type="button" onClick={() => setWaitlistStatus('idle')} className="mt-8 text-[#c28e3a] text-xs font-bold uppercase tracking-widest border-b border-[#c28e3a]/20 hover:border-[#c28e3a] transition-all">S&apos;inscrire à nouveau</button>
@@ -54,3 +54,4 @@ export default function WaitlistPage({ onBack }) {
     </div>
   );
 }
+

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { bgMusic } from '../../hooks/useSoundFX';
+import { getBgMusic } from '../../hooks/useSoundFX';
 
 export default function AudioController() {
+  const bgMusic = getBgMusic();
   const [isPlaying, setIsPlaying] = useState(!bgMusic?.paused);
   const [isMuted, setIsMuted] = useState(!!bgMusic?.muted);
   const [volume, setVolume] = useState(bgMusic ? bgMusic.volume : 0.5);
@@ -75,11 +76,12 @@ export default function AudioController() {
       {/* Play/Pause Button (Couper la musique) */}
       <button
         onClick={togglePlay}
+        aria-label={isPlaying ? 'Mettre en pause la musique' : 'Lancer la musique'}
         title={isPlaying ? 'Mettre en pause' : 'Lancer la musique'}
         className="w-8 h-8 rounded-xl bg-zinc-900/80 border border-white/5 flex items-center justify-center text-[#c28e3a] hover:bg-[#c28e3a] hover:text-black transition-all duration-200 hover:scale-105 active:scale-95"
       >
         <iconify-icon
-          icon={isPlaying ? 'lucide:pause' : 'lucide:play'}
+          icon={isPlaying ? 'mdi:pause' : 'mdi:play'}
           width="16"
         ></iconify-icon>
       </button>
@@ -87,11 +89,12 @@ export default function AudioController() {
       {/* Mute/Unmute Button */}
       <button
         onClick={toggleMute}
+        aria-label={isMuted ? 'Activer le son' : 'Couper le son'}
         title={isMuted ? 'Activer le son' : 'Couper le son'}
         className="w-8 h-8 rounded-xl bg-zinc-900/80 border border-white/5 flex items-center justify-center text-[#c28e3a] hover:bg-[#c28e3a] hover:text-black transition-all duration-200 hover:scale-105 active:scale-95"
       >
         <iconify-icon
-          icon={isMuted || volume === 0 ? 'lucide:volume-x' : volume < 0.4 ? 'lucide:volume-1' : 'lucide:volume-2'}
+          icon={isMuted || volume === 0 ? 'mdi:volume-x' : volume < 0.4 ? 'mdi:volume-1' : 'mdi:volume-2'}
           width="16"
         ></iconify-icon>
       </button>
@@ -120,3 +123,4 @@ export default function AudioController() {
     </div>
   );
 }
+

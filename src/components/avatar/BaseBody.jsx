@@ -37,3 +37,4 @@ export default function BaseBody({ level, branchColor, unlockedSkills }) {
     </g>
   );
 }
+

@@ -185,3 +185,4 @@ export function useBossRaid() {
     totalEncounters: BOSS_ENCOUNTERS.length,
   };
 }
+

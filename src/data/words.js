@@ -5,3 +5,4 @@ export const WORDS = [
   { id: "w4", word: "ORNITHORYNQUE", difficulty: "Difficile", meaning: "Animal mammifère pondant des œufs." },
   { id: "w5", word: "HIPPOPOTAME", difficulty: "Difficile", meaning: "Gros mammifère amphibie." }
 ];
+

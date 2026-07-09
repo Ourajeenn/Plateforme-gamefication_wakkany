@@ -4,3 +4,4 @@ export const TOPICS = [
   { id: "t3", category: "Géographie", title: "Le Climat Terrestre", difficulty: "Moyen", keypoints: ["Réchauffement", "Atmosphère", "Saisons"] },
   { id: "t4", category: "Littérature", title: "Le Théâtre de Molière", difficulty: "Difficile", keypoints: ["Comédie", "XVIIe Siècle", "L'Avare"] }
 ];
+

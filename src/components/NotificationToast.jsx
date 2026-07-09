@@ -22,23 +22,25 @@ function Toast({ notif, onRemove }) {
         setIsVisible(true);
         const timer = setTimeout(() => {
             setIsVisible(false);
+            // After fade out, invoke removal callback
             setTimeout(() => {
                 if (onRemoveRef.current) onRemoveRef.current();
-            }, 500); // Wait for fade out animation
+            }, 500);
         }, 4000);
+        // Cleanup to prevent stray timers when component unmounts early
         return () => clearTimeout(timer);
     }, []); // Run only once on mount
 
     const getIcon = () => {
         switch (notif.type) {
-            case 'xp': return 'lucide:trending-up';
-            case 'achievement': return 'lucide:trophy';
-            case 'level': return 'lucide:star';
-            case 'chat': return 'lucide:message-square';
-            case 'error': return 'lucide:alert-circle';
-            case 'success': return 'lucide:check-circle';
-            case 'info': return 'lucide:info';
-            default: return 'lucide:bell';
+            case 'xp': return 'mdi:trending-up';
+            case 'achievement': return 'mdi:trophy';
+            case 'level': return 'mdi:star';
+            case 'chat': return 'mdi:message-square';
+            case 'error': return 'mdi:alert-circle';
+            case 'success': return 'mdi:check-circle';
+            case 'info': return 'mdi:info';
+            default: return 'mdi:bell';
         }
     };
 
@@ -85,8 +87,9 @@ function Toast({ notif, onRemove }) {
             </div>
 
             <button onClick={() => setIsVisible(false)} className="text-zinc-600 hover:text-white transition-colors">
-                <iconify-icon icon="lucide:x" width="16"></iconify-icon>
+                <iconify-icon icon="mdi:x" width="16"></iconify-icon>
             </button>
         </div>
     );
 }
+

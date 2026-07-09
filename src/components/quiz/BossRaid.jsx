@@ -127,7 +127,7 @@ export default function BossRaid() {
         {/* Header */}
         <div className="sticky top-0 z-50 bg-zinc-950/90 backdrop-blur-md border-b border-white/5 px-4 sm:px-8 py-4 flex items-center justify-between">
           <button onClick={() => navigate('/quiz')} className="flex items-center gap-2 text-zinc-400 hover:text-white transition-colors text-sm">
-            <iconify-icon icon="lucide:arrow-left" /> Retour
+            <iconify-icon icon="mdi:arrow-left" /> Retour
           </button>
           <div className="text-center">
             <div className="text-[9px] text-[#c28e3a] font-black uppercase tracking-[0.4em]">Progression</div>
@@ -390,3 +390,4 @@ export default function BossRaid() {
 
   return null;
 }
+

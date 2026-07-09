@@ -130,3 +130,4 @@ export default function AvatarEffects({ level, branchColor, dominant, unlockedSk
     </>
   );
 }
+

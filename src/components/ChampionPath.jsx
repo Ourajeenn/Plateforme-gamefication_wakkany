@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 
 const INITIAL_QUESTS = [
-  { id: 1, type: 'project', title: 'Forge the React Core', desc: 'Architect an interactive web application', xp: 50, completed: false, icon: 'lucide:code-2' },
-  { id: 2, type: 'project', title: 'Awaken the Tailwind', desc: 'Master responsive utility styling patterns', xp: 50, completed: false, icon: 'lucide:layout' },
-  { id: 3, type: 'formation', title: 'Path of the Ancients', desc: 'Complete advanced state management training', xp: 100, completed: false, icon: 'lucide:book-open' },
-  { id: 4, type: 'certification', title: 'Mark of the Cloud', desc: 'Acquire AWS Solutions Architect certification', xp: 150, completed: false, icon: 'lucide:cloud-lightning' },
-  { id: 5, type: 'project', title: 'Slay the Bug King', desc: 'Implement full End-to-End testing suite', xp: 50, completed: false, icon: 'lucide:bug' },
+  { id: 1, type: 'project', title: 'Forge the React Core', desc: 'Architect an interactive web application', xp: 50, completed: false, icon: 'mdi:code-2' },
+  { id: 2, type: 'project', title: 'Awaken the Tailwind', desc: 'Master responsive utility styling patterns', xp: 50, completed: false, icon: 'mdi:layout' },
+  { id: 3, type: 'formation', title: 'Path of the Ancients', desc: 'Complete advanced state management training', xp: 100, completed: false, icon: 'mdi:book-open' },
+  { id: 4, type: 'certification', title: 'Mark of the Cloud', desc: 'Acquire AWS Solutions Architect certification', xp: 150, completed: false, icon: 'mdi:cloud-lightning' },
+  { id: 5, type: 'project', title: 'Slay the Bug King', desc: 'Implement full End-to-End testing suite', xp: 50, completed: false, icon: 'mdi:bug' },
 ];
 
 const LEVEL_DATA = {
@@ -154,7 +154,7 @@ export default function ChampionPath({ userClan }) {
           {/* Right Column: Quest Board */}
           <div className="lg:col-span-7 flex flex-col gap-4">
             <h4 className="text-xl font-heading text-white mb-2 uppercase tracking-widest flex items-center gap-3">
-              <iconify-icon icon="lucide:scroll" className="text-[#c28e3a]"></iconify-icon>
+              <iconify-icon icon="mdi:scroll" className="text-[#c28e3a]"></iconify-icon>
               Active Bounties
             </h4>
 
@@ -182,7 +182,7 @@ export default function ChampionPath({ userClan }) {
                         </span>
                         {quest.completed && (
                           <span className="text-xs font-bold uppercase text-[#c28e3a] flex items-center gap-1">
-                            <iconify-icon icon="lucide:check-circle-2"></iconify-icon> Completed
+                            <iconify-icon icon="mdi:check-circle-2"></iconify-icon> Completed
                           </span>
                         )}
                       </div>

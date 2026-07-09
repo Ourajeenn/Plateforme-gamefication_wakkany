@@ -30,3 +30,4 @@ export default function GameCard({ emoji, title, description, link, popular = fa
     </div>
   );
 }
+

@@ -14,24 +14,24 @@ export default function BadgeGallery({ unlockedAchievements, xp }) {
     const unlockedCount = Math.min(userLevel || 1, TOTAL_BADGES);
 
     const levelBadgeData = [
-        { name: "Éveil", icon: "lucide:sparkles", color: "#38bdf8", img: factionsImg },
-        { name: "Novice", icon: "lucide:shield", color: "#4ade80", img: badgesImg },
-        { name: "Initiation", icon: "lucide:sword", color: "#facc15", img: morokhImg },
-        { name: "Sang-Mêlé", icon: "lucide:droplets", color: "#ef4444", img: anyaImg },
-        { name: "Gardien", icon: "lucide:shield-half", color: "#a855f7", img: morokhImg },
-        { name: "Protecteur", icon: "lucide:shield-check", color: "#3b82f6", img: factionsImg },
-        { name: "Traqueur", icon: "lucide:compass", color: "#14b8a6", img: badgesImg },
-        { name: "Assassin", icon: "lucide:skull", color: "#dc2626", img: anyaImg },
-        { name: "Sentinelle", icon: "lucide:eye", color: "#8b5cf6", img: morokhImg },
-        { name: "Guerrier", icon: "lucide:swords", color: "#f97316", img: factionsImg },
-        { name: "Vétéran", icon: "lucide:medal", color: "#eab308", img: badgesImg },
-        { name: "Maître", icon: "lucide:crown", color: "#f59e0b", img: anyaImg },
-        { name: "Fléau", icon: "lucide:flame", color: "#f43f5e", img: morokhImg },
-        { name: "Sanguinaire", icon: "lucide:heart-crack", color: "#be123c", img: anyaImg },
-        { name: "Champion", icon: "lucide:trophy", color: "#fbbf24", img: factionsImg },
-        { name: "Héros", icon: "lucide:star", color: "#60a5fa", img: badgesImg },
-        { name: "Légende", icon: "lucide:gem", color: "#c084fc", img: morokhImg },
-        { name: "Mythe", icon: "lucide:sun", color: "#fb923c", img: factionsImg }
+        { name: "Éveil", icon: "mdi:star", color: "#38bdf8", img: factionsImg },
+        { name: "Novice", icon: "mdi:shield", color: "#4ade80", img: badgesImg },
+        { name: "Initiation", icon: "mdi:sword", color: "#facc15", img: morokhImg },
+        { name: "Sang-Mêlé", icon: "mdi:water", color: "#ef4444", img: anyaImg },
+        { name: "Gardien", icon: "mdi:shield-half", color: "#a855f7", img: morokhImg },
+        { name: "Protecteur", icon: "mdi:shield-check", color: "#3b82f6", img: factionsImg },
+        { name: "Traqueur", icon: "mdi:compass", color: "#14b8a6", img: badgesImg },
+        { name: "Assassin", icon: "mdi:skull", color: "#dc2626", img: anyaImg },
+        { name: "Sentinelle", icon: "mdi:eye", color: "#8b5cf6", img: morokhImg },
+        { name: "Guerrier", icon: "mdi:swords", color: "#f97316", img: factionsImg },
+        { name: "Vétéran", icon: "mdi:medal", color: "#eab308", img: badgesImg },
+        { name: "Maître", icon: "mdi:crown", color: "#f59e0b", img: anyaImg },
+        { name: "Fléau", icon: "mdi:fire", color: "#f43f5e", img: morokhImg },
+        { name: "Sanguinaire", icon: "mdi:heart-broken", color: "#be123c", img: anyaImg },
+        { name: "Champion", icon: "mdi:trophy", color: "#fbbf24", img: factionsImg },
+        { name: "Héros", icon: "mdi:star", color: "#60a5fa", img: badgesImg },
+        { name: "Légende", icon: "mdi:gemstone", color: "#c084fc", img: morokhImg },
+        { name: "Mythe", icon: "mdi:white-balance-sunny", color: "#fb923c", img: factionsImg }
     ];
 
     return (
@@ -103,7 +103,7 @@ export default function BadgeGallery({ unlockedAchievements, xp }) {
                                         {isUnlocked ? (
                                             <iconify-icon icon={badge.icon} width="40" style={{ color: badge.color, filter: `drop-shadow(0 0 10px ${badge.color})` }}></iconify-icon>
                                         ) : (
-                                            <iconify-icon icon="lucide:lock" width="24" className="text-zinc-600"></iconify-icon>
+                                            <iconify-icon icon="mdi:lock" width="24" className="text-zinc-600"></iconify-icon>
                                         )}
                                     </div>
                                     {isUnlocked && <div className="absolute top-0 left-[-100%] w-1/2 h-full bg-gradient-to-r from-transparent via-white/30 to-transparent transform -skew-x-12 group-hover:animate-shine pointer-events-none z-30"></div>}
@@ -124,3 +124,4 @@ export default function BadgeGallery({ unlockedAchievements, xp }) {
         </div>
     );
 }
+

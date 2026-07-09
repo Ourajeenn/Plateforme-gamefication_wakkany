@@ -97,7 +97,7 @@ export default function LandingPage({ user, onJoin }) {
                 <div className="mt-auto mb-6 sm:mb-12 flex flex-col items-center gap-5 sm:gap-8 w-full">
                   <a href="#lore" onClick={(e) => { e.preventDefault(); document.getElementById('lore')?.scrollIntoView({ behavior: 'smooth' }); }} className="flex flex-col items-center opacity-40 hover:opacity-100 transition-opacity cursor-pointer">
                     <span className="text-[8px] font-black uppercase tracking-[0.5em] mb-2 text-white">Défiler vers l'Aube</span>
-                    <iconify-icon icon="lucide:chevron-down" width="16" className="animate-bounce text-white"></iconify-icon>
+                    <iconify-icon icon="mdi:chevron-down" width="16" className="animate-bounce text-white"></iconify-icon>
                   </a>
                   
                   <button
@@ -155,11 +155,11 @@ export default function LandingPage({ user, onJoin }) {
               <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none z-0 flex justify-between items-center px-4 md:px-12 opacity-40">
                 {/* Left Blade */}
                 <ScrollReveal animation="fade-right" duration={1000}>
-                  <img src="https://i.postimg.cc/C1wHNkG1/blade2.png" alt="Left Blade" className="w-28 sm:w-40 md:w-80 object-contain animate-float-left drop-shadow-[0_0_15px_rgba(255,255,255,0.1)]" />
+                  <img src="https://i.postimg.cc/C1wHNkG1/blade2.png" alt="Left Blade" loading="lazy" decoding="async" className="w-28 sm:w-40 md:w-80 object-contain animate-float-left drop-shadow-[0_0_15px_rgba(255,255,255,0.1)]" />
                 </ScrollReveal>
                 {/* Right Blade */}
                 <ScrollReveal animation="fade-left" duration={1000}>
-                  <img src="https://i.postimg.cc/Ssm7rC6K/bladepng.png" alt="Right Blade" className="w-28 sm:w-40 md:w-80 object-contain animate-float-right drop-shadow-[0_0_15px_rgba(255,255,255,0.1)]" />
+                  <img src="https://i.postimg.cc/Ssm7rC6K/bladepng.png" alt="Right Blade" loading="lazy" decoding="async" className="w-28 sm:w-40 md:w-80 object-contain animate-float-right drop-shadow-[0_0_15px_rgba(255,255,255,0.1)]" />
                 </ScrollReveal>
               </div>
 
@@ -264,7 +264,7 @@ export default function LandingPage({ user, onJoin }) {
                 }`}>
                   {activeChar === 'bledja' && <div className="absolute inset-0 border border-white/10 pointer-events-none rounded-xl"></div>}
                   <div className="relative w-full h-80 overflow-hidden shadow-lg border border-gray-200 bg-zinc-800 rounded-xl mt-2">
-                    <img src="https://i.postimg.cc/qv918NDq/hippo1.png" alt="Bledja" className="w-full h-full object-cover object-top" />
+                    <img src="https://i.postimg.cc/qv918NDq/hippo1.png" alt="Bledja" loading="lazy" decoding="async" className="w-full h-full object-cover object-top" />
                   </div>
                   <div className="p-8 flex flex-col gap-4 bg-zinc-900 relative">
                     <div className="flex items-baseline gap-3">
@@ -301,7 +301,7 @@ export default function LandingPage({ user, onJoin }) {
                   )}
                   
                   <div className="relative w-full h-80 overflow-hidden shadow-lg border border-gray-200 bg-zinc-100 rounded-xl mt-2">
-                    <img src="https://i.postimg.cc/4xrWzY2N/monkey.png" alt="Akwa" className="w-full h-full object-cover" />
+                    <img src="https://i.postimg.cc/4xrWzY2N/monkey.png" alt="Akwa" loading="lazy" decoding="async" className="w-full h-full object-cover" />
                   </div>
                   <div className="px-4">
                     <button 
@@ -326,17 +326,17 @@ export default function LandingPage({ user, onJoin }) {
                 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
                   <div className="glass-panel p-8 rounded-2xl hover:-translate-y-2 transition-transform">
-                    <iconify-icon icon="lucide:swords" width="48" className="text-[#c28e3a] mb-6"></iconify-icon>
+                    <iconify-icon icon="mdi:swords" width="48" className="text-[#c28e3a] mb-6"></iconify-icon>
                     <h3 className="text-white text-2xl font-bold font-heading mb-3">Combats Dynamiques</h3>
                     <p className="text-zinc-400 font-monda">Un système de combat fluide qui récompense le timing, la précision et l'exploitation des faiblesses ennemies. Chaque coup compte.</p>
                   </div>
                   <div className="glass-panel p-8 rounded-2xl hover:-translate-y-2 transition-transform">
-                    <iconify-icon icon="lucide:git-branch" width="48" className="text-[#c28e3a] mb-6"></iconify-icon>
+                    <iconify-icon icon="mdi:git-branch" width="48" className="text-[#c28e3a] mb-6"></iconify-icon>
                     <h3 className="text-white text-2xl font-bold font-heading mb-3">Arbre de Talents</h3>
                     <p className="text-zinc-400 font-monda">Personnalisez votre style de jeu. Vos choix de compétences modifient non seulement vos attaques, mais aussi l'apparence de votre avatar.</p>
                   </div>
                   <div className="glass-panel p-8 rounded-2xl hover:-translate-y-2 transition-transform">
-                    <iconify-icon icon="lucide:users" width="48" className="text-[#c28e3a] mb-6"></iconify-icon>
+                    <iconify-icon icon="mdi:users" width="48" className="text-[#c28e3a] mb-6"></iconify-icon>
                     <h3 className="text-white text-2xl font-bold font-heading mb-3">Alliances de Clans</h3>
                     <p className="text-zinc-400 font-monda">Rejoignez une guilde, participez aux raids coopératifs et défendez vos territoires contre les clans rivaux dans le mode Arène.</p>
                   </div>
@@ -387,25 +387,25 @@ export default function LandingPage({ user, onJoin }) {
                     {[1, 2, 3].map((group) => (
                       <React.Fragment key={group}>
                         <div className="w-[300px] sm:w-[400px] glass-panel p-6 rounded-xl relative shrink-0 text-left">
-                          <iconify-icon icon="lucide:quote" width="32" className="text-white/10 absolute top-4 right-4"></iconify-icon>
+                          <iconify-icon icon="mdi:quote" width="32" className="text-white/10 absolute top-4 right-4"></iconify-icon>
                           <div className="flex items-center gap-2 text-yellow-500 mb-3">
-                            {[1,2,3,4,5].map(i => <iconify-icon key={i} icon="lucide:star" width="16"></iconify-icon>)}
+                            {[1,2,3,4,5].map(i => <iconify-icon key={i} icon="mdi:star" width="16"></iconify-icon>)}
                           </div>
                           <p className="text-zinc-300 italic mb-4">"Le système de combat est incroyablement nerveux. On ressent chaque impact, et la synergie entre les talents est phénoménale."</p>
                           <p className="text-zinc-500 text-sm font-bold uppercase">— @DarkKnight99</p>
                         </div>
                         <div className="w-[300px] sm:w-[400px] glass-panel p-6 rounded-xl relative shrink-0 text-left">
-                          <iconify-icon icon="lucide:quote" width="32" className="text-white/10 absolute top-4 right-4"></iconify-icon>
+                          <iconify-icon icon="mdi:quote" width="32" className="text-white/10 absolute top-4 right-4"></iconify-icon>
                           <div className="flex items-center gap-2 text-yellow-500 mb-3">
-                            {[1,2,3,4,5].map(i => <iconify-icon key={i} icon="lucide:star" width="16"></iconify-icon>)}
+                            {[1,2,3,4,5].map(i => <iconify-icon key={i} icon="mdi:star" width="16"></iconify-icon>)}
                           </div>
                           <p className="text-zinc-300 italic mb-4">"Enfin un jeu qui ne nous prend pas par la main. L'univers de la Covenant est sombre, mature, et graphiquement sublime."</p>
                           <p className="text-zinc-500 text-sm font-bold uppercase">— @LyraFanboy</p>
                         </div>
                         <div className="w-[300px] sm:w-[400px] glass-panel p-6 rounded-xl relative shrink-0 text-left">
-                          <iconify-icon icon="lucide:quote" width="32" className="text-white/10 absolute top-4 right-4"></iconify-icon>
+                          <iconify-icon icon="mdi:quote" width="32" className="text-white/10 absolute top-4 right-4"></iconify-icon>
                           <div className="flex items-center gap-2 text-yellow-500 mb-3">
-                            {[1,2,3,4,5].map(i => <iconify-icon key={i} icon="lucide:star" width="16"></iconify-icon>)}
+                            {[1,2,3,4,5].map(i => <iconify-icon key={i} icon="mdi:star" width="16"></iconify-icon>)}
                           </div>
                           <p className="text-zinc-300 italic mb-4">"Une direction artistique à couper le souffle. J'ai été happé par l'histoire d'Arthélyon dès les premières minutes."</p>
                           <p className="text-zinc-500 text-sm font-bold uppercase">— @EpicGamer2026</p>
@@ -422,7 +422,7 @@ export default function LandingPage({ user, onJoin }) {
               
               {/* Overlapping Footer Image */}
               <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-[40%] md:-translate-y-[50%] w-full max-w-6xl z-20 pointer-events-none flex justify-center px-4">
-                <img src="https://i.postimg.cc/9MzzCfVb/footer.png" alt="Alignement des Champions" className="w-full h-auto max-h-[600px] object-contain drop-shadow-2xl" />
+                <img src="https://i.postimg.cc/9MzzCfVb/footer.png" alt="Alignement des Champions" loading="lazy" decoding="async" className="w-full h-auto max-h-[600px] object-contain drop-shadow-2xl" />
               </div>
 
               <div className="relative z-10 w-full max-w-7xl mx-auto px-6 mt-16 md:mt-24">
@@ -433,7 +433,7 @@ export default function LandingPage({ user, onJoin }) {
                     <div>
                       <p className="text-base uppercase tracking-widest text-gray-500 mb-2 font-medium">Géré par</p>
                       <div className="flex items-center gap-3 text-white font-heading text-2xl font-semibold italic tracking-tight">
-                        <iconify-icon icon="lucide:swords" width="32" height="32" className="text-white stroke-[1.5]"></iconify-icon> Wakkany
+                        <iconify-icon icon="mdi:swords" width="32" height="32" className="text-white stroke-[1.5]"></iconify-icon> Wakkany
                       </div>
                     </div>
                     <div className="flex gap-5 mt-2">
@@ -476,3 +476,4 @@ export default function LandingPage({ user, onJoin }) {
     </>
   );
 }
+

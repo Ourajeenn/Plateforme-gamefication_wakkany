@@ -16,7 +16,7 @@ export default function AestheticInventory() {
         </h3>
 
         <div className="grid grid-cols-4 gap-2 mb-6">
-          {['lucide:activity', 'lucide:swords', 'lucide:flame', 'lucide:gem'].map((icon, idx) => (
+          {['mdi:activity', 'mdi:swords', 'mdi:flame', 'mdi:gem'].map((icon, idx) => (
             <div key={idx} className="aspect-square rounded-full border border-purple-500/20 bg-zinc-900/50 flex items-center justify-center text-purple-400/80 hover:border-purple-400 hover:text-white transition-all shadow-[0_0_10px_rgba(168,85,247,0.1)] hover:shadow-[0_0_15px_rgba(168,85,247,0.3)]">
               <iconify-icon icon={icon} width="16"></iconify-icon>
             </div>
@@ -68,3 +68,4 @@ export default function AestheticInventory() {
     </div>
   );
 }
+

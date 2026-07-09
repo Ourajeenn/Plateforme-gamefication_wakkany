@@ -15,3 +15,4 @@ export const authSchema = z.object({
   email: z.string().email('Adresse email invalide'),
   password: z.string().min(8, 'Le mot de passe doit faire au moins 8 caractères'),
 });
+

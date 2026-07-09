@@ -99,12 +99,12 @@ export default function HabitTracker({ playScanSFX }) {
       <div className="mt-6 pt-4 border-t border-purple-500/10">
         <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-purple-400 mb-2">
           <div className="flex items-center gap-2">
-            <iconify-icon icon="lucide:compass" className="text-purple-400 animate-spin-slow" width="14"></iconify-icon>
+            <iconify-icon icon="mdi:compass" className="text-purple-400 animate-spin-slow" width="14"></iconify-icon>
             <span>GOAL PROGRESS</span>
           </div>
           <div className="flex items-center gap-2">
             <span>{calendarProgressPercent}% COMPLETE</span>
-            <iconify-icon icon="lucide:scroll" className="text-purple-400 animate-pulse" width="14"></iconify-icon>
+            <iconify-icon icon="mdi:scroll" className="text-purple-400 animate-pulse" width="14"></iconify-icon>
           </div>
         </div>
         <div className="w-full h-3 bg-zinc-900 rounded-full overflow-hidden border border-purple-500/15 relative">
@@ -117,3 +117,4 @@ export default function HabitTracker({ playScanSFX }) {
     </div>
   );
 }
+

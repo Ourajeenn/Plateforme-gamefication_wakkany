@@ -108,17 +108,57 @@ export default defineConfig({
   server: {
     port: 5179,
     strictPort: false,
+    // HTTP/2 support for better multiplexing
+    http2: true,
+    headers: {
+      'Cache-Control': 'no-cache',
+    },
   },
   build: {
+    // Aggressive minification
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true,
+      },
+      mangle: true,
+    },
+    // Optimized chunk splitting
     rollupOptions: {
       output: {
         manualChunks: {
+          // Core vendors
           vendor: ['react', 'react-dom', 'react-router-dom'],
+          // UI/Charting
           charts: ['recharts'],
+          // Backend
           supabase: ['@supabase/supabase-js'],
+          // Data validation
+          validation: ['zod'],
+          // Rate limiting
+          ratelimit: ['rate-limiter-flexible'],
+          // Icons
+          icons: ['iconify-icon'],
+          // Split pages for lazy loading
+          dashboard: ['src/pages/DashboardPage.jsx'],
+          games: ['src/pages/GamesPage.jsx'],
+          landing: ['src/pages/LandingPage.jsx'],
         },
+        // Optimize chunk names for better caching
+        chunkFileNames: 'assets/[name]-[hash].js',
+        entryFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash][extname]',
       },
     },
+    // Target modern browsers for smaller bundles (esnext for full ES2022+ support)
+    target: 'esnext',
+    // CSS code splitting
+    cssCodeSplit: true,
+    // Source maps only for production debugging
+    sourcemap: false,
+    // Increase chunk size warning threshold
+    chunkSizeWarningLimit: 500,
   },
   test: {
     globals: true,

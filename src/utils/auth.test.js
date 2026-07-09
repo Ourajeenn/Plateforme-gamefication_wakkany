@@ -68,3 +68,4 @@ describe('auth utils', () => {
     expect(signOutMock).not.toHaveBeenCalled();
   });
 });
+

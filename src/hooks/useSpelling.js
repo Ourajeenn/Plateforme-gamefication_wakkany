@@ -45,3 +45,4 @@ export default function useSpelling() {
 
   return { currentWord, status, score, attempts, lastResult, startNewWord, submitSpelling, reset };
 }
+

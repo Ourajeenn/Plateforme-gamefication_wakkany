@@ -74,7 +74,7 @@ export default function HistoireView() {
               <div className="w-full md:w-[55%] p-8 md:p-12 flex flex-col justify-center space-y-8 z-20 relative">
                 <div>
                    <div className="flex items-center gap-3 mb-2">
-                     <iconify-icon icon="lucide:swords" className="text-purple-500 text-xl"></iconify-icon>
+                     <iconify-icon icon="mdi:swords" className="text-purple-500 text-xl"></iconify-icon>
                      <p className="text-purple-400 font-bold tracking-[0.2em] uppercase text-xs">The Dark Sentinel</p>
                    </div>
                    <h2 className="text-5xl font-black uppercase text-white font-heading tracking-wider">Morokh</h2>
@@ -82,7 +82,7 @@ export default function HistoireView() {
                 
                 <div className="space-y-3">
                    <h3 className="text-white font-black uppercase tracking-widest text-sm flex items-center gap-2">
-                     <iconify-icon icon="lucide:book-open" className="text-[#c28e3a]"></iconify-icon>
+                     <iconify-icon icon="mdi:book-open" className="text-[#c28e3a]"></iconify-icon>
                      Lore
                    </h3>
                    <div className="h-px w-12 bg-[#c28e3a]/50"></div>
@@ -93,7 +93,7 @@ export default function HistoireView() {
                 
                 <div className="space-y-3">
                    <h3 className="text-white font-black uppercase tracking-widest text-sm flex items-center gap-2">
-                     <iconify-icon icon="lucide:flame" className="text-[#c28e3a]"></iconify-icon>
+                     <iconify-icon icon="mdi:flame" className="text-[#c28e3a]"></iconify-icon>
                      Combat & Abilities
                    </h3>
                    <div className="h-px w-12 bg-[#c28e3a]/50"></div>
@@ -128,7 +128,7 @@ export default function HistoireView() {
               <div className="w-full md:w-[55%] p-8 md:p-12 flex flex-col justify-center space-y-8 z-20 relative">
                 <div>
                    <div className="flex items-center gap-3 mb-2">
-                     <iconify-icon icon="lucide:droplet" className="text-red-500 text-xl"></iconify-icon>
+                     <iconify-icon icon="mdi:droplet" className="text-red-500 text-xl"></iconify-icon>
                      <p className="text-red-400 font-bold tracking-[0.2em] uppercase text-xs">The Blood Ritualist</p>
                    </div>
                    <h2 className="text-5xl font-black uppercase text-white font-heading tracking-wider">Anya</h2>
@@ -136,7 +136,7 @@ export default function HistoireView() {
                 
                 <div className="space-y-3">
                    <h3 className="text-white font-black uppercase tracking-widest text-sm flex items-center gap-2">
-                     <iconify-icon icon="lucide:book-open" className="text-[#c28e3a]"></iconify-icon>
+                     <iconify-icon icon="mdi:book-open" className="text-[#c28e3a]"></iconify-icon>
                      Lore
                    </h3>
                    <div className="h-px w-12 bg-[#c28e3a]/50"></div>
@@ -147,7 +147,7 @@ export default function HistoireView() {
                 
                 <div className="space-y-3">
                    <h3 className="text-white font-black uppercase tracking-widest text-sm flex items-center gap-2">
-                     <iconify-icon icon="lucide:flame" className="text-[#c28e3a]"></iconify-icon>
+                     <iconify-icon icon="mdi:flame" className="text-[#c28e3a]"></iconify-icon>
                      Combat & Abilities
                    </h3>
                    <div className="h-px w-12 bg-[#c28e3a]/50"></div>
@@ -210,3 +210,4 @@ export default function HistoireView() {
     </div>
   );
 }
+

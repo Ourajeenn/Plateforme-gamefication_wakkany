@@ -37,3 +37,4 @@ export default function SpellingGame({ word, onCorrect, onFail, attempts }) {
     </div>
   );
 }
+

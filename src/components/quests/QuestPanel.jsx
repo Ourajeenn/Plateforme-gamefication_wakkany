@@ -130,3 +130,4 @@ export default function QuestPanel({ xp, unlockedSkills, completedQuests, onComp
         </div>
     );
 }
+

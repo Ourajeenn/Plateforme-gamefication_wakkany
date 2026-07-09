@@ -96,3 +96,4 @@ export default function useLeaderboard(currentUser, { limit = 100 } = {}) {
 
   return { globalPlayers, loading, error, refresh: fetchGlobalScores };
 }
+

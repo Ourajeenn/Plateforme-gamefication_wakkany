@@ -28,3 +28,4 @@ describe('isSupabaseConfigured', () => {
     expect(isSupabaseConfigured()).toBe(true);
   });
 });
+

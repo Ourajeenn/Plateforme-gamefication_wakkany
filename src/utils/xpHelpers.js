@@ -56,3 +56,4 @@ export const getTotalXp = (unlockedSkills = []) => {
   });
   return total;
 };
+

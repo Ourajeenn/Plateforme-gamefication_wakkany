@@ -32,3 +32,4 @@ export default function SpellingInput({ expectedWord, onCorrect, onFail, attempt
     </form>
   );
 }
+

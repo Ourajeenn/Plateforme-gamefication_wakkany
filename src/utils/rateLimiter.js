@@ -23,3 +23,4 @@ export async function protectedAction(limiter, key) {
     throw new Error('Trop de tentatives.');
   }
 }
+

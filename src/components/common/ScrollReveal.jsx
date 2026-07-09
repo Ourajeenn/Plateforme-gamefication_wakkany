@@ -26,7 +26,12 @@ export default function ScrollReveal({
     const currentRef = domRef.current;
     if (!currentRef) return;
 
-    const observer = new IntersectionObserver(
+    if (typeof window === 'undefined' || typeof window.IntersectionObserver === 'undefined') {
+      setIsVisible(true);
+      return;
+    }
+
+    const observer = new window.IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
           setIsVisible(true);
@@ -95,3 +100,4 @@ export default function ScrollReveal({
     </div>
   );
 }
+

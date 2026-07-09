@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { FAMILY_QUESTIONS } from '../data/familyQuizzes';
 
 export function useFamilyGame() {
@@ -10,6 +10,9 @@ export function useFamilyGame() {
   const [score, setScore] = useState(0);
   const [streak, setStreak] = useState(0);
   const [playerScores, setPlayerScores] = useState({});
+  const [answersHistory, setAnswersHistory] = useState([]); // {question, userAnswer, correctAnswer, correct, timeTaken}
+  const [questionStartTime, setQuestionStartTime] = useState(null);
+  const [speedBonus, setSpeedBonus] = useState(0);
   
   // Boss Raid Mode states
   const [bossHp, setBossHp] = useState(100);
@@ -48,6 +51,9 @@ export function useFamilyGame() {
     setCurrentQuestionIndex(0);
     setScore(0);
     setStreak(0);
+    setAnswersHistory([]);
+    setSpeedBonus(0);
+    setQuestionStartTime(null);
     setStartCountdown(3);
     setGameState('starting');
     setTimeLeft(config.timerLimit || 8);
@@ -64,6 +70,7 @@ export function useFamilyGame() {
     } else if (gameState === 'starting' && startCountdown === 0) {
       setGameState('playing');
       setIsTimerRunning(true);
+      setQuestionStartTime(Date.now());
     }
     return () => clearInterval(timer);
   }, [gameState, startCountdown]);
@@ -71,9 +78,11 @@ export function useFamilyGame() {
   const handleAnswer = useCallback((selectedAnswer) => {
     setIsTimerRunning(false);
     const currentQ = questions[currentQuestionIndex];
+    const timeTaken = questionStartTime ? Math.round((Date.now() - questionStartTime) / 1000) : 0;
     
     let nextBossHp = bossHp;
     let nextTeamHp = teamHp;
+    let earnedSpeedBonus = 0;
 
     if (selectedAnswer === currentQ.answer) {
       // Deal damage to Boss
@@ -87,7 +96,11 @@ export function useFamilyGame() {
       if (gameConfig.difficulty === 'monarch') multiplier = 1.5;
       
       const pointsEarned = Math.round((10 + (streak * 2)) * multiplier);
+      // Speed bonus: faster answer = more bonus points
+      const timerLimit = gameConfig.timerLimit || 8;
+      earnedSpeedBonus = Math.round(Math.max(0, (timerLimit - timeTaken) / timerLimit) * 50);
       setScore(prev => prev + pointsEarned);
+      setSpeedBonus(prev => prev + earnedSpeedBonus);
       setStreak(prev => prev + 1);
 
       if (gameConfig.mode === 'party' && gameConfig.players.length > 0) {
@@ -105,6 +118,15 @@ export function useFamilyGame() {
       }
       setStreak(0);
     }
+
+    // Track answer history
+    setAnswersHistory(prev => [...prev, {
+      question: currentQ.question,
+      userAnswer: selectedAnswer,
+      correctAnswer: currentQ.answer,
+      correct: selectedAnswer === currentQ.answer,
+      timeTaken
+    }]);
 
     // Wait a bit to show feedback before moving to next question or ending
     setTimeout(() => {
@@ -153,9 +175,15 @@ export function useFamilyGame() {
         setCurrentQuestionIndex(prev => prev + 1);
         setTimeLeft(gameConfig.timerLimit || 8);
         setIsTimerRunning(true);
+        setQuestionStartTime(Date.now());
       }
     }, 2000);
-  }, [currentQuestionIndex, questions, streak, score, gameConfig, bossHp, teamHp]);
+  }, [currentQuestionIndex, questions, streak, score, gameConfig, bossHp, teamHp, questionStartTime]);
+
+  const handleAnswerRef = useRef(handleAnswer);
+  useEffect(() => {
+    handleAnswerRef.current = handleAnswer;
+  }, [handleAnswer]);
 
   // Timer logic
   useEffect(() => {
@@ -165,10 +193,11 @@ export function useFamilyGame() {
         setTimeLeft(prev => prev - 1);
       }, 1000);
     } else if (timeLeft === 0 && isTimerRunning) {
-      handleAnswer(null); // Time out
+      setIsTimerRunning(false);
+      handleAnswerRef.current(null); // Time out
     }
     return () => clearInterval(timer);
-  }, [isTimerRunning, timeLeft, gameState, handleAnswer]);
+  }, [isTimerRunning, timeLeft, gameState]);
 
   const resetGame = useCallback(() => {
     setGameState('home');
@@ -193,6 +222,10 @@ export function useFamilyGame() {
     setGameState,
     bossHp,
     teamHp,
-    bossName
+    bossName,
+    answersHistory,
+    speedBonus,
+    questions
   };
 }
+

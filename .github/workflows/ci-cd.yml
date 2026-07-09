@@ -1,24 +1,7 @@
 name: CI/CD - Build, Security & Deploy
 
-# CORRECTIF : l'ancien découpage en deux fichiers (deploy-github-pages.yml
-# et deploy-vercel.yml) ne fonctionnait pas : deploy-vercel.yml déclarait
-# `needs: [test, build]` en référençant des jobs définis dans l'AUTRE
-# fichier. GitHub Actions ne supporte pas les dépendances inter-workflows
-# de cette façon (needs ne fonctionne qu'au sein d'un même workflow) :
-# le job vercel_deploy échouait donc systématiquement à l'étape
-name: CI/CD - Build, Security & Deploy
-
-# CORRECTIF : l'ancien découpage en deux fichiers (deploy-github-pages.yml
-# et deploy-vercel.yml) ne fonctionnait pas : deploy-vercel.yml déclarait
-# `needs: [test, build]` en référençant des jobs définis dans l'AUTRE
-# fichier. GitHub Actions ne supporte pas les dépendances inter-workflows
-# de cette façon (needs ne fonctionne qu'au sein d'un même workflow) :
-# le job vercel_deploy échouait donc systématiquement à l'étape
-# "download-artifact" (aucun artefact nommé "artifact" n'existe, l'upload
-# se faisait via upload-pages-artifact dans l'autre fichier, qui produit
-# un artefact Pages, pas un artefact générique téléchargeable).
-# On fusionne donc tout en un seul pipeline avec une chaîne de jobs
-# explicite et un seul artefact de build phares par les deux déploiements.
+# Le pipeline est consolidé en un seul workflow pour éviter les dépendances
+# inter-workflows et les déploiements dupliqués sur Vercel/GitHub Pages.
 
 on:
   push:
@@ -102,11 +85,25 @@ jobs:
           severity: 'HIGH,CRITICAL'
 
   # ---------------------------------------------------------------------
+  # Analyse statique Semgrep
+  # ---------------------------------------------------------------------
+  semgrep:
+    runs-on: ubuntu-latest
+    needs: [secret_scan, npm_audit, fs_security_scan]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install semgrep
+      - run: python -m semgrep --config .semgrep.yml --error --quiet .
+
+  # ---------------------------------------------------------------------
   # Tests
   # ---------------------------------------------------------------------
   test:
     runs-on: ubuntu-latest
-    needs: [secret_scan, npm_audit, fs_security_scan]
+    needs: [semgrep]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -117,7 +114,7 @@ jobs:
       - run: npm run test
 
   # ---------------------------------------------------------------------
-  # Build — un seul artefact réutilisé par les deux déploiements
+  # Build — un seul artefact réutilisé par les deux déploiements en meme temps
   # ---------------------------------------------------------------------
   build:
     runs-on: ubuntu-latest
@@ -188,6 +185,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: [build, docker_scan]
     steps:
+      - name: Setup GitHub Pages
+        uses: actions/configure-pages@v5
+
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4

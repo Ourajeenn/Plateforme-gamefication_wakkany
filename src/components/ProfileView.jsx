@@ -271,7 +271,7 @@ export default function ProfileView({ user, xp, unlockedSkills, unlockedAchievem
                 className={`w-12 h-12 rounded-2xl border transition-all duration-300 flex items-center justify-center cursor-pointer 
                   ${scanning ? 'bg-purple-500 border-purple-400 text-white animate-pulse' : 'bg-zinc-900 border-purple-500/25 text-purple-400 hover:border-purple-400'}`}
               >
-                <iconify-icon icon="lucide:scan" width="22"></iconify-icon>
+                <iconify-icon icon="mdi:scan" width="22"></iconify-icon>
               </button>
             </div>
 
@@ -310,7 +310,7 @@ export default function ProfileView({ user, xp, unlockedSkills, unlockedAchievem
               <div className="bg-black/50 border border-purple-500/10 p-4 rounded-2xl flex items-center justify-between">
                 <div className="flex items-center gap-4">
                   <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400">
-                    <iconify-icon icon="lucide:fingerprint" width="20"></iconify-icon>
+                    <iconify-icon icon="mdi:fingerprint" width="20"></iconify-icon>
                   </div>
                   <div>
                     <span className="text-[9px] text-zinc-500 font-black uppercase tracking-widest block">System Scan</span>
@@ -525,7 +525,7 @@ export default function ProfileView({ user, xp, unlockedSkills, unlockedAchievem
               onClick={() => setShowAuraSelector(false)}
               className="absolute top-6 right-6 text-zinc-500 hover:text-white transition-colors cursor-pointer"
             >
-              <iconify-icon icon="lucide:x" width="24"></iconify-icon>
+              <iconify-icon icon="mdi:x" width="24"></iconify-icon>
             </button>
 
             <h3 className="text-2xl font-heading font-black italic uppercase text-center mb-2 bg-clip-text text-transparent bg-gradient-to-b from-white via-zinc-200 to-zinc-400">
@@ -537,11 +537,11 @@ export default function ProfileView({ user, xp, unlockedSkills, unlockedAchievem
 
             <div className="space-y-4">
               {[
-                { id: 'none', name: 'Aucune Aura 🛡️', desc: 'Rendu par défaut de votre niveau.', icon: 'lucide:shield', color: 'text-zinc-500' },
-                { id: 'fire', name: 'Aura de Feu 🔥', desc: 'Déchaînez les flammes éternelles du volcan.', icon: 'lucide:flame', color: 'text-red-500' },
-                { id: 'lightning', name: 'Aura Électrique ⚡', desc: 'Frayez un chemin de foudre néon.', icon: 'lucide:zap', color: 'text-blue-400' },
-                { id: 'cosmic', name: 'Aura Cosmique 🌌', desc: 'Invoquez les orbes de l\'abîme céleste.', icon: 'lucide:orbit', color: 'text-purple-400' },
-                { id: 'divine', name: 'Aura Divine ✨', desc: 'Brillez de la lumière des monarques.', icon: 'lucide:sparkles', color: 'text-[#fce5a1]' }
+                { id: 'none', name: 'Aucune Aura 🛡️', desc: 'Rendu par défaut de votre niveau.', icon: 'mdi:shield', color: 'text-zinc-500' },
+                { id: 'fire', name: 'Aura de Feu 🔥', desc: 'Déchaînez les flammes éternelles du volcan.', icon: 'mdi:flame', color: 'text-red-500' },
+                { id: 'lightning', name: 'Aura Électrique ⚡', desc: 'Frayez un chemin de foudre néon.', icon: 'mdi:zap', color: 'text-blue-400' },
+                { id: 'cosmic', name: 'Aura Cosmique 🌌', desc: 'Invoquez les orbes de l\'abîme céleste.', icon: 'mdi:orbit', color: 'text-purple-400' },
+                { id: 'divine', name: 'Aura Divine ✨', desc: 'Brillez de la lumière des monarques.', icon: 'mdi:sparkles', color: 'text-[#fce5a1]' }
               ].map(aura => (
                 <button
                   key={aura.id}
@@ -571,3 +571,4 @@ export default function ProfileView({ user, xp, unlockedSkills, unlockedAchievem
     </div>
   );
 }
+

@@ -37,7 +37,7 @@ vi.mock('./hooks/useSoundFX', () => ({
     playLevelUp: vi.fn(),
     playError: vi.fn(),
   }),
-  bgMusic: {
+  getBgMusic: () => ({
     play: vi.fn().mockResolvedValue(undefined),
     pause: vi.fn(),
     addEventListener: vi.fn(),
@@ -45,7 +45,7 @@ vi.mock('./hooks/useSoundFX', () => ({
     volume: 0.5,
     muted: false,
     paused: true,
-  },
+  }),
 }));
 
 vi.mock('./components/Preloader', () => ({
@@ -94,3 +94,4 @@ describe('App routing', () => {
     });
   });
 });
+

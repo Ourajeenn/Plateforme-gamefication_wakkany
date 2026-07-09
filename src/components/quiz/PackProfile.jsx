@@ -26,7 +26,7 @@ export default function PackProfile() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <button onClick={() => navigate('/quiz')} className="text-zinc-500 hover:text-white transition-colors flex items-center gap-2">
-            <iconify-icon icon="lucide:arrow-left"></iconify-icon> Retour
+            <iconify-icon icon="mdi:arrow-left"></iconify-icon> Retour
           </button>
           <h1 className="text-3xl font-heading font-black italic uppercase tracking-tighter text-[#c28e3a]">La Meute</h1>
           <div className="w-20"></div>
@@ -56,7 +56,7 @@ export default function PackProfile() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="bg-zinc-900 border border-white/5 rounded-3xl p-8 flex items-center gap-6">
              <div className="w-16 h-16 rounded-2xl bg-blue-500/10 flex items-center justify-center text-blue-500">
-               <iconify-icon icon="lucide:gamepad-2" width="32"></iconify-icon>
+               <iconify-icon icon="mdi:gamepad-2" width="32"></iconify-icon>
              </div>
              <div>
                <p className="text-4xl font-heading font-black italic">{stats.games}</p>
@@ -66,7 +66,7 @@ export default function PackProfile() {
           
           <div className="bg-zinc-900 border border-white/5 rounded-3xl p-8 flex items-center gap-6">
              <div className="w-16 h-16 rounded-2xl bg-green-500/10 flex items-center justify-center text-green-500">
-               <iconify-icon icon="lucide:trophy" width="32"></iconify-icon>
+               <iconify-icon icon="mdi:trophy" width="32"></iconify-icon>
              </div>
              <div>
                <p className="text-4xl font-heading font-black italic">{stats.wins}</p>
@@ -79,3 +79,4 @@ export default function PackProfile() {
     </div>
   );
 }
+

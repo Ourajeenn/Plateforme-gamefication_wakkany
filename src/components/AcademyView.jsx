@@ -65,7 +65,7 @@ export default function AcademyView() {
         onClick={() => navigate('/quiz')}
         className="absolute top-4 left-4 sm:top-8 sm:left-8 z-20 text-zinc-500 hover:text-white flex items-center gap-2 transition-colors uppercase tracking-widest text-xs font-bold"
       >
-        <iconify-icon icon="lucide:arrow-left"></iconify-icon> Retour au Salon
+        <iconify-icon icon="mdi:arrow-left"></iconify-icon> Retour au Salon
       </button>
 
       <div className="absolute top-0 right-0 w-64 h-64 bg-[#c28e3a]/5 blur-[100px] pointer-events-none"></div>
@@ -134,3 +134,4 @@ export default function AcademyView() {
     </div>
   );
 }
+

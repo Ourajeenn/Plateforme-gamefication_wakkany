@@ -59,3 +59,4 @@ describe('useChat', () => {
     expect(supabase.from).toHaveBeenCalledWith('chat_messages');
   });
 });
+

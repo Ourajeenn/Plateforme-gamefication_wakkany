@@ -8,3 +8,4 @@ export const calculatePresentationScore = (durationSeconds, keywordsUsedCount) =
   // Simple scoring logic for presentations
   return (durationSeconds / 60) * 50 + (keywordsUsedCount * 20);
 };
+

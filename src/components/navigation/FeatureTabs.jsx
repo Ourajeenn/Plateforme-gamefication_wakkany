@@ -2,8 +2,8 @@ import React from 'react';
 
 export default function FeatureTabs({ currentTab, onTabChange }) {
   const tabs = [
-    { id: 'presentation', label: 'Mode Présentation', icon: 'lucide:mic' },
-    { id: 'spelling', label: 'Jeu d\'Orthographe', icon: 'lucide:spell-check' }
+    { id: 'presentation', label: 'Mode Présentation', icon: 'mdi:mic' },
+    { id: 'spelling', label: 'Jeu d\'Orthographe', icon: 'mdi:spell-check' }
   ];
 
   return (
@@ -22,3 +22,4 @@ export default function FeatureTabs({ currentTab, onTabChange }) {
     </div>
   );
 }
+

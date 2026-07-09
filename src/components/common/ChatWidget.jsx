@@ -38,11 +38,11 @@ export default function ChatWidget({ user }) {
             `}>
                 <div className="bg-zinc-900 border-b border-white/10 p-3 flex justify-between items-center">
                     <div className="flex items-center gap-2">
-                        <iconify-icon icon="lucide:message-square" className="text-[#c28e3a]"></iconify-icon>
+                        <iconify-icon icon="mdi:message-square" className="text-[#c28e3a]"></iconify-icon>
                         <h3 className="font-heading font-bold text-sm">Chat Global</h3>
                     </div>
-                    <button onClick={() => setIsOpen(false)} className="text-zinc-400 hover:text-white">
-                        <iconify-icon icon="lucide:x"></iconify-icon>
+                    <button onClick={() => setIsOpen(false)} aria-label="Fermer le chat" className="text-zinc-400 hover:text-white">
+                        <iconify-icon icon="mdi:x"></iconify-icon>
                     </button>
                 </div>
 
@@ -75,15 +75,18 @@ export default function ChatWidget({ user }) {
                 </div>
 
                 <form onSubmit={handleSubmit} className="p-2 border-t border-white/10 flex gap-2">
+                    <label htmlFor="chat-widget-input" className="sr-only">Votre message</label>
                     <input 
+                        id="chat-widget-input"
                         type="text" 
                         value={inputValue}
                         onChange={(e) => setInputValue(e.target.value)}
                         placeholder="Votre message..."
+                        aria-label="Votre message"
                         className="flex-1 bg-zinc-900 border border-white/5 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[#c28e3a]/50"
                     />
                     <button type="submit" disabled={!inputValue.trim()} className="bg-[#c28e3a] text-black w-9 h-9 rounded-lg flex items-center justify-center disabled:opacity-50">
-                        <iconify-icon icon="lucide:send" width="16"></iconify-icon>
+                        <iconify-icon icon="mdi:send" width="16"></iconify-icon>
                     </button>
                 </form>
             </div>
@@ -91,14 +94,16 @@ export default function ChatWidget({ user }) {
             {/* Toggle Button */}
             <button 
                 onClick={() => setIsOpen(!isOpen)}
+                aria-label={isOpen ? 'Fermer le chat' : 'Ouvrir le chat'}
                 className={`
                     pointer-events-auto w-14 h-14 rounded-full bg-[#c28e3a] text-black flex items-center justify-center
                     shadow-xl shadow-[#c28e3a]/20 transition-transform hover:scale-110 active:scale-95
                     ${isOpen ? 'hidden' : 'flex'}
                 `}
             >
-                <iconify-icon icon="lucide:message-circle" width="24"></iconify-icon>
+                <iconify-icon icon="mdi:message-circle" width="24"></iconify-icon>
             </button>
         </div>
     );
 }
+

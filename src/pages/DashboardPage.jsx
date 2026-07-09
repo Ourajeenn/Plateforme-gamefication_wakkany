@@ -35,47 +35,55 @@ export default function DashboardPage({
 
   return (
     <div className="pt-20 min-h-screen bg-zinc-950">
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 pt-8 pb-28 lg:pb-12">
-        <div className="flex flex-col items-center gap-6 border-b border-white/5 pb-8 mb-8">
-          <div className="w-full">
-            <div className="hidden lg:flex justify-center bg-black/40 border border-white/10 p-1 rounded-xl">
-              {DASHBOARD_TABS.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => navigate(`/dashboard/${tab.id}`)}
-                  className={`flex items-center gap-2 px-6 py-3 rounded-lg text-xs font-bold uppercase tracking-widest transition-all ${dashboardTab === tab.id ? 'bg-[#c28e3a] text-black shadow-lg shadow-orange-950/20' : 'text-zinc-500 hover:text-white'}`}
-                >
-                  <iconify-icon icon={tab.icon} width="14"></iconify-icon>
-                  <span className="hidden sm:inline">{tab.label}</span>
-                </button>
-              ))}
-            </div>
-
-            <div className="lg:hidden overflow-x-auto scrollbar-hide w-full flex justify-center">
-              <div className="flex justify-center gap-2 min-w-max bg-black/40 border border-white/10 p-1 rounded-xl mx-auto">
+      {/* Premium hero banner */}
+      <div className="relative w-full overflow-hidden border-b border-white/5">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_center,rgba(194,142,58,0.12)_0%,transparent_65%)] pointer-events-none" />
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 pt-8 pb-6">
+          <div className="flex flex-col items-center gap-6 pb-2">
+            <div className="w-full">
+              <div className="hidden lg:flex justify-center bg-black/40 border border-white/10 p-1 rounded-xl">
                 {DASHBOARD_TABS.map((tab) => (
                   <button
                     key={tab.id}
                     onClick={() => navigate(`/dashboard/${tab.id}`)}
-                    className={`flex items-center gap-2 px-4 py-3 rounded-lg text-[10px] font-bold uppercase tracking-widest whitespace-nowrap transition-all ${dashboardTab === tab.id ? 'bg-[#c28e3a] text-black shadow-lg shadow-orange-950/20' : 'text-zinc-500 hover:text-white'}`}
+                    className={`flex items-center gap-2 px-6 py-3 rounded-lg text-xs font-bold uppercase tracking-widest transition-all ${dashboardTab === tab.id ? 'bg-[#c28e3a] text-black shadow-lg shadow-orange-950/20' : 'text-zinc-500 hover:text-white'}`}
                   >
                     <iconify-icon icon={tab.icon} width="14"></iconify-icon>
-                    <span>{tab.label}</span>
+                    <span className="hidden sm:inline">{tab.label}</span>
                   </button>
                 ))}
               </div>
+
+              <div className="lg:hidden overflow-x-auto scrollbar-hide w-full flex justify-center">
+                <div className="flex justify-center gap-2 min-w-max bg-black/40 border border-white/10 p-1 rounded-xl mx-auto">
+                  {DASHBOARD_TABS.map((tab) => (
+                    <button
+                      key={tab.id}
+                      onClick={() => navigate(`/dashboard/${tab.id}`)}
+                      className={`flex items-center gap-2 px-4 py-3 rounded-lg text-[10px] font-bold uppercase tracking-widest whitespace-nowrap transition-all ${dashboardTab === tab.id ? 'bg-[#c28e3a] text-black shadow-lg shadow-orange-950/20' : 'text-zinc-500 hover:text-white'}`}
+                    >
+                      <iconify-icon icon={tab.icon} width="14"></iconify-icon>
+                      <span>{tab.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="w-full text-center mt-2 animate-fade-in">
+              <p className="text-[#c28e3a] text-[9px] font-black uppercase tracking-[0.4em] mb-2">Tableau de Bord</p>
+              <h1 className="text-white text-3xl sm:text-4xl lg:text-5xl font-heading font-bold italic uppercase mb-2 break-words">
+                Bienvenue, <span className="text-[#c28e3a]">{user?.name}</span>
+              </h1>
+              <p className="text-zinc-500 font-monda uppercase text-[10px] sm:text-xs tracking-widest break-words">
+                {user?.academy} · {user?.clan?.name}
+              </p>
+              <div className="mt-4 w-16 h-px bg-gradient-to-r from-transparent via-[#c28e3a]/60 to-transparent mx-auto" />
             </div>
           </div>
+        </section>
+      </div>
 
-          <div className="w-full text-center mt-2">
-            <h1 className="text-white text-3xl sm:text-4xl lg:text-5xl font-heading font-bold italic uppercase mb-2 break-words">
-              Bienvenue, <span className="text-[#c28e3a]">{user?.name}</span>
-            </h1>
-            <p className="text-zinc-500 font-monda uppercase text-[10px] sm:text-xs tracking-widest break-words">
-              {user?.academy} // {user?.clan?.name}
-            </p>
-          </div>
-        </div>
 
         <div className="py-10">
           {dashboardTab === 'profile' && (
@@ -117,7 +125,7 @@ export default function DashboardPage({
 
           {dashboardTab === 'quiz' && (
             <div className="text-center py-20 flex flex-col items-center">
-              <iconify-icon icon="lucide:gamepad-2" width="64" className="text-[#c28e3a] mb-6 animate-bounce"></iconify-icon>
+              <iconify-icon icon="mdi:gamepad-2" width="64" className="text-[#c28e3a] mb-6 animate-bounce"></iconify-icon>
               <h2 className="text-3xl font-heading font-black italic uppercase mb-4">L&apos;Arène du Savoir</h2>
               <button
                 onClick={() => navigate('/quiz')}
@@ -174,8 +182,8 @@ export default function DashboardPage({
             }}
             />
           )}
-        </div>
-      </section>
+      </div>
     </div>
   );
 }
+

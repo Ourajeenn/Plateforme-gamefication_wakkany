@@ -1,4 +1,5 @@
 import { getAccessToken } from './auth';
+import { reportError } from './security';
 
 /**
  * Fonction utilitaire pour faire des requêtes API avec le JWT (Token Supabase)
@@ -27,8 +28,10 @@ export async function fetchWithAuth(url, options = {}) {
   if (!response.ok) {
     // Gestion globale des erreurs d'API
     const error = await response.json().catch(() => ({}));
+    reportError(new Error(error.message || `Erreur API: ${response.status}`), { url, status: response.status });
     throw new Error(error.message || `Erreur API: ${response.status}`);
   }
 
   return response.json();
 }
+

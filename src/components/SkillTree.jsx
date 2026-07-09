@@ -377,7 +377,7 @@ export default function SkillTree({ xp, unlockedSkills, onUnlock, onReset }) {
             onClick={() => { if(window.confirm('Réinitialiser tous vos talents ?')) { playSynthSFX('reset'); onReset(); } }}
             className="bg-black/50 backdrop-blur-md border border-red-500/10 px-5 py-2.5 rounded-xl text-red-500 hover:text-white hover:bg-red-500/20 hover:border-red-500/30 font-black uppercase text-[9px] tracking-[0.2em] transition-all flex items-center gap-2"
           >
-            <iconify-icon icon="lucide:refresh-cw" width="12"></iconify-icon>
+            <iconify-icon icon="mdi:refresh-cw" width="12"></iconify-icon>
             Réinitialiser l'Arbre
           </button>
         </div>
@@ -509,14 +509,14 @@ export default function SkillTree({ xp, unlockedSkills, onUnlock, onReset }) {
           className="w-10 h-10 bg-black/60 border border-white/10 hover:border-purple-500/40 text-white rounded-xl flex items-center justify-center backdrop-blur-md transition-all active:scale-95 cursor-pointer shadow-lg"
           title="Zoom In"
         >
-          <iconify-icon icon="lucide:plus" width="20"></iconify-icon>
+          <iconify-icon icon="mdi:plus" width="20"></iconify-icon>
         </button>
         <button 
           onClick={() => setZoom(z => Math.max(z - 0.1, 0.5))}
           className="w-10 h-10 bg-black/60 border border-white/10 hover:border-purple-500/40 text-white rounded-xl flex items-center justify-center backdrop-blur-md transition-all active:scale-95 cursor-pointer shadow-lg"
           title="Zoom Out"
         >
-          <iconify-icon icon="lucide:minus" width="20"></iconify-icon>
+          <iconify-icon icon="mdi:minus" width="20"></iconify-icon>
         </button>
         <button 
           onClick={() => { setZoom(1); centerTree(); }}
@@ -554,7 +554,7 @@ export default function SkillTree({ xp, unlockedSkills, onUnlock, onReset }) {
                 className="text-zinc-500 hover:text-white transition-colors cursor-pointer"
                 disabled={activeHelpRequest}
               >
-                <iconify-icon icon="lucide:x" width="24"></iconify-icon>
+                <iconify-icon icon="mdi:x" width="24"></iconify-icon>
               </button>
             </div>
 
@@ -597,7 +597,7 @@ export default function SkillTree({ xp, unlockedSkills, onUnlock, onReset }) {
                     </>
                   ) : (
                     <div className="animate-scale-up">
-                      <iconify-icon icon="lucide:check-circle-2" width="48" className="text-green-400 mb-4 animate-bounce"></iconify-icon>
+                      <iconify-icon icon="mdi:check-circle-2" width="48" className="text-green-400 mb-4 animate-bounce"></iconify-icon>
                       <span className="text-[10px] font-black uppercase tracking-[0.25em] text-green-400">SIGNAL APPROUVÉ PAR LA MEUTE !</span>
                       <p className="text-zinc-300 text-xs mt-2 font-bold font-monda">
                         🔑 <span className="text-green-400 font-black">{helpSender}</span> a validé votre accès au talent !
@@ -643,3 +643,4 @@ export default function SkillTree({ xp, unlockedSkills, onUnlock, onReset }) {
     </div>
   );
 }
+

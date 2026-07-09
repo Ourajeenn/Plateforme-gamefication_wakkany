@@ -114,3 +114,4 @@ export default function useNotifications(user) {
 
     return { notifications, unreadCount, markAsRead, markAllAsRead, addLocalNotification };
 }
+

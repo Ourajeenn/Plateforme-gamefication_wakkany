@@ -55,7 +55,7 @@ export default function Leaderboard({ currentUser }) {
             onClick={refresh}
             className="w-10 h-10 flex items-center justify-center bg-zinc-800 rounded-xl hover:bg-white hover:text-black transition-all group"
           >
-            <iconify-icon icon="lucide:refresh-cw" className={loading ? "animate-spin" : "group-hover:rotate-180 transition-transform duration-500"}></iconify-icon>
+            <iconify-icon icon="mdi:refresh-cw" className={loading ? "animate-spin" : "group-hover:rotate-180 transition-transform duration-500"}></iconify-icon>
           </button>
         </div>
       </div>
@@ -116,7 +116,7 @@ export default function Leaderboard({ currentUser }) {
               <div key={index} className="bg-black/40 border border-white/5 p-8 rounded-3xl group hover:border-[#c28e3a]/30 transition-all">
                 <div className="flex justify-between items-start mb-6">
                   <div className="w-12 h-12 bg-zinc-900 rounded-2xl flex items-center justify-center border border-white/10">
-                     <iconify-icon icon="lucide:school" width="24" className="text-zinc-500 group-hover:text-[#c28e3a] transition-colors"></iconify-icon>
+                     <iconify-icon icon="mdi:school" width="24" className="text-zinc-500 group-hover:text-[#c28e3a] transition-colors"></iconify-icon>
                   </div>
                   <div className="text-right">
                     <div className="text-2xl font-black text-white italic">{academy.totalXp} <span className="text-xs text-zinc-600 not-italic">XP</span></div>
@@ -169,3 +169,4 @@ export default function Leaderboard({ currentUser }) {
     </div>
   );
 }
+

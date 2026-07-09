@@ -73,7 +73,7 @@ export default function RiddleModal({ quest, onClose, onSuccess }) {
               <span className="text-white font-heading font-bold italic uppercase text-lg">{quest.title}</span>
             </div>
             <button onClick={handleClose} className="text-zinc-700 hover:text-white transition-colors">
-              <iconify-icon icon="lucide:x" width="24"></iconify-icon>
+              <iconify-icon icon="mdi:x" width="24"></iconify-icon>
             </button>
           </div>
 
@@ -82,7 +82,7 @@ export default function RiddleModal({ quest, onClose, onSuccess }) {
               <div className="relative">
                 <div className="w-16 h-16 border-2 border-[#c28e3a]/20 border-t-[#c28e3a] rounded-full animate-spin"></div>
                 <div className="absolute inset-0 flex items-center justify-center">
-                   <iconify-icon icon="lucide:brain" className="text-[#c28e3a] animate-pulse" width="24"></iconify-icon>
+                   <iconify-icon icon="mdi:brain" className="text-[#c28e3a] animate-pulse" width="24"></iconify-icon>
                 </div>
               </div>
               <p className="text-zinc-500 text-[10px] uppercase font-bold tracking-[0.2em] animate-pulse">Consultation des archives éthérées...</p>
@@ -111,7 +111,7 @@ export default function RiddleModal({ quest, onClose, onSuccess }) {
               {/* Hint */}
               {showHint && (
                 <div className="bg-orange-500/10 border border-orange-500/20 p-4 rounded-xl flex items-center gap-3">
-                  <iconify-icon icon="lucide:lightbulb" className="text-orange-500" width="20"></iconify-icon>
+                  <iconify-icon icon="mdi:lightbulb" className="text-orange-500" width="20"></iconify-icon>
                   <p className="text-orange-200 text-xs">Indice: <span className="italic">{currentRiddle?.hint}</span></p>
                 </div>
               )}
@@ -136,7 +136,7 @@ export default function RiddleModal({ quest, onClose, onSuccess }) {
                   >
                     {status === 'correct' ? (
                       <>
-                        <iconify-icon icon="lucide:check-circle" width="20"></iconify-icon>
+                        <iconify-icon icon="mdi:check-circle" width="20"></iconify-icon>
                         RÉSOLU !
                       </>
                     ) : (
@@ -156,3 +156,4 @@ export default function RiddleModal({ quest, onClose, onSuccess }) {
     </div>
   );
 }
+

@@ -5,9 +5,9 @@ export default function SpellResult({ success, expectedWord, onNext, onReset }) 
   return (
     <div className="max-w-md mx-auto text-center bg-black/40 border border-white/10 p-8 rounded-3xl animate-scale-up">
       {success ? (
-        <iconify-icon icon="lucide:check-circle" width="64" className="text-green-500 mb-6"></iconify-icon>
+        <iconify-icon icon="mdi:check-circle" width="64" className="text-green-500 mb-6"></iconify-icon>
       ) : (
-        <iconify-icon icon="lucide:x-circle" width="64" className="text-red-500 mb-6"></iconify-icon>
+        <iconify-icon icon="mdi:x-circle" width="64" className="text-red-500 mb-6"></iconify-icon>
       )}
       
       <h2 className="text-white text-3xl font-heading font-bold italic uppercase mb-2">
@@ -25,3 +25,4 @@ export default function SpellResult({ success, expectedWord, onNext, onReset }) 
     </div>
   );
 }
+
