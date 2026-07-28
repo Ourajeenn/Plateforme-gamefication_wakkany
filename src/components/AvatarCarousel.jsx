@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { ElasticStack } from './ElasticStack';
 
 import grid1 from '../assets/histoire/grid1.jpg';
 import grid2 from '../assets/histoire/grid2.jpg';
@@ -85,6 +86,61 @@ function SpriteCell({ avatar, filter, cardW, cardH }) {
         ...style,
         filter,
         transition: 'filter 0.45s ease',
+      }}
+    />
+  );
+}
+
+/* ── Sprite thumb circle (pour ElasticStack) ─────────────────────────────── */
+function SpriteThumbCircle({ avatar, size = 52, isActive, isHovered, onClick }) {
+  const [style, setStyle] = useState({});
+
+  useEffect(() => {
+    let isAlive = true;
+    const img = new window.Image();
+    img.onload = () => {
+      if (!isAlive) return;
+      const { naturalWidth: iw, naturalHeight: ih } = img;
+      const cellW = iw / avatar.cols;
+      const cellH = ih / avatar.rows;
+      const sc = Math.max(size / cellW, size / cellH);
+      const scaledW = Math.round(iw * sc);
+      const scaledH = Math.round(ih * sc);
+      const sCellW  = Math.round(cellW * sc);
+      const sCellH  = Math.round(cellH * sc);
+      const px = Math.round(-(avatar.col * sCellW) - (sCellW - size) / 2);
+      const py = Math.round(-(avatar.row * sCellH) - (sCellH - size) / 2);
+      setStyle({
+        backgroundImage:    `url(${avatar.img})`,
+        backgroundSize:     `${scaledW}px ${scaledH}px`,
+        backgroundPosition: `${px}px ${py}px`,
+        backgroundRepeat:   'no-repeat',
+      });
+    };
+    img.src = avatar.img;
+    return () => { isAlive = false; };
+  }, [avatar.img, avatar.col, avatar.row, avatar.cols, avatar.rows, size]);
+
+  return (
+    <div
+      onClick={onClick}
+      className="rounded-full overflow-hidden cursor-pointer"
+      style={{
+        width: size,
+        height: size,
+        border: isActive
+          ? '2.5px solid #c28e3a'
+          : isHovered
+          ? '2.5px solid rgba(194,142,58,0.6)'
+          : '2.5px solid rgba(255,255,255,0.1)',
+        boxShadow: isActive
+          ? '0 0 14px rgba(194,142,58,0.5)'
+          : isHovered
+          ? '0 0 8px rgba(194,142,58,0.25)'
+          : 'none',
+        filter: isActive ? 'none' : 'brightness(0.55) saturate(0.7)',
+        transition: 'filter 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease',
+        ...style,
       }}
     />
   );
@@ -257,25 +313,37 @@ export default function AvatarCarousel() {
         })}
       </div>
 
-      {/* Name + dots */}
+      {/* Name + ElasticStack navigator */}
       <div className="flex flex-col items-center pt-10 pb-14">
-        <p className="text-[#c28e3a] text-xs font-black uppercase tracking-[0.3em] font-monda mb-6 h-4">
+        <p className="text-[#c28e3a] text-xs font-black uppercase tracking-[0.3em] font-monda mb-2 h-4">
           {avatars[centerIdx].name}
         </p>
-        <div className="flex justify-center gap-2 flex-wrap">
-          {avatars.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => setCenterIdx(i)}
-              className="transition-all duration-300 rounded-sm"
-              style={{
-                width:      centerIdx === i ? 20 : 8,
-                height:     8,
-                transform:  centerIdx === i ? 'none' : 'rotate(45deg)',
-                background: centerIdx === i ? '#c28e3a' : 'rgba(255,255,255,0.2)',
-              }}
-            />
-          ))}
+
+        {/* ElasticStack — tous les avatars comme navigateur circulaire */}
+        <div className="w-full overflow-x-auto scrollbar-hide flex justify-center">
+          <ElasticStack
+            items={avatars.map((av, i) => ({
+              id: av.id,
+              name: av.name,
+              // On utilise un élément custom rendu via renderItem
+              __idx: i,
+              __avatar: av,
+              __centerIdx: centerIdx,
+            }))}
+            itemSize={52}
+            overlap={22}
+            pushForce={12}
+            renderItem={(item, i, isHovered) => (
+              <SpriteThumbCircle
+                avatar={item.__avatar}
+                size={52}
+                isActive={item.__idx === item.__centerIdx}
+                isHovered={isHovered}
+                onClick={() => setCenterIdx(item.__idx)}
+              />
+            )}
+            onItemClick={(item) => setCenterIdx(item.__idx)}
+          />
         </div>
       </div>
     </section>

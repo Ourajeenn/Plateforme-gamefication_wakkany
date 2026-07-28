@@ -113,10 +113,10 @@ export default function TriviaQuiz({ setXp, xpPerCorrect = 10 }) {
       <div className="flex flex-col items-center justify-center min-h-[300px] space-y-6">
         <h2 className="text-3xl font-heading font-black uppercase text-[#c28e3a]">Quiz terminé !</h2>
         <p className="text-xl text-zinc-200">Score : {score} / {questions.length}</p>
-        <p className="text-lg text-purple-300">XP gagné : {earnedXp}</p>
+        <p className="text-lg text-[#c28e3a]/90 font-bold">XP gagné : {earnedXp}</p>
         <button
           onClick={claimReward}
-          className="px-6 py-2 bg-[#c28e3a] text-black font-heading font-bold uppercase rounded-lg hover:bg-white transition-colors"
+          className="px-6 py-2.5 bg-[#c28e3a] text-black font-heading font-bold uppercase rounded-lg hover:bg-[#e8b96a] transition-colors"
         >
           Réclamer XP
         </button>
@@ -126,7 +126,7 @@ export default function TriviaQuiz({ setXp, xpPerCorrect = 10 }) {
 
   const q = questions[currentIdx];
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-zinc-900/60 border border-purple-500/20 rounded-2xl shadow-xl">
+    <div className="max-w-2xl mx-auto p-6 bg-zinc-900/60 border border-[#c28e3a]/20 rounded-2xl shadow-xl">
       <h3 className="text-xl font-heading font-bold text-white mb-4" dangerouslySetInnerHTML={{ __html: q.question }} />
       <ul className="space-y-3">
         {q.options.map((opt, i) => (
@@ -134,10 +134,11 @@ export default function TriviaQuiz({ setXp, xpPerCorrect = 10 }) {
             <button
               onClick={() => handleSelect(opt)}
               disabled={selected !== null}
-              className={`w-full text-left px-4 py-2 rounded-md transition-colors 
-                ${selected === null ? 'bg-zinc-800 hover:bg-zinc-700' : ''}
-                ${selected && opt === q.correct ? 'bg-green-600 text-white' : ''}
-                ${selected && opt !== q.correct ? 'bg-red-600 text-white' : ''}`}
+              className={`w-full text-left px-4 py-3 rounded-xl transition-all border font-monda text-sm
+                ${selected === null ? 'bg-zinc-800/80 border-white/5 hover:bg-zinc-700 hover:border-white/10' : ''}
+                ${selected && opt === q.correct ? 'bg-[#c28e3a]/10 border-[#c28e3a] text-[#c28e3a]' : ''}
+                ${selected && selected === opt && opt !== q.correct ? 'bg-red-500/10 border-red-500/50 text-red-400' : ''}
+                ${selected && opt !== q.correct && selected !== opt ? 'bg-zinc-900/50 border-white/5 opacity-50' : ''}`}
             >
               {opt}
             </button>

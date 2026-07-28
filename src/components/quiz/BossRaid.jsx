@@ -139,7 +139,7 @@ export default function BossRaid() {
 
         {/* Global progress bar */}
         <div className="h-1.5 bg-zinc-900">
-          <div className="h-full bg-gradient-to-r from-[#c28e3a] to-purple-500 transition-all duration-700" style={{ width: `${prog}%` }} />
+          <div className="h-full bg-gradient-to-r from-[#c28e3a] to-[#e8b96a] transition-all duration-700" style={{ width: `${prog}%` }} />
         </div>
 
         <div className="max-w-4xl mx-auto px-4 pt-8 space-y-10">
@@ -273,8 +273,8 @@ export default function BossRaid() {
               <div className="text-[9px] text-zinc-500 uppercase">pts · x{streak} série</div>
             </div>
           </div>
-          <HpBar current={bossHp} max={enc?.hp} color={enc?.color} label="Boss HP" icon="💀" />
-          <HpBar current={teamHp} max={100} color="#a855f7" label="Meute HP" icon="🛡️" />
+          <HpBar current={bossHp} max={enc?.hp} color={enc?.color} label="Boss HP" icon="💠" />
+          <HpBar current={teamHp} max={100} color="#c28e3a" label="Meute HP" icon="🛡️" />
         </div>
 
         {/* Timer + progress */}
@@ -282,7 +282,7 @@ export default function BossRaid() {
           <span className="text-xs text-zinc-500 font-bold whitespace-nowrap">Q {questionIndex + 1}/{totalQuestions}</span>
           <div className="flex-1 h-2 bg-zinc-900 rounded-full overflow-hidden border border-white/5">
             <div className="h-full rounded-full transition-all duration-1000 ease-linear"
-              style={{ width: `${timerPct}%`, background: timerPct > 40 ? '#a855f7' : timerPct > 20 ? '#f97316' : '#ef4444' }} />
+              style={{ width: `${timerPct}%`, background: timerPct > 40 ? '#c28e3a' : timerPct > 20 ? '#f97316' : '#ef4444' }} />
           </div>
           <span className={`text-sm font-black w-6 text-right ${timeLeft <= 3 ? 'text-red-400 animate-pulse' : 'text-white'}`}>{timeLeft}</span>
         </div>
@@ -335,7 +335,7 @@ export default function BossRaid() {
               <div className="text-[10px] text-zinc-500 uppercase font-bold">XP Gagnée</div>
             </div>
             <div className="bg-black/40 border border-white/10 rounded-2xl p-5 text-center">
-              <div className="text-3xl font-black italic text-purple-400">{score}</div>
+              <div className="text-3xl font-black italic text-[#c28e3a]">{score}</div>
               <div className="text-[10px] text-zinc-500 uppercase font-bold">Score Combat</div>
             </div>
           </div>

@@ -244,6 +244,7 @@ jobs:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
         run: |
+          vercel build --prod --token="$VERCEL_TOKEN"
           vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN" 2>&1 | tee vercel_output.txt
           DEPLOY_URL=$(grep -Eo 'https://[a-zA-Z0-9.-]+\.vercel\.app' vercel_output.txt | tail -1)
           echo "deploy_url=$DEPLOY_URL" >> "$GITHUB_ENV"
@@ -255,6 +256,7 @@ jobs:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
         run: |
+          vercel build --token="$VERCEL_TOKEN"
           vercel deploy --prebuilt --token="$VERCEL_TOKEN" 2>&1 | tee vercel_output.txt
           DEPLOY_URL=$(grep -Eo 'https://[a-zA-Z0-9.-]+\.vercel\.app' vercel_output.txt | tail -1)
           echo "deploy_url=$DEPLOY_URL" >> "$GITHUB_ENV"

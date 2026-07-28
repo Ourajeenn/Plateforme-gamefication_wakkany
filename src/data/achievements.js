@@ -37,7 +37,7 @@ export const ACHIEVEMENTS = [
         desc: 'Débloquer 3 compétences dans l\'Ère Primaire.',
         icon: 'mdi:bone',
         condition: (data) => data.unlockedSkills.filter(s => s.startsWith('d')).length >= 3,
-        color: '#34c759'
+        color: '#a1752b'
     },
     {
         id: 'specialist_cars',
@@ -45,7 +45,7 @@ export const ACHIEVEMENTS = [
         desc: 'Débloquer 3 compétences dans le Syndicat Mécanique.',
         icon: 'mdi:car-front',
         condition: (data) => data.unlockedSkills.filter(s => s.startsWith('c')).length >= 3,
-        color: '#007aff'
+        color: '#e8b96a'
     },
     {
         id: 'legend_level',
@@ -61,7 +61,7 @@ export const ACHIEVEMENTS = [
         desc: 'Vous avez rejoint une Académie.',
         icon: 'mdi:messages-square',
         condition: (data) => data.user && data.user.academy,
-        color: '#a855f7'
+        color: '#d9a752'
     },
     {
         id: 'polymath',
@@ -72,7 +72,7 @@ export const ACHIEVEMENTS = [
             const branches = new Set(data.unlockedSkills.map(s => s[0]));
             return branches.size >= 3;
         },
-        color: '#ec4899'
+        color: '#c28e3a'
     }
 ];
 

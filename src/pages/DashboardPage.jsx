@@ -38,77 +38,72 @@ export default function DashboardPage({
       {/* Premium hero banner */}
       <div className="relative w-full overflow-hidden border-b border-white/5">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_center,rgba(194,142,58,0.12)_0%,transparent_65%)] pointer-events-none" />
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 pt-8 pb-6">
-          <div className="flex flex-col items-center gap-6 pb-2">
-            <div className="w-full">
-              <div className="hidden lg:flex justify-center bg-black/40 border border-white/10 p-1 rounded-xl">
-                {DASHBOARD_TABS.map((tab) => (
-                  <button
-                    key={tab.id}
-                    onClick={() => navigate(`/dashboard/${tab.id}`)}
-                    className={`flex items-center gap-2 px-6 py-3 rounded-lg text-xs font-bold uppercase tracking-widest transition-all ${dashboardTab === tab.id ? 'bg-[#c28e3a] text-black shadow-lg shadow-orange-950/20' : 'text-zinc-500 hover:text-white'}`}
-                  >
-                    <iconify-icon icon={tab.icon} width="14"></iconify-icon>
-                    <span className="hidden sm:inline">{tab.label}</span>
-                  </button>
-                ))}
-              </div>
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 pt-10 pb-8">
 
-              <div className="lg:hidden overflow-x-auto scrollbar-hide w-full flex justify-center">
-                <div className="flex justify-center gap-2 min-w-max bg-black/40 border border-white/10 p-1 rounded-xl mx-auto">
-                  {DASHBOARD_TABS.map((tab) => (
-                    <button
-                      key={tab.id}
-                      onClick={() => navigate(`/dashboard/${tab.id}`)}
-                      className={`flex items-center gap-2 px-4 py-3 rounded-lg text-[10px] font-bold uppercase tracking-widest whitespace-nowrap transition-all ${dashboardTab === tab.id ? 'bg-[#c28e3a] text-black shadow-lg shadow-orange-950/20' : 'text-zinc-500 hover:text-white'}`}
-                    >
-                      <iconify-icon icon={tab.icon} width="14"></iconify-icon>
-                      <span>{tab.label}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
+          {/* Titre du tableau de bord */}
+          <div className="w-full text-center mb-8 animate-fade-in">
+            <p className="text-[#c28e3a] text-[9px] font-black uppercase tracking-[0.4em] mb-3">Tableau de Bord</p>
+            <h1 className="text-white text-3xl sm:text-4xl lg:text-5xl font-heading font-bold italic uppercase mb-2">
+              Bienvenue, <span className="text-[#c28e3a]">{user?.name}</span>
+            </h1>
+            <p className="text-zinc-500 font-monda uppercase text-[10px] sm:text-xs tracking-widest">
+              {user?.academy} · {user?.clan?.name}
+            </p>
+            <div className="mt-4 w-16 h-px bg-gradient-to-r from-transparent via-[#c28e3a]/60 to-transparent mx-auto" />
+          </div>
 
-            <div className="w-full text-center mt-2 animate-fade-in">
-              <p className="text-[#c28e3a] text-[9px] font-black uppercase tracking-[0.4em] mb-2">Tableau de Bord</p>
-              <h1 className="text-white text-3xl sm:text-4xl lg:text-5xl font-heading font-bold italic uppercase mb-2 break-words">
-                Bienvenue, <span className="text-[#c28e3a]">{user?.name}</span>
-              </h1>
-              <p className="text-zinc-500 font-monda uppercase text-[10px] sm:text-xs tracking-widest break-words">
-                {user?.academy} · {user?.clan?.name}
-              </p>
-              <div className="mt-4 w-16 h-px bg-gradient-to-r from-transparent via-[#c28e3a]/60 to-transparent mx-auto" />
+          {/* Navigation tabs — desktop : grille flexible */}
+          <div className="hidden md:flex flex-wrap justify-center gap-1.5 bg-black/50 border border-white/10 backdrop-blur-sm rounded-2xl p-2">
+            {DASHBOARD_TABS.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => navigate(`/dashboard/${tab.id}`)}
+                className={`flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-[10px] font-bold uppercase tracking-[0.1em] transition-all duration-200 ${
+                  dashboardTab === tab.id
+                    ? 'bg-[#c28e3a] text-black shadow-md'
+                    : 'text-zinc-400 hover:text-white hover:bg-white/5'
+                }`}
+              >
+                <iconify-icon icon={tab.icon} width="14"></iconify-icon>
+                <span>{tab.label}</span>
+              </button>
+            ))}
+          </div>
+
+          {/* Navigation tabs — mobile : scroll horizontal */}
+          <div className="md:hidden w-full overflow-x-auto scrollbar-hide">
+            <div className="flex gap-2 min-w-max mx-auto bg-black/50 border border-white/10 rounded-2xl p-2.5">
+              {DASHBOARD_TABS.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => navigate(`/dashboard/${tab.id}`)}
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all duration-200 ${
+                    dashboardTab === tab.id
+                      ? 'bg-[#c28e3a] text-black shadow-md'
+                      : 'text-zinc-400 hover:text-white'
+                  }`}
+                >
+                  <iconify-icon icon={tab.icon} width="14"></iconify-icon>
+                  <span>{tab.label}</span>
+                </button>
+              ))}
             </div>
           </div>
+
         </section>
       </div>
 
 
-        <div className="py-10">
+        <div className="py-8 max-w-7xl mx-auto px-4 sm:px-6">
           {dashboardTab === 'profile' && (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              <div className="lg:col-span-2">
-                <ProfileView
-                  user={user}
-                  xp={cumulativeXp}
-                  unlockedSkills={unlockedSkills}
-                  unlockedAchievements={unlockedAchievements}
-                  setXp={setXp}
-                  setUnlockedAchievements={setUnlockedAchievements}
-                />
-              </div>
-              <div className="glass-panel rounded-3xl p-8 relative overflow-hidden">
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-zinc-200 text-[10px] font-black uppercase tracking-[0.3em]">Flux d&apos;Activité en Temps Réel</h3>
-                  <div className="flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></div>
-                    <span className="text-[8px] font-bold text-red-500 uppercase tracking-widest">Live</span>
-                  </div>
-                </div>
-                <ActivityList />
-              </div>
-            </div>
+            <ProfileView
+              user={user}
+              xp={cumulativeXp}
+              unlockedSkills={unlockedSkills}
+              unlockedAchievements={unlockedAchievements}
+              setXp={setXp}
+              setUnlockedAchievements={setUnlockedAchievements}
+            />
           )}
 
           {dashboardTab === 'avatar' && (

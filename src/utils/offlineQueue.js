@@ -2,9 +2,13 @@
  * offlineQueue.js
  * File d'attente persistante pour les opérations Supabase effectuées hors ligne.
  * Les données sont stockées en localStorage et synchronisées au retour de la connexion.
+ *
+ * Prend en charge les types 'upsert', 'delete', 'insert' et 'rpc'.
+ * Limité à MAX_RETRIES (5) tentatives par opération pour éviter la fuite mémoire.
  */
 
 const QUEUE_KEY = 'wakkany_offline_queue';
+export const MAX_RETRIES = 5;
 
 function loadQueue() {
   try {
@@ -20,19 +24,28 @@ function saveQueue(queue) {
 
 /**
  * Ajoute une opération dans la file d'attente hors ligne.
- * @param {'upsert'|'delete'|'insert'} type
- * @param {string} table - Nom de la table Supabase
- * @param {object} data - Données à synchroniser
+ * @param {'upsert'|'delete'|'insert'|'rpc'} type
+ * @param {string} target - Nom de la table ou nom de la fonction RPC
+ * @param {object} payload - Données de la table ou arguments RPC
  */
-export function enqueueOfflineOperation(type, table, data) {
+export function enqueueOfflineOperation(type, target, payload) {
   const queue = loadQueue();
-  queue.push({
+  const entry = {
     id: `${Date.now()}_${Math.random().toString(36).slice(2)}`,
     type,
-    table,
-    data,
     timestamp: Date.now(),
-  });
+    retries: 0,
+  };
+
+  if (type === 'rpc') {
+    entry.functionName = target;
+    entry.args = payload;
+  } else {
+    entry.table = target;
+    entry.data = payload;
+  }
+
+  queue.push(entry);
   saveQueue(queue);
 }
 
@@ -51,7 +64,10 @@ export async function flushOfflineQueue(supabase) {
 
   for (const op of queue) {
     try {
-      if (op.type === 'upsert') {
+      if (op.type === 'rpc') {
+        const { error } = await supabase.rpc(op.functionName, op.args);
+        if (error) throw error;
+      } else if (op.type === 'upsert') {
         const { error } = await supabase.from(op.table).upsert(op.data);
         if (error) throw error;
       } else if (op.type === 'insert') {
@@ -64,12 +80,15 @@ export async function flushOfflineQueue(supabase) {
       }
       synced++;
     } catch (e) {
-      console.warn(`[OfflineQueue] Failed to sync op ${op.id}:`, e.message);
-      // Garde uniquement les ops récentes (< 7 jours)
-      if (Date.now() - op.timestamp < 7 * 24 * 60 * 60 * 1000) {
-        remaining.push(op);
-      }
+      const retries = (op.retries || 0) + 1;
       failed++;
+
+      if (retries >= MAX_RETRIES) {
+        console.warn(`[OfflineQueue] Abandon de l'opération ${op.id} (${op.type}) après ${MAX_RETRIES} échecs:`, e.message);
+      } else if (Date.now() - op.timestamp < 7 * 24 * 60 * 60 * 1000) {
+        console.warn(`[OfflineQueue] Échec de l'opération ${op.id} (tentative ${retries}/${MAX_RETRIES}):`, e.message);
+        remaining.push({ ...op, retries });
+      }
     }
   }
 

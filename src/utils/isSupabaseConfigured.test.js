@@ -24,7 +24,8 @@ describe('isSupabaseConfigured', () => {
 
   it('returns true for real-looking configuration', () => {
     import.meta.env.VITE_SUPABASE_URL = 'https://example.supabase.co';
-    import.meta.env.VITE_SUPABASE_ANON_KEY = 'sb_publishable_test';
+    // Clé fictive pour test — format avec points requis par isSupabaseConfigured
+    import.meta.env.VITE_SUPABASE_ANON_KEY = 'fake-anon-key.for.testing.only';
     expect(isSupabaseConfigured()).toBe(true);
   });
 });

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import morokhImg from '../assets/histoire/morokh_v2.png';
 import anyaImg from '../assets/histoire/anya_v2.png';
 import factionsImg from '../assets/histoire/factions_v2.png';
+import { ScrollDissolveReveal } from './ScrollDissolveReveal';
 
 export default function HistoireView() {
   const [activeTab, setActiveTab] = useState('personnages');
@@ -55,115 +56,115 @@ export default function HistoireView() {
       {/* Content */}
       <div className="mt-8 px-4 md:px-8">
         {activeTab === 'personnages' && (
-          <div className="flex flex-col gap-12 max-w-6xl mx-auto">
-            
-            {/* Morokh - Authentic Card */}
-            <div className="w-full rounded-[2rem] border border-white/10 bg-zinc-950/80 backdrop-blur-xl overflow-hidden flex flex-col md:flex-row shadow-[0_0_50px_rgba(0,0,0,0.5)]">
-              {/* Portrait Side */}
-              <div className="w-full md:w-[45%] h-64 md:h-auto relative overflow-hidden shrink-0">
-                 <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-zinc-950 via-zinc-950/20 to-transparent z-10"></div>
-                 <img 
-                   src={morokhImg} 
-                   alt="Morokh Portrait" 
-                   className="absolute top-0 left-0 w-full h-[150%] md:h-[200%] object-cover" 
-                   style={{ objectPosition: 'center 5%' }} 
-                 />
-              </div>
-              
-              {/* Info Side */}
-              <div className="w-full md:w-[55%] p-8 md:p-12 flex flex-col justify-center space-y-8 z-20 relative">
-                <div>
-                   <div className="flex items-center gap-3 mb-2">
-                     <iconify-icon icon="mdi:swords" className="text-purple-500 text-xl"></iconify-icon>
-                     <p className="text-purple-400 font-bold tracking-[0.2em] uppercase text-xs">The Dark Sentinel</p>
-                   </div>
-                   <h2 className="text-5xl font-black uppercase text-white font-heading tracking-wider">Morokh</h2>
-                </div>
-                
-                <div className="space-y-3">
-                   <h3 className="text-white font-black uppercase tracking-widest text-sm flex items-center gap-2">
-                     <iconify-icon icon="mdi:book-open" className="text-[#c28e3a]"></iconify-icon>
-                     Lore
-                   </h3>
-                   <div className="h-px w-12 bg-[#c28e3a]/50"></div>
-                   <p className="text-zinc-400 text-sm leading-relaxed font-monda">
-                     Morokh stood as a gatekeeper at the Soul Gate for an eternity, preserving balance and order. Every soul seeking passage to the realm of the dead had to face his fair and just judgment first. One fateful day, the precious balance of souls was shattered... incensed and more than a little curious, the Dark Sentinel travelled back to the world of the living.
-                   </p>
-                </div>
-                
-                <div className="space-y-3">
-                   <h3 className="text-white font-black uppercase tracking-widest text-sm flex items-center gap-2">
-                     <iconify-icon icon="mdi:flame" className="text-[#c28e3a]"></iconify-icon>
-                     Combat & Abilities
-                   </h3>
-                   <div className="h-px w-12 bg-[#c28e3a]/50"></div>
-                   <p className="text-zinc-400 text-sm leading-relaxed font-monda mb-4">
-                     A melee caster who cripples enemy defenses to deal massive amounts of damage. With every enemy hit, a fraction of their soul is stored in his Soul Essence container.
-                   </p>
-                   <div className="flex flex-wrap gap-2 pt-2">
-                     {["Curse of Morokh", "Sinister Cleave", "The Great Cleave", "Shadow Step", "Harvest", "Horrible Visage", "Reaping", "Soul Drain"].map(skill => (
-                       <span key={skill} className="px-4 py-2 bg-purple-950/30 border border-purple-500/30 rounded-lg text-[10px] text-purple-200 uppercase tracking-widest font-bold shadow-[0_0_10px_rgba(168,85,247,0.1)]">
-                         {skill}
-                       </span>
-                     ))}
-                   </div>
-                </div>
-              </div>
-            </div>
+          <div className="flex flex-col gap-0 max-w-full mx-auto">
 
-            {/* Anya - Authentic Card */}
-            <div className="w-full rounded-[2rem] border border-white/10 bg-zinc-950/80 backdrop-blur-xl overflow-hidden flex flex-col md:flex-row-reverse shadow-[0_0_50px_rgba(0,0,0,0.5)]">
-              {/* Portrait Side */}
-              <div className="w-full md:w-[45%] h-64 md:h-auto relative overflow-hidden shrink-0">
-                 <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-l from-zinc-950 via-zinc-950/20 to-transparent z-10"></div>
-                 <img 
-                   src={anyaImg} 
-                   alt="Anya Portrait" 
-                   className="absolute top-0 left-0 w-full h-[150%] md:h-[200%] object-cover" 
-                   style={{ objectPosition: 'center 10%' }} 
-                 />
+            {/* ── MOROKH – Scroll Dissolve Reveal ── */}
+            <section className="relative">
+              {/* Dissolve canvas (300vh scroll zone) */}
+              <ScrollDissolveReveal
+                imageFront={morokhImg}
+                imageBack={morokhImg}
+                containerClassName="z-0"
+                className="bg-black"
+              />
+
+              {/* Info card – floats below the scroll zone */}
+              <div className="relative z-10 max-w-4xl mx-auto px-4 md:px-8 -mt-32 pb-24">
+                <div className="w-full rounded-[2rem] border border-purple-500/20 bg-zinc-950/90 backdrop-blur-2xl overflow-hidden shadow-[0_0_80px_rgba(168,85,247,0.15)]">
+                  <div className="p-8 md:p-14 flex flex-col space-y-8">
+                    <div>
+                      <div className="flex items-center gap-3 mb-2">
+                        <iconify-icon icon="mdi:swords" className="text-purple-500 text-2xl"></iconify-icon>
+                        <p className="text-purple-400 font-bold tracking-[0.2em] uppercase text-xs">The Dark Sentinel</p>
+                      </div>
+                      <h2 className="text-6xl font-black uppercase text-white font-heading tracking-wider">Morokh</h2>
+                    </div>
+
+                    <div className="space-y-3">
+                      <h3 className="text-white font-black uppercase tracking-widest text-sm flex items-center gap-2">
+                        <iconify-icon icon="mdi:book-open" className="text-[#c28e3a]"></iconify-icon>
+                        Lore
+                      </h3>
+                      <div className="h-px w-12 bg-[#c28e3a]/50"></div>
+                      <p className="text-zinc-400 text-sm leading-relaxed font-monda">
+                        Morokh stood as a gatekeeper at the Soul Gate for an eternity, preserving balance and order. Every soul seeking passage to the realm of the dead had to face his fair and just judgment first. One fateful day, the precious balance of souls was shattered... incensed and more than a little curious, the Dark Sentinel travelled back to the world of the living.
+                      </p>
+                    </div>
+
+                    <div className="space-y-3">
+                      <h3 className="text-white font-black uppercase tracking-widest text-sm flex items-center gap-2">
+                        <iconify-icon icon="mdi:flame" className="text-[#c28e3a]"></iconify-icon>
+                        Combat &amp; Abilities
+                      </h3>
+                      <div className="h-px w-12 bg-[#c28e3a]/50"></div>
+                      <p className="text-zinc-400 text-sm leading-relaxed font-monda mb-4">
+                        A melee caster who cripples enemy defenses to deal massive amounts of damage. With every enemy hit, a fraction of their soul is stored in his Soul Essence container.
+                      </p>
+                      <div className="flex flex-wrap gap-2 pt-2">
+                        {["Curse of Morokh", "Sinister Cleave", "The Great Cleave", "Shadow Step", "Harvest", "Horrible Visage", "Reaping", "Soul Drain"].map(skill => (
+                          <span key={skill} className="px-4 py-2 bg-purple-950/30 border border-purple-500/30 rounded-lg text-[10px] text-purple-200 uppercase tracking-widest font-bold shadow-[0_0_10px_rgba(168,85,247,0.1)]">
+                            {skill}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
-              
-              {/* Info Side */}
-              <div className="w-full md:w-[55%] p-8 md:p-12 flex flex-col justify-center space-y-8 z-20 relative">
-                <div>
-                   <div className="flex items-center gap-3 mb-2">
-                     <iconify-icon icon="mdi:droplet" className="text-red-500 text-xl"></iconify-icon>
-                     <p className="text-red-400 font-bold tracking-[0.2em] uppercase text-xs">The Blood Ritualist</p>
-                   </div>
-                   <h2 className="text-5xl font-black uppercase text-white font-heading tracking-wider">Anya</h2>
-                </div>
-                
-                <div className="space-y-3">
-                   <h3 className="text-white font-black uppercase tracking-widest text-sm flex items-center gap-2">
-                     <iconify-icon icon="mdi:book-open" className="text-[#c28e3a]"></iconify-icon>
-                     Lore
-                   </h3>
-                   <div className="h-px w-12 bg-[#c28e3a]/50"></div>
-                   <p className="text-zinc-400 text-sm leading-relaxed font-monda">
-                     Left for dead as a small child, Anya clawed onto survival against all odds. She was raised and trained against her will to serve their twisted agendas by practicing blood magic. After years of servitude, Anya grew strong enough to turn their own methods against them and sever her bonds.
-                   </p>
-                </div>
-                
-                <div className="space-y-3">
-                   <h3 className="text-white font-black uppercase tracking-widest text-sm flex items-center gap-2">
-                     <iconify-icon icon="mdi:flame" className="text-[#c28e3a]"></iconify-icon>
-                     Combat & Abilities
-                   </h3>
-                   <div className="h-px w-12 bg-[#c28e3a]/50"></div>
-                   <p className="text-zinc-400 text-sm leading-relaxed font-monda mb-4">
-                     To ward off the negative effects of her corrupted blood, Anya uses a whip to relentlessly lash her victims and consume their blood fragments to use powerful life-leeching abilities.
-                   </p>
-                   <div className="flex flex-wrap gap-2 pt-2">
-                     {["Blood Rite", "Whipslash", "Spinning Slash", "Vitality Rush", "Blood Sucker", "Swarm", "Heartbeat", "Bloodbolt"].map(skill => (
-                       <span key={skill} className="px-4 py-2 bg-red-950/30 border border-red-500/30 rounded-lg text-[10px] text-red-200 uppercase tracking-widest font-bold shadow-[0_0_10px_rgba(239,68,68,0.1)]">
-                         {skill}
-                       </span>
-                     ))}
-                   </div>
+            </section>
+
+            {/* ── ANYA – Scroll Dissolve Reveal ── */}
+            <section className="relative">
+              <ScrollDissolveReveal
+                imageFront={anyaImg}
+                imageBack={anyaImg}
+                containerClassName="z-0"
+                className="bg-black"
+              />
+
+              <div className="relative z-10 max-w-4xl mx-auto px-4 md:px-8 -mt-32 pb-24">
+                <div className="w-full rounded-[2rem] border border-red-500/20 bg-zinc-950/90 backdrop-blur-2xl overflow-hidden shadow-[0_0_80px_rgba(239,68,68,0.12)]">
+                  <div className="p-8 md:p-14 flex flex-col space-y-8">
+                    <div>
+                      <div className="flex items-center gap-3 mb-2">
+                        <iconify-icon icon="mdi:droplet" className="text-red-500 text-2xl"></iconify-icon>
+                        <p className="text-red-400 font-bold tracking-[0.2em] uppercase text-xs">The Blood Ritualist</p>
+                      </div>
+                      <h2 className="text-6xl font-black uppercase text-white font-heading tracking-wider">Anya</h2>
+                    </div>
+
+                    <div className="space-y-3">
+                      <h3 className="text-white font-black uppercase tracking-widest text-sm flex items-center gap-2">
+                        <iconify-icon icon="mdi:book-open" className="text-[#c28e3a]"></iconify-icon>
+                        Lore
+                      </h3>
+                      <div className="h-px w-12 bg-[#c28e3a]/50"></div>
+                      <p className="text-zinc-400 text-sm leading-relaxed font-monda">
+                        Left for dead as a small child, Anya clawed onto survival against all odds. She was raised and trained against her will to serve their twisted agendas by practicing blood magic. After years of servitude, Anya grew strong enough to turn their own methods against them and sever her bonds.
+                      </p>
+                    </div>
+
+                    <div className="space-y-3">
+                      <h3 className="text-white font-black uppercase tracking-widest text-sm flex items-center gap-2">
+                        <iconify-icon icon="mdi:flame" className="text-[#c28e3a]"></iconify-icon>
+                        Combat &amp; Abilities
+                      </h3>
+                      <div className="h-px w-12 bg-[#c28e3a]/50"></div>
+                      <p className="text-zinc-400 text-sm leading-relaxed font-monda mb-4">
+                        To ward off the negative effects of her corrupted blood, Anya uses a whip to relentlessly lash her victims and consume their blood fragments to use powerful life-leeching abilities.
+                      </p>
+                      <div className="flex flex-wrap gap-2 pt-2">
+                        {["Blood Rite", "Whipslash", "Spinning Slash", "Vitality Rush", "Blood Sucker", "Swarm", "Heartbeat", "Bloodbolt"].map(skill => (
+                          <span key={skill} className="px-4 py-2 bg-red-950/30 border border-red-500/30 rounded-lg text-[10px] text-red-200 uppercase tracking-widest font-bold shadow-[0_0_10px_rgba(239,68,68,0.1)]">
+                            {skill}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
+            </section>
 
           </div>
         )}

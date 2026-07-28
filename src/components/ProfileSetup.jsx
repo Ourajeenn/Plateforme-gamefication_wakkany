@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import AuthForm from './AuthForm';
 import { isSupabaseConfigured } from '../utils/isSupabaseConfigured';
 
@@ -10,11 +11,20 @@ const FACTIONS = [
 ];
 
 export default function ProfileSetup({ onComplete, isAuthenticated = true }) {
+    const navigate = useNavigate();
     const [name, setName] = useState('');
     const [academy, setAcademy] = useState('');
     const [selectedClan, setSelectedClan] = useState(FACTIONS[0]);
     const authRequired = isSupabaseConfigured();
     const [step, setStep] = useState(authRequired && !isAuthenticated ? 0 : 1);
+
+    const handleBackClick = () => {
+        if (step === 1 && authRequired) {
+            setStep(0);
+        } else {
+            navigate('/');
+        }
+    };
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -29,15 +39,35 @@ export default function ProfileSetup({ onComplete, isAuthenticated = true }) {
                 {/* Progress Bar */}
                 <div className="absolute top-0 left-0 h-1 bg-[#c28e3a] transition-all duration-500" style={{ width: step === 0 ? '25%' : step === 1 ? '50%' : '100%' }}></div>
 
-                <div className="p-6 sm:p-10 flex-1">
-                    <div className="mb-8 sm:mb-10 text-center">
+                <div className="p-6 sm:p-10 flex-1 relative">
+                    {/* Back Button */}
+                    <button
+                        onClick={handleBackClick}
+                        className="absolute top-4 left-4 sm:top-6 sm:left-6 flex items-center gap-1.5 text-zinc-500 hover:text-white transition-all text-[10px] font-black uppercase tracking-widest bg-black/40 hover:bg-black/60 border border-white/5 px-3 py-2 rounded-xl cursor-pointer z-50"
+                    >
+                        <iconify-icon icon="mdi:arrow-left" width="12"></iconify-icon>
+                        <span>Retour</span>
+                    </button>
+
+                    <div className="mb-8 sm:mb-10 text-center pt-8 sm:pt-4">
                         <h2 className="text-[#c28e3a] text-[10px] font-black uppercase tracking-[0.4em] mb-2">Protocole d'Initialisation</h2>
                         <h1 className="text-white text-3xl sm:text-4xl font-heading font-bold italic uppercase tracking-tighter">FORGEZ VOTRE LÉGENDE</h1>
                     </div>
 
                     <div className="space-y-8">
                         {step === 0 ? (
-                            <AuthForm onAuthenticated={() => setStep(1)} />
+                            <div className="space-y-6">
+                                <AuthForm onAuthenticated={() => setStep(1)} />
+                                <div className="text-center pt-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => setStep(1)}
+                                        className="text-zinc-500 hover:text-white text-xs font-bold uppercase tracking-widest transition-colors cursor-pointer"
+                                    >
+                                        🚀 Continuer en local (hors-ligne)
+                                    </button>
+                                </div>
+                            </div>
                         ) : step === 1 ? (
                             <div className="space-y-6 animate-scale-up">
                                 <div>

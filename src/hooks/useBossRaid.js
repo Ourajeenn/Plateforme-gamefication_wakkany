@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { BOSS_ENCOUNTERS, isLevelUnlocked, getNextEncounter } from '../data/bossEncounters';
 import { FAMILY_QUESTIONS } from '../data/familyQuizzes';
+import { useSoundFX } from './useSoundFX';
 
 const STORAGE_KEY = 'wakkany_boss_progress';
 
@@ -17,6 +18,7 @@ const loadProgress = () => {
 };
 
 export function useBossRaid() {
+  const { playCountdownBeep, playCountdownGo } = useSoundFX();
   const [progress, setProgress] = useState(loadProgress);
   const [raidState, setRaidState] = useState('map');
   // 'map' | 'countdown' | 'playing' | 'victory' | 'defeat' | 'levelComplete' | 'allComplete'
@@ -65,12 +67,18 @@ export function useBossRaid() {
     setRaidState('countdown');
   }, []);
 
-  // ── Countdown ──────────────────────────────────────────
+  // ── Countdown (avec sons) ──────────────────────────────────────────
   useEffect(() => {
     if (raidState !== 'countdown') return;
-    if (countdown === 0) { setRaidState('playing'); setIsTimerRunning(true); return; }
-    const t = setTimeout(() => setCountdown(p => p - 1), 1000);
+    if (countdown === 3) playCountdownBeep();
+    if (countdown === 0) { playCountdownGo(); setRaidState('playing'); setIsTimerRunning(true); return; }
+    const t = setTimeout(() => setCountdown(p => {
+      const next = p - 1;
+      if (next > 0) playCountdownBeep();
+      return next;
+    }), 1000);
     return () => clearTimeout(t);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [raidState, countdown]);
 
   // ── Per-question timer ──────────────────────────────────

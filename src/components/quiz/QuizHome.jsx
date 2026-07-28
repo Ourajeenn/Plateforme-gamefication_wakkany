@@ -82,6 +82,30 @@ export default function QuizHome() {
             <p className="text-zinc-500 text-sm mt-2">Topic Roulette & Parle ou Perds</p>
           </button>
         </div>
+
+        {/* ── Section Multijoueur en ligne ── */}
+        <div className="mt-8 max-w-3xl mx-auto">
+          <p className="text-zinc-600 text-xs uppercase tracking-widest mb-4 text-center">Multijoueur en ligne</p>
+          <div className="grid grid-cols-2 gap-4">
+            <button
+              onClick={() => navigate('/quiz/host')}
+              className="group relative bg-zinc-900/80 border-2 border-[#c28e3a]/40 p-6 rounded-2xl hover:border-[#c28e3a] hover:bg-[#c28e3a]/10 transition-all duration-300 transform hover:scale-105 active:scale-95 text-left"
+            >
+              <iconify-icon icon="mdi:broadcast" width="36" className="text-[#c28e3a] mb-3 block" />
+              <h3 className="text-xl font-heading font-black italic uppercase">Créer une salle</h3>
+              <p className="text-zinc-500 text-xs mt-1">Invitez vos amis avec un code</p>
+            </button>
+
+            <button
+              onClick={() => navigate('/quiz/join')}
+              className="group relative bg-zinc-900/80 border-2 border-white/10 p-6 rounded-2xl hover:border-white/40 hover:bg-white/5 transition-all duration-300 transform hover:scale-105 active:scale-95 text-left"
+            >
+              <iconify-icon icon="mdi:door-open" width="36" className="text-white mb-3 block" />
+              <h3 className="text-xl font-heading font-black italic uppercase">Rejoindre</h3>
+              <p className="text-zinc-500 text-xs mt-1">Entrez le code de l'hôte</p>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

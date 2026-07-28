@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { signIn, signUp } from '../utils/auth';
 import { authSchema } from '../schemas';
 import { loginLimiter, protectedAction } from '../utils/rateLimiter';
 import { sanitizeInput, reportError } from '../utils/security';
+import { useNavigate } from 'react-router-dom';
 
 export default function AuthForm({ onAuthenticated }) {
   const [mode, setMode] = useState('login');
@@ -10,31 +11,24 @@ export default function AuthForm({ onAuthenticated }) {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
-  // Determine if user has already created an account on this device
   const accountCreated = !!localStorage.getItem('accountCreated');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-
     const safeEmail = sanitizeInput(email);
     const safePassword = sanitizeInput(password);
-
-    // Strict Zod validation
     try {
       authSchema.parse({ email: safeEmail, password: safePassword });
     } catch (validationError) {
       setError(validationError.errors[0].message);
       return;
     }
-
     setLoading(true);
-
     try {
-      // Anti-brute-force rate limiting
       await protectedAction(loginLimiter, `login_${safeEmail}`);
-
       if (mode === 'login') {
         await signIn(safeEmail, safePassword);
       } else {
@@ -43,7 +37,6 @@ export default function AuthForm({ onAuthenticated }) {
           setError('Compte créé. Vérifiez votre email pour confirmer avant de continuer.');
           return;
         }
-        // Remember that an account has been created on this device
         localStorage.setItem('accountCreated', '1');
       }
       onAuthenticated?.();
@@ -57,13 +50,21 @@ export default function AuthForm({ onAuthenticated }) {
 
   return (
     <div className="space-y-6 animate-scale-up">
+      {mode === 'signup' && (
+        <button
+          type="button"
+          onClick={() => navigate('/')}
+          className="w-full py-2 bg-zinc-800 text-white rounded-md mb-4 hover:bg-zinc-700 transition-colors"
+        >
+          Retour
+        </button>
+      )}
       <div className="text-center">
         <p className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.4em] mb-2">Sécurité du Nexus</p>
         <h2 className="text-white text-2xl font-heading font-bold italic uppercase tracking-tighter">
           {mode === 'login' ? 'Connexion' : 'Créer un compte'}
         </h2>
       </div>
-
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block text-zinc-500 text-[10px] font-black uppercase tracking-widest mb-3">Email</label>
@@ -78,7 +79,6 @@ export default function AuthForm({ onAuthenticated }) {
             autoFocus
           />
         </div>
-
         <div>
           <label className="block text-zinc-500 text-[10px] font-black uppercase tracking-widest mb-3">Mot de passe</label>
           <input
@@ -92,11 +92,11 @@ export default function AuthForm({ onAuthenticated }) {
             autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
           />
         </div>
-
         {error && (
-          <p className="text-red-400 text-sm text-center bg-red-950/30 border border-red-800/40 rounded-xl px-4 py-2">{error}</p>
+          <p className="text-red-400 text-sm text-center bg-red-950/30 border border-red-800/40 rounded-xl px-4 py-2">
+            {error}
+          </p>
         )}
-
         <button
           type="submit"
           disabled={loading}
@@ -105,8 +105,6 @@ export default function AuthForm({ onAuthenticated }) {
           {loading ? 'Chargement...' : mode === 'login' ? 'Se connecter' : 'Créer le compte'}
         </button>
       </form>
-
-      {/* Only show the toggle when no account has been created yet, or when already in login mode */}
       {(!accountCreated || mode === 'signup') && (
         <button
           type="button"
@@ -119,4 +117,3 @@ export default function AuthForm({ onAuthenticated }) {
     </div>
   );
 }
-

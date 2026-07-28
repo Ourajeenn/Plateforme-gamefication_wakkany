@@ -18,11 +18,11 @@ export default function BadgeGallery({ unlockedAchievements, xp }) {
         { name: "Novice", icon: "mdi:shield", color: "#4ade80", img: badgesImg },
         { name: "Initiation", icon: "mdi:sword", color: "#facc15", img: morokhImg },
         { name: "Sang-Mêlé", icon: "mdi:water", color: "#ef4444", img: anyaImg },
-        { name: "Gardien", icon: "mdi:shield-half", color: "#a855f7", img: morokhImg },
+        { name: "Gardien", icon: "mdi:shield-half", color: "#a1752b", img: morokhImg },
         { name: "Protecteur", icon: "mdi:shield-check", color: "#3b82f6", img: factionsImg },
         { name: "Traqueur", icon: "mdi:compass", color: "#14b8a6", img: badgesImg },
         { name: "Assassin", icon: "mdi:skull", color: "#dc2626", img: anyaImg },
-        { name: "Sentinelle", icon: "mdi:eye", color: "#8b5cf6", img: morokhImg },
+        { name: "Sentinelle", icon: "mdi:eye", color: "#e8b96a", img: morokhImg },
         { name: "Guerrier", icon: "mdi:swords", color: "#f97316", img: factionsImg },
         { name: "Vétéran", icon: "mdi:medal", color: "#eab308", img: badgesImg },
         { name: "Maître", icon: "mdi:crown", color: "#f59e0b", img: anyaImg },
@@ -30,7 +30,7 @@ export default function BadgeGallery({ unlockedAchievements, xp }) {
         { name: "Sanguinaire", icon: "mdi:heart-broken", color: "#be123c", img: anyaImg },
         { name: "Champion", icon: "mdi:trophy", color: "#fbbf24", img: factionsImg },
         { name: "Héros", icon: "mdi:star", color: "#60a5fa", img: badgesImg },
-        { name: "Légende", icon: "mdi:gemstone", color: "#c084fc", img: morokhImg },
+        { name: "Légende", icon: "mdi:gemstone", color: "#c28e3a", img: morokhImg },
         { name: "Mythe", icon: "mdi:white-balance-sunny", color: "#fb923c", img: factionsImg }
     ];
 

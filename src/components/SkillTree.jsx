@@ -357,13 +357,13 @@ export default function SkillTree({ xp, unlockedSkills, onUnlock, onReset }) {
           <div className="bg-black/50 backdrop-blur-md px-4 py-2 rounded-xl flex items-center gap-3 border border-white/5">
             <span className="text-xl">🃏</span>
             <div className="flex flex-col">
-              <span className="text-[8px] text-purple-400 font-black uppercase tracking-widest">JOKERS DISPONIBLES</span>
+              <span className="text-[8px] text-[#c28e3a] font-black uppercase tracking-widest">JOKERS DISPONIBLES</span>
               <span className="text-white font-heading font-black text-xs">{jokers} RESTANT{jokers > 1 ? 'S' : ''}</span>
             </div>
             {jokers < 2 && (
               <button 
                 onClick={() => { setJokers(2); playSynthSFX('unlock'); }}
-                className="text-[8px] text-purple-300 border border-purple-500/20 px-2 py-0.5 rounded hover:bg-purple-500/20 transition-all font-bold cursor-pointer ml-2"
+                className="text-[8px] text-[#c28e3a] border border-[#c28e3a]/20 px-2 py-0.5 rounded hover:bg-[#c28e3a]/20 transition-all font-bold cursor-pointer ml-2"
               >
                 RECHARGER
               </button>
@@ -506,14 +506,14 @@ export default function SkillTree({ xp, unlockedSkills, onUnlock, onReset }) {
       <div className="absolute bottom-6 right-6 z-[80] flex flex-col gap-2 pointer-events-auto">
         <button 
           onClick={() => setZoom(z => Math.min(z + 0.1, 2.0))}
-          className="w-10 h-10 bg-black/60 border border-white/10 hover:border-purple-500/40 text-white rounded-xl flex items-center justify-center backdrop-blur-md transition-all active:scale-95 cursor-pointer shadow-lg"
+          className="w-10 h-10 bg-black/60 border border-white/10 hover:border-[#c28e3a]/40 text-white rounded-xl flex items-center justify-center backdrop-blur-md transition-all active:scale-95 cursor-pointer shadow-lg"
           title="Zoom In"
         >
           <iconify-icon icon="mdi:plus" width="20"></iconify-icon>
         </button>
         <button 
           onClick={() => setZoom(z => Math.max(z - 0.1, 0.5))}
-          className="w-10 h-10 bg-black/60 border border-white/10 hover:border-purple-500/40 text-white rounded-xl flex items-center justify-center backdrop-blur-md transition-all active:scale-95 cursor-pointer shadow-lg"
+          className="w-10 h-10 bg-black/60 border border-white/10 hover:border-[#c28e3a]/40 text-white rounded-xl flex items-center justify-center backdrop-blur-md transition-all active:scale-95 cursor-pointer shadow-lg"
           title="Zoom Out"
         >
           <iconify-icon icon="mdi:minus" width="20"></iconify-icon>
@@ -537,14 +537,14 @@ export default function SkillTree({ xp, unlockedSkills, onUnlock, onReset }) {
       {/* Holographic Family / Joker Action Modal */}
       {selectedNode && selectedBranch && createPortal(
         <div className="fixed inset-0 bg-black/75 backdrop-blur-sm z-[250] flex items-center justify-center animate-fade-in p-6">
-          <div className="bg-zinc-950 border border-purple-500/30 rounded-[32px] p-6 sm:p-8 max-w-md w-full max-h-[90%] flex flex-col relative overflow-hidden shadow-[0_0_50px_rgba(168,85,247,0.25)]">
+          <div className="bg-zinc-950 border border-[#c28e3a]/30 rounded-[32px] p-6 sm:p-8 max-w-md w-full max-h-[90%] flex flex-col relative overflow-hidden shadow-[0_0_50px_rgba(194,142,58,0.25)]">
             
             {/* Holographic scanner line inside modal */}
-            <div className="absolute inset-x-0 h-0.5 bg-purple-500/30 shadow-[0_0_10px_#a855f7] animate-[scanLine_4s_linear_infinite] pointer-events-none"></div>
+            <div className="absolute inset-x-0 h-0.5 bg-[#c28e3a]/30 shadow-[0_0_10px_#c28e3a] animate-[scanLine_4s_linear_infinite] pointer-events-none"></div>
 
             <div className="flex justify-between items-start mb-4 shrink-0">
               <div>
-                <span className="text-[9px] text-purple-400 font-black uppercase tracking-[0.3em] block">🛡️ SYSTEM MULTI-COGNITIF</span>
+                <span className="text-[9px] text-[#c28e3a] font-black uppercase tracking-[0.3em] block">🛡️ SYSTEM MULTI-COGNITIF</span>
                 <h3 className="text-white text-2xl font-heading font-black uppercase tracking-wide mt-1">
                   TALENT VERROUILLÉ
                 </h3>
@@ -561,7 +561,7 @@ export default function SkillTree({ xp, unlockedSkills, onUnlock, onReset }) {
             {/* Scrollable Container */}
             <div className="overflow-y-auto pr-1 space-y-4 scrollbar-thin">
               {/* Node Info Box */}
-              <div className="bg-black/50 border border-purple-500/10 p-5 rounded-2xl relative">
+              <div className="bg-black/50 border border-[#c28e3a]/10 p-5 rounded-2xl relative">
                 <div className="flex items-center gap-4 mb-3">
                   <div className="w-12 h-12 rounded-xl flex items-center justify-center border font-bold text-xl" style={{ backgroundColor: `${selectedBranch.color}15`, borderColor: `${selectedBranch.color}30`, color: selectedBranch.color }}>
                     {selectedBranch.icon}
@@ -589,10 +589,10 @@ export default function SkillTree({ xp, unlockedSkills, onUnlock, onReset }) {
                 <div className="py-6 flex flex-col items-center justify-center text-center animate-fade-in">
                   {helpCountdown > 0 ? (
                     <>
-                      <div className="w-12 h-12 rounded-full border-2 border-t-purple-500 border-r-transparent border-b-transparent border-l-transparent animate-spin mb-4"></div>
-                      <span className="text-[10px] font-black uppercase tracking-[0.25em] text-purple-400 animate-pulse">TRANSMISSION DU SIGNAL MEUTE...</span>
+                      <div className="w-12 h-12 rounded-full border-2 border-t-[#c28e3a] border-r-transparent border-b-transparent border-l-transparent animate-spin mb-4"></div>
+                      <span className="text-[10px] font-black uppercase tracking-[0.25em] text-[#c28e3a] animate-pulse">TRANSMISSION DU SIGNAL MEUTE...</span>
                       <p className="text-zinc-500 text-xs mt-2 font-monda">
-                        Demande d'aide envoyée. Attente de validation familiale dans <span className="text-purple-400 font-bold">{helpCountdown}s</span>...
+                        Demande d'aide envoyée. Attente de validation familiale dans <span className="text-[#c28e3a] font-bold">{helpCountdown}s</span>...
                       </p>
                     </>
                   ) : (
@@ -617,7 +617,7 @@ export default function SkillTree({ xp, unlockedSkills, onUnlock, onReset }) {
                     disabled={jokers <= 0}
                     className={`w-full py-4 rounded-xl border flex items-center justify-center gap-3 font-heading font-black text-xs uppercase tracking-widest transition-all duration-300
                       ${jokers > 0 
-                        ? 'bg-purple-500/10 border-purple-500/40 text-purple-300 hover:bg-purple-500 hover:text-black cursor-pointer shadow-[0_0_15px_rgba(168,85,247,0.2)]' 
+                        ? 'bg-[#c28e3a]/10 border-[#c28e3a]/40 text-[#c28e3a] hover:bg-[#c28e3a] hover:text-black cursor-pointer shadow-[0_0_15px_rgba(194,142,58,0.2)]' 
                         : 'bg-zinc-900/50 border-zinc-800 text-zinc-600 cursor-not-allowed'}`}
                   >
                     <span>🃏</span>

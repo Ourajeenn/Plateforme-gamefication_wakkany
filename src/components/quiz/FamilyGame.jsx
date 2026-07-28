@@ -272,7 +272,7 @@ export default function FamilyGame() {
         )}
 
         {/* Holographic scanning background line */}
-        <div className="absolute inset-x-0 h-0.5 bg-purple-500/10 shadow-[0_0_10px_rgba(168,85,247,0.1)] animate-[scanLine_8s_linear_infinite] pointer-events-none"></div>
+        <div className="absolute inset-x-0 h-0.5 bg-[#c28e3a]/10 shadow-[0_0_10px_rgba(194,142,58,0.1)] animate-[scanLine_8s_linear_infinite] pointer-events-none"></div>
 
         {/* Boss HP panel if Boss Mode */}
         {gameConfig.mode === 'boss' && (
@@ -307,12 +307,12 @@ export default function FamilyGame() {
             {/* Team HP (The Meute) */}
             <div className="w-full md:w-64 space-y-2">
               <div className="flex justify-between text-xs font-bold uppercase tracking-wider">
-                <span className="text-purple-400">🛡️ PV de la Meute</span>
-                <span className="text-purple-300 font-black">{teamHp} / 100 HP</span>
+                <span className="text-[#c28e3a]">🛡️ PV de la Meute</span>
+                <span className="text-[#e8b96a] font-black">{teamHp} / 100 HP</span>
               </div>
-              <div className="h-3 bg-black rounded-full overflow-hidden border border-purple-500/20 p-0.5">
+              <div className="h-3 bg-black rounded-full overflow-hidden border border-[#c28e3a]/20 p-0.5">
                 <div 
-                  className="h-full bg-gradient-to-r from-purple-800 to-purple-400 rounded-full shadow-[0_0_10px_rgba(168,85,247,0.4)] transition-all duration-500"
+                  className="h-full bg-gradient-to-r from-[#a1752b] to-[#c28e3a] rounded-full shadow-[0_0_10px_rgba(194,142,58,0.4)] transition-all duration-500"
                   style={{ width: `${teamHp}%` }}
                 ></div>
               </div>
@@ -476,148 +476,134 @@ export default function FamilyGame() {
       : 'Raid de Boss';
 
     return (
-      <div className="min-h-screen bg-[#080c14] flex flex-col items-center justify-start overflow-y-auto font-monda text-white pb-32"
-        style={{ background: 'radial-gradient(ellipse at 50% 0%, #0d1a2e 0%, #080c14 60%)' }}
-      >
-        {/* Starfield background */}
-        <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-          {Array.from({ length: 60 }).map((_, i) => (
-            <div key={i} className="absolute rounded-full bg-white"
-              style={{
-                width: Math.random() > 0.8 ? '2px' : '1px',
-                height: Math.random() > 0.8 ? '2px' : '1px',
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                opacity: Math.random() * 0.5 + 0.1,
-              }}
-            />
-          ))}
+      <div className="min-h-screen bg-zinc-950 flex flex-col items-center justify-start overflow-y-auto text-white pb-36 font-monda">
+
+        {/* Gold radial glow at top */}
+        <div className="fixed inset-0 pointer-events-none z-0">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_0%,rgba(194,142,58,0.08)_0%,transparent_60%)]" />
         </div>
 
-        <div className="relative z-10 w-full max-w-lg px-4 pt-12 flex flex-col items-center gap-6">
+        <div className="relative z-10 w-full max-w-xl px-4 pt-14 flex flex-col items-center gap-5">
 
-          {/* Trophy Icon */}
-          <div className="flex flex-col items-center gap-2">
+          {/* Trophy + Title */}
+          <div className="flex flex-col items-center gap-3">
             {isBossVictory ? (
-              <iconify-icon icon="mdi:trophy" width="56" class="text-yellow-400 drop-shadow-[0_0_20px_rgba(250,204,21,0.7)]"></iconify-icon>
+              <iconify-icon icon="mdi:trophy" width="60" class="text-[#c28e3a] drop-shadow-[0_0_24px_rgba(194,142,58,0.6)]"></iconify-icon>
             ) : isBossDefeat ? (
-              <iconify-icon icon="mdi:skull" width="56" class="text-red-500 drop-shadow-[0_0_20px_rgba(239,68,68,0.7)]"></iconify-icon>
+              <iconify-icon icon="mdi:skull" width="60" class="text-red-500 drop-shadow-[0_0_24px_rgba(239,68,68,0.5)]"></iconify-icon>
             ) : (
-              <iconify-icon icon="mdi:trophy" width="56" class="text-yellow-400 drop-shadow-[0_0_20px_rgba(250,204,21,0.7)]"></iconify-icon>
+              <iconify-icon icon="mdi:trophy" width="60" class="text-[#c28e3a] drop-shadow-[0_0_24px_rgba(194,142,58,0.6)]"></iconify-icon>
             )}
-            <h1 className="text-2xl font-heading font-black text-white tracking-tight">
-              {isBossVictory ? 'Raid Réussi !' : isBossDefeat ? 'Raid Échoué...' : 'Quiz terminé !'}
+            <h1 className="text-3xl font-heading font-black italic uppercase text-white tracking-tight text-center">
+              {isBossVictory ? 'Raid Réussi !' : isBossDefeat ? 'Raid Échoué...' : 'Quiz Terminé !'}
             </h1>
-            <p className="text-xs text-zinc-400">{modeLabel}</p>
+            <p className="text-[10px] text-zinc-500 uppercase tracking-[0.3em] font-bold">{modeLabel}</p>
+            <div className="w-12 h-px bg-gradient-to-r from-transparent via-[#c28e3a]/60 to-transparent" />
           </div>
 
           {/* Score Total Card */}
-          <div className="w-full bg-[#111827]/90 border border-white/10 rounded-2xl p-6 flex flex-col items-center gap-3 shadow-[0_0_40px_rgba(0,0,0,0.5)]">
-            <span className="text-[10px] text-zinc-500 uppercase tracking-widest font-bold">Score total</span>
-            <div className="flex items-baseline gap-1">
-              <span className="text-6xl font-black text-emerald-400 font-heading">{totalScore}</span>
-              <span className="text-xl text-emerald-400/60 font-bold">pts</span>
+          <div className="w-full bg-zinc-900 border border-[#c28e3a]/20 rounded-2xl p-6 flex flex-col items-center gap-3 shadow-xl">
+            <span className="text-[9px] text-[#c28e3a] uppercase tracking-[0.35em] font-black">Score Total</span>
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-6xl font-heading font-black text-[#c28e3a]">{totalScore}</span>
+              <span className="text-xl text-[#c28e3a]/50 font-bold">pts</span>
             </div>
-            <p className="text-xs text-zinc-400">
-              {correctCount} bonne{correctCount !== 1 ? 's' : ''} réponse{correctCount !== 1 ? 's' : ''} sur {totalCount} · Temps moyen : {avgTime}s
+            <p className="text-[11px] text-zinc-500">
+              {correctCount} bonne{correctCount !== 1 ? 's' : ''} réponse{correctCount !== 1 ? 's' : ''} sur {totalCount} · Temps moyen : {avgTime}s
             </p>
-
             {/* Progress bar */}
             <div className="w-full h-1.5 bg-zinc-800 rounded-full overflow-hidden mt-1">
               <div
                 className="h-full rounded-full transition-all duration-1000"
-                style={{
-                  width: `${scorePercent}%`,
-                  background: 'linear-gradient(90deg, #7c3aed, #10b981)'
-                }}
+                style={{ width: `${scorePercent}%`, background: 'linear-gradient(90deg, #c28e3a, #e8b96a)' }}
               />
             </div>
           </div>
 
           {/* Score Breakdown */}
-          <div className="w-full bg-[#111827]/90 border border-white/10 rounded-2xl p-5 shadow-[0_0_40px_rgba(0,0,0,0.5)] space-y-3">
-            <span className="text-[10px] text-zinc-500 uppercase tracking-widest font-bold">Détail du score</span>
-            
+          <div className="w-full bg-zinc-900 border border-white/8 rounded-2xl p-5 shadow-xl space-y-3">
+            <span className="text-[9px] text-zinc-500 uppercase tracking-[0.35em] font-black block">Détail du score</span>
+
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <iconify-icon icon="mdi:check" class="text-emerald-400" width="16"></iconify-icon>
-                <span className="text-sm text-zinc-300">Bonnes réponses × 100 pts</span>
+                <iconify-icon icon="mdi:check" class="text-[#c28e3a]" width="16"></iconify-icon>
+                <span className="text-sm text-zinc-300 font-monda">Bonnes réponses × 100 pts</span>
               </div>
-              <span className="text-sm font-black text-emerald-400">{basePoints}</span>
+              <span className="text-sm font-black text-white font-heading">{basePoints}</span>
             </div>
 
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <iconify-icon icon="mdi:lightning-bolt" class="text-yellow-400" width="16"></iconify-icon>
-                <span className="text-sm text-zinc-300">Bonus vitesse</span>
+                <iconify-icon icon="mdi:lightning-bolt" class="text-[#c28e3a]" width="16"></iconify-icon>
+                <span className="text-sm text-zinc-300 font-monda">Bonus vitesse</span>
               </div>
-              <span className="text-sm font-black text-yellow-400">+{speedBonus}</span>
+              <span className="text-sm font-black text-[#c28e3a] font-heading">+{speedBonus}</span>
             </div>
 
-            {/* Final Score highlighted */}
-            <div className="mt-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-4 flex flex-col items-center gap-1">
-              <span className="text-[10px] text-zinc-500 uppercase tracking-widest font-bold">Score final</span>
+            {/* Final Score */}
+            <div className="mt-2 bg-[#c28e3a]/8 border border-[#c28e3a]/20 rounded-xl p-4 flex flex-col items-center gap-1">
+              <span className="text-[9px] text-zinc-500 uppercase tracking-[0.35em] font-black">Score Final</span>
               <div className="flex items-baseline gap-1">
-                <span className="text-4xl font-black text-emerald-400 font-heading">{totalScore}</span>
-                <span className="text-zinc-500 text-xl font-bold">/{maxScore}</span>
+                <span className="text-4xl font-heading font-black text-[#c28e3a]">{totalScore}</span>
+                <span className="text-zinc-600 text-xl font-bold">/{maxScore}</span>
               </div>
-              <p className="text-[10px] text-zinc-500 text-center">100 pts par bonne réponse + bonus vitesse (plus vite = plus de points)</p>
+              <p className="text-[10px] text-zinc-600 text-center mt-1">100 pts par bonne réponse + bonus vitesse</p>
             </div>
 
-            {/* CTA */}
+            {/* CTA inline */}
             <button
               onClick={() => navigate('/quiz')}
-              className="w-full mt-2 py-3 rounded-xl bg-purple-600/20 border border-purple-500/30 text-purple-300 text-sm font-bold uppercase tracking-widest hover:bg-purple-600 hover:text-white transition-all cursor-pointer"
+              className="w-full mt-2 py-3 rounded-xl bg-zinc-800 border border-white/10 text-zinc-300 text-[11px] font-black uppercase tracking-widest hover:bg-zinc-700 hover:text-white hover:border-[#c28e3a]/30 transition-all cursor-pointer"
             >
-              🎯 Continue à t'entraîner !
+              🎯 Continue à t&apos;entraîner !
             </button>
           </div>
 
           {/* Party Mode Leaderboard */}
           {gameConfig.mode === 'party' && Object.keys(playerScores).length > 0 && (
-            <div className="w-full bg-[#111827]/90 border border-white/10 rounded-2xl p-5 shadow-[0_0_40px_rgba(0,0,0,0.5)] space-y-3">
-              <span className="text-[10px] text-zinc-500 uppercase tracking-widest font-bold">Classement des Chasseurs</span>
+            <div className="w-full bg-zinc-900 border border-white/8 rounded-2xl p-5 shadow-xl space-y-3">
+              <span className="text-[9px] text-zinc-500 uppercase tracking-[0.35em] font-black block">Classement des Chasseurs</span>
               <div className="space-y-2">
                 {Object.entries(playerScores).sort((a, b) => b[1] - a[1]).map(([p, s], idx) => (
                   <div key={p} className="flex justify-between items-center bg-black/30 p-3 rounded-xl border border-white/5">
                     <div className="flex items-center gap-3">
-                      <span className="text-purple-400 font-black text-sm w-5">{idx + 1}.</span>
-                      <span className="font-bold text-zinc-300">{p}</span>
+                      <span className="text-[#c28e3a] font-black text-sm w-5 font-heading">{idx + 1}.</span>
+                      <span className="font-bold text-zinc-300 font-monda">{p}</span>
                     </div>
-                    <span className="font-black italic text-white text-sm">{s} pts</span>
+                    <span className="font-black italic text-white text-sm font-heading">{s} pts</span>
                   </div>
                 ))}
               </div>
             </div>
           )}
 
-          {/* Recap Section */}
+          {/* Recap */}
           {answersHistory.length > 0 && (
-            <div className="w-full bg-[#111827]/90 border border-white/10 rounded-2xl overflow-hidden shadow-[0_0_40px_rgba(0,0,0,0.5)]">
-              <div className="px-5 py-4 border-b border-white/10">
-                <span className="text-sm font-black text-white uppercase tracking-wider">Récapitulatif</span>
+            <div className="w-full bg-zinc-900 border border-white/8 rounded-2xl overflow-hidden shadow-xl">
+              <div className="px-5 py-4 border-b border-white/8">
+                <span className="text-[9px] text-zinc-500 uppercase tracking-[0.35em] font-black">Récapitulatif</span>
               </div>
               <div className="divide-y divide-white/5">
                 {answersHistory.map((item, idx) => (
                   <div key={idx} className="px-5 py-4 flex flex-col gap-1.5">
                     <div className="flex items-start gap-2">
                       {item.correct ? (
-                        <iconify-icon icon="mdi:check-circle" class="text-emerald-400 flex-shrink-0 mt-0.5" width="16"></iconify-icon>
+                        <iconify-icon icon="mdi:check-circle" class="text-[#c28e3a] flex-shrink-0 mt-0.5" width="16"></iconify-icon>
                       ) : (
-                        <iconify-icon icon="mdi:close-circle" class="text-red-400 flex-shrink-0 mt-0.5" width="16"></iconify-icon>
+                        <iconify-icon icon="mdi:close-circle" class="text-red-500 flex-shrink-0 mt-0.5" width="16"></iconify-icon>
                       )}
-                      <p className="text-xs font-bold text-zinc-200 leading-tight line-clamp-2">
+                      <p className="text-xs font-bold text-zinc-200 leading-tight line-clamp-2 font-monda">
                         {item.question}
                       </p>
                     </div>
                     <div className="ml-6 flex flex-col gap-0.5">
-                      <p className="text-[11px] text-zinc-500">
-                        Ta réponse : <span className={item.correct ? 'text-emerald-400' : 'text-red-400'}>
+                      <p className="text-[11px] text-zinc-500 font-monda">
+                        Ta réponse : <span className={item.correct ? 'text-[#c28e3a]' : 'text-red-400'}>
                           {item.userAnswer || 'Sans réponse'}
                         </span>
                         {!item.correct && (
                           <>
-                            {' · '}Bonne réponse : <span className="text-emerald-400">{item.correctAnswer}</span>
+                            {' · '}Bonne réponse : <span className="text-[#c28e3a]">{item.correctAnswer}</span>
                           </>
                         )}
                       </p>
@@ -631,17 +617,17 @@ export default function FamilyGame() {
         </div>
 
         {/* Fixed Bottom Bar */}
-        <div className="fixed bottom-0 inset-x-0 z-20 bg-[#080c14]/95 backdrop-blur-md border-t border-white/10 flex items-center justify-center gap-4 p-4">
+        <div className="fixed bottom-0 inset-x-0 z-20 bg-zinc-950/95 backdrop-blur-md border-t border-white/8 flex items-center justify-center gap-3 p-4">
           <button
             onClick={() => startGame(config)}
-            className="flex items-center gap-2 px-8 py-3.5 rounded-full bg-gradient-to-r from-purple-600 to-purple-500 text-white font-black uppercase tracking-widest text-sm hover:scale-105 active:scale-95 transition-all shadow-[0_0_30px_rgba(168,85,247,0.4)] cursor-pointer"
+            className="flex items-center gap-2 px-8 py-3.5 rounded-xl bg-[#c28e3a] text-black font-black uppercase tracking-widest text-[11px] hover:bg-[#e8b96a] active:scale-95 transition-all shadow-[0_0_24px_rgba(194,142,58,0.3)] cursor-pointer"
           >
             <iconify-icon icon="mdi:refresh" width="18"></iconify-icon>
             Recommencer
           </button>
           <button
             onClick={() => navigate('/quiz')}
-            className="flex items-center gap-2 px-8 py-3.5 rounded-full bg-zinc-800 border border-white/10 text-zinc-300 font-bold uppercase tracking-widest text-sm hover:bg-zinc-700 hover:text-white transition-all cursor-pointer"
+            className="flex items-center gap-2 px-8 py-3.5 rounded-xl bg-zinc-900 border border-white/10 text-zinc-300 font-bold uppercase tracking-widest text-[11px] hover:bg-zinc-800 hover:text-white transition-all cursor-pointer"
           >
             <iconify-icon icon="mdi:arrow-left" width="18"></iconify-icon>
             Autres quiz
@@ -653,4 +639,5 @@ export default function FamilyGame() {
 
   return null;
 }
+
 

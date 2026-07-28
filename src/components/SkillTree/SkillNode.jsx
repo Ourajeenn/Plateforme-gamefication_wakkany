@@ -18,7 +18,7 @@ export default function SkillNode({ node, branch, isUnlocked, isAvailable, onUnl
       >
         {/* Double Rotating Rings */}
         <div className={`absolute inset-0 rounded-full border-2 border-double transition-all duration-[1s] 
-          ${status === 'unlocked' ? 'border-purple-400 rotate-180 scale-[1.35]' : status === 'available' ? 'border-purple-400/40 animate-[spin_5s_linear_infinite] scale-125' : 'border-transparent scale-100'}`}></div>
+          ${status === 'unlocked' ? 'border-[#c28e3a] rotate-180 scale-[1.35]' : status === 'available' ? 'border-[#c28e3a]/40 animate-[spin_5s_linear_infinite] scale-125' : 'border-transparent scale-100'}`}></div>
 
         {/* Dense Radiant Glow */}
         {(isUnlocked || isAvailable) && (
@@ -31,15 +31,15 @@ export default function SkillNode({ node, branch, isUnlocked, isAvailable, onUnl
         {/* Elite Badge */}
         <div 
           className={`w-16 h-16 md:w-18 md:h-18 rounded-full flex items-center justify-center border-4 transition-all duration-500 relative z-10 
-            ${status === 'unlocked' ? 'bg-zinc-950 border-purple-500 shadow-[0_0_25px_rgba(168,85,247,0.7),inset_0_0_15px_rgba(0,0,0,0.8)] scale-110' : 
-              status === 'available' ? 'bg-zinc-950 border-purple-500/50 border-dashed animate-pulse scale-100 shadow-[0_0_15px_rgba(168,85,247,0.3)]' : 
+            ${status === 'unlocked' ? 'bg-zinc-950 border-[#c28e3a] shadow-[0_0_25px_rgba(194,142,58,0.7),inset_0_0_15px_rgba(0,0,0,0.8)] scale-110' : 
+              status === 'available' ? 'bg-zinc-950 border-[#c28e3a]/50 border-dashed animate-pulse scale-100 shadow-[0_0_15px_rgba(194,142,58,0.3)]' : 
               'bg-zinc-950 border-opacity-20 grayscale opacity-40 scale-90'}`}
         >
           <div className="absolute inset-1 rounded-full bg-black/80 pointer-events-none"></div>
 
           {/* Core Name */}
           <span 
-            className="text-[10px] md:text-[11px] font-heading font-black relative z-10 uppercase tracking-widest text-center px-1 text-purple-400 animate-pulse"
+            className="text-[10px] md:text-[11px] font-heading font-black relative z-10 uppercase tracking-widest text-center px-1 text-[#c28e3a] animate-pulse"
             style={{ 
               textShadow: isUnlocked ? `0 0 10px ${color}, 0 0 20px ${color}` : 'none'
             }}
@@ -48,7 +48,7 @@ export default function SkillNode({ node, branch, isUnlocked, isAvailable, onUnl
           </span>
           
           {/* Elite Skull Indicator */}
-          <div className="absolute -bottom-2 right-0 bg-purple-950 border border-purple-500 w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-black text-white shadow-xl">
+          <div className="absolute -bottom-2 right-0 bg-zinc-950 border border-[#c28e3a] w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-black text-white shadow-xl">
             👿
           </div>
         </div>
@@ -56,7 +56,7 @@ export default function SkillNode({ node, branch, isUnlocked, isAvailable, onUnl
         {/* Elite Label */}
         {node.label && (
           <span 
-            className={`absolute -bottom-6 text-[8px] font-black uppercase tracking-[0.2em] transition-colors duration-500 text-purple-400 animate-pulse`}
+            className={`absolute -bottom-6 text-[8px] font-black uppercase tracking-[0.2em] transition-colors duration-500 text-[#c28e3a] animate-pulse`}
           >
             ⚔️ {node.label}
           </span>

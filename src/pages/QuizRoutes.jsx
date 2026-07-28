@@ -5,6 +5,10 @@ import QuizHome from '../components/quiz/QuizHome';
 import QuizConfig from '../components/quiz/QuizConfig';
 import PackProfile from '../components/quiz/PackProfile';
 import AcademyView from '../components/AcademyView';
+import AdminQuestionsReview from '../components/admin/AdminQuestionsReview';
+import BluffRoyal from '../components/quiz/BluffRoyal';
+import HostLobby from '../components/quiz/HostLobby';
+import JoinRoom from '../components/quiz/JoinRoom';
 import { FamilyGame, GamesPage } from '../routes/lazyComponents';
 
 export default function QuizRoutes() {
@@ -15,7 +19,11 @@ export default function QuizRoutes() {
         <Route path="/quiz/config" element={<QuizConfig />} />
         <Route path="/quiz/profile" element={<PackProfile />} />
         <Route path="/quiz/play" element={<FamilyGame />} />
+        <Route path="/quiz/bluff" element={<BluffRoyal />} />
         <Route path="/quiz/academy" element={<AcademyView />} />
+        <Route path="/quiz/admin/questions" element={<AdminQuestionsReview />} />
+        <Route path="/quiz/host" element={<HostLobby />} />
+        <Route path="/quiz/join" element={<JoinRoom />} />
         <Route path="/quiz/games/*" element={<GamesPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

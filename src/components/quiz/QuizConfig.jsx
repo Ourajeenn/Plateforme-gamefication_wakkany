@@ -27,9 +27,13 @@ export default function QuizConfig() {
   };
 
   const handleStart = () => {
-    const validPlayers = mode === 'party' ? players.filter(p => p.trim() !== '') : [];
+    const validPlayers = (mode === 'party' || mode === 'bluff') ? players.filter(p => p.trim() !== '') : [];
     if (mode === 'party' && validPlayers.length < 2) {
       alert("Il faut au moins 2 joueurs pour le mode Party Salon !");
+      return;
+    }
+    if (mode === 'bluff' && validPlayers.length < 2) {
+      alert("Il faut au moins 2 joueurs pour le mode Bluff Royal !");
       return;
     }
     
@@ -53,7 +57,7 @@ export default function QuizConfig() {
     } catch(e) {}
 
     // Navigate to play screen passing all parameters
-    navigate('/quiz/play', { 
+    navigate(mode === 'bluff' ? '/quiz/bluff' : '/quiz/play', { 
       state: { 
         config: { 
           mode, 
@@ -84,7 +88,7 @@ export default function QuizConfig() {
         {/* 1. Mode Selection (3 columns now!) */}
         <div className="space-y-6">
           <h2 className="text-xl font-bold uppercase tracking-widest text-center text-purple-400">1. Choisissez votre Mode</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <button 
               onClick={() => setMode('coop')}
               className={`p-8 rounded-[30px] border-2 transition-all flex flex-col items-center gap-4 cursor-pointer relative overflow-hidden group
@@ -113,6 +117,16 @@ export default function QuizConfig() {
               <iconify-icon icon="mdi:skull" width="48" className={mode === 'boss' ? 'text-red-500' : 'text-zinc-500'}></iconify-icon>
               <h3 className="text-2xl font-black italic uppercase">Raid de Boss</h3>
               <p className="text-[10px] text-center text-zinc-400 leading-relaxed">Combattez ensemble un monstre géant de la faille Chronos sous une seule barre de PV !</p>
+            </button>
+
+            <button 
+              onClick={() => setMode('bluff')}
+              className={`p-8 rounded-[30px] border-2 transition-all flex flex-col items-center gap-4 cursor-pointer relative overflow-hidden group
+                ${mode === 'bluff' ? 'bg-purple-900/10 border-purple-500 shadow-[0_0_20px_rgba(168,85,247,0.15)]' : 'bg-zinc-900 border-white/5 hover:border-white/20'}`}
+            >
+              <iconify-icon icon="mdi:drama-masks" width="48" className={mode === 'bluff' ? 'text-purple-400' : 'text-zinc-500'}></iconify-icon>
+              <h3 className="text-2xl font-black italic uppercase">Bluff Royal</h3>
+              <p className="text-[10px] text-center text-zinc-400 leading-relaxed">Inventez une fausse réponse crédible et piégez la meute au vote !</p>
             </button>
           </div>
         </div>
@@ -193,7 +207,7 @@ export default function QuizConfig() {
         </div>
 
         {/* 4. Player Configuration */}
-        {mode === 'party' && (
+        {(mode === 'party' || mode === 'bluff') && (
           <div className="space-y-6 animate-scale-up">
             <h2 className="text-xl font-bold uppercase tracking-widest text-center text-purple-400">4. Les Chasseurs de la Meute</h2>
             <div className="bg-zinc-900 border border-white/10 rounded-[30px] p-8 max-w-2xl mx-auto">

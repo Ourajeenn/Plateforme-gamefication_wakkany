@@ -37,6 +37,7 @@ export default function App() {
     user, setUser, xp, setXp, unlockedSkills, setUnlockedSkills,
     completedQuests, setCompletedQuests, xpHistory,
     unlockedAchievements, setUnlockedAchievements, isLoaded,
+    unlockSkill, completeQuest,
   } = usePlayerData();
   const { isAuthenticated, authRequired, loading: authLoading } = useAuth();
 
@@ -55,8 +56,10 @@ export default function App() {
 
   const handlePreloaderComplete = useCallback(() => {
     setIsLoading(false);
-    navigate('/');
-  }, [navigate]);
+    if (location.pathname === '/' || location.pathname === '') {
+      navigate('/');
+    }
+  }, [navigate, location.pathname]);
 
   // Synchronise la file d'attente offline dès la reconnexion
   useEffect(() => {
@@ -145,39 +148,45 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [setUser, navigate]);
 
-  const handleUnlockSkill = useCallback((node) => {
-    setXp((prev) => prev - node.xp);
-    setUnlockedSkills((prev) => [...prev, node.id]);
-    addNotification('success', `Talent débloqué : ${node.name} est maintenant actif !`);
-    realtime.broadcast({
-      type: 'SKILL_UNLOCK',
-      user: user.name,
-      clan: user.clan?.name,
-      message: `a acquis le talent [${node.name}]`,
-    });
-  }, [user, setXp, setUnlockedSkills, addNotification]);
+  const handleUnlockSkill = useCallback(async (node) => {
+    const result = await unlockSkill(node.id, node.xp);
+    if (result?.success) {
+      addNotification('success', `Talent débloqué : ${node.name} est maintenant actif !`);
+      realtime.broadcast({
+        type: 'SKILL_UNLOCK',
+        user: user.name,
+        clan: user.clan?.name,
+        message: `a acquis le talent [${node.name}]`,
+      });
+    } else {
+      addNotification('error', `Échec du déblocage : ${result?.error || 'Compétence non débloquée'}`);
+    }
+  }, [user, unlockSkill, addNotification]);
 
   const handleResetSkills = useCallback(() => {
     setUnlockedSkills([]);
     addNotification('info', 'Arbre de compétences réinitialisé.');
   }, [setUnlockedSkills, addNotification]);
 
-  const handleCompleteQuest = useCallback((quest) => {
+  const handleCompleteQuest = useCallback(async (quest) => {
     const oldLevel = getLevel(cumulativeXp).level;
-    setCompletedQuests((prev) => [...prev, quest.id]);
-    setXp((prev) => prev + quest.xpReward);
-    addNotification('xp', `+${quest.xpReward} XP gagnés !`);
-    realtime.broadcast({
-      type: 'QUEST_COMPLETE',
-      user: user.name,
-      clan: user.clan?.name,
-      message: `a terminé la mission [${quest.title}] (+${quest.xpReward} XP)`,
-    });
-    if (getLevel(cumulativeXp + quest.xpReward).level > oldLevel) {
-      playLevelUp();
-      addNotification('level', `Niveau ${getLevel(cumulativeXp + quest.xpReward).level} atteint !`);
+    const result = await completeQuest(quest.id, quest.xpReward);
+    if (result?.success) {
+      addNotification('xp', `+${quest.xpReward} XP gagnés !`);
+      realtime.broadcast({
+        type: 'QUEST_COMPLETE',
+        user: user.name,
+        clan: user.clan?.name,
+        message: `a terminé la mission [${quest.title}] (+${quest.xpReward} XP)`,
+      });
+      if (getLevel(cumulativeXp + quest.xpReward).level > oldLevel) {
+        playLevelUp();
+        addNotification('level', `Niveau ${getLevel(cumulativeXp + quest.xpReward).level} atteint !`);
+      }
+    } else {
+      addNotification('error', `Erreur quête : ${result?.error || 'Validation impossible'}`);
     }
-  }, [cumulativeXp, user, setCompletedQuests, setXp, addNotification, playLevelUp]);
+  }, [cumulativeXp, user, completeQuest, addNotification, playLevelUp]);
 
   const handleUpdateClan = useCallback((clanData) => {
     setUser((prev) => ({ ...prev, clan: clanData }));

@@ -1,7 +1,6 @@
 import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import GamesGrid from '../components/GamesGrid';
 import GameDetails from './GameDetails.jsx';
-import Marquee from '../components/Marquee.jsx';
 
 export default function GamesPage() {
   const navigate = useNavigate();
@@ -16,16 +15,6 @@ export default function GamesPage() {
           Retour
         </button>
       </div>
-
-      <Marquee
-        messages={[
-          'Choisis ton jeu',
-          'Parle',
-          'Joue',
-          'Progresse',
-          'Jeux vocaux pour mieux t’exprimer',
-        ]}
-      />
 
       <Routes>
         <Route path="/quiz/games" element={<GamesGrid />} />

@@ -24,8 +24,15 @@ function loadLocal(key) {
 
 // ─── Sync Supabase avec fallback offline ────────────────────────────────────
 
+/**
+ * Synchronise les métadonnées de profil du joueur vers Supabase.
+ * NOTE DE SÉCURITÉ : `xp` et `level` sont intentionnellement EXCLUS du payload.
+ * Les modifications d'XP et le déblocage de compétences/quêtes se font
+ * exclusivement via les fonctions RPC sécurisées (increment_xp, unlock_skill_secure,
+ * complete_quest_secure).
+ */
 async function syncToSupabase(authUser, value) {
-  const { user, xp, unlockedSkills, completedQuests } = value;
+  const { user, unlockedSkills } = value;
 
   const profilePayload = {
     id: authUser.id,
@@ -35,26 +42,12 @@ async function syncToSupabase(authUser, value) {
       academy: user?.academy,
       clan: user?.clan || null,
     },
-    xp: xp,
-    level: Math.floor(xp / 100) + 1,
     school: user?.academy || 'Nomade',
     dominant_branch: getDominantBranch(unlockedSkills) || 'Novice',
   };
 
   if (!navigator.onLine) {
     enqueueOfflineOperation('upsert', 'profiles', profilePayload);
-    if (unlockedSkills?.length > 0) {
-      enqueueOfflineOperation('delete', 'unlocked_skills', { column: 'user_id', filter: authUser.id });
-      enqueueOfflineOperation('insert', 'unlocked_skills',
-        unlockedSkills.map(skillId => ({ user_id: authUser.id, skill_id: skillId }))
-      );
-    }
-    if (completedQuests?.length > 0) {
-      enqueueOfflineOperation('delete', 'completed_quests', { column: 'user_id', filter: authUser.id });
-      enqueueOfflineOperation('insert', 'completed_quests',
-        completedQuests.map(questId => ({ user_id: authUser.id, quest_id: questId }))
-      );
-    }
     return;
   }
 
@@ -62,21 +55,6 @@ async function syncToSupabase(authUser, value) {
   if (profileError) {
     console.error('[Storage] Supabase profile sync error:', profileError);
     enqueueOfflineOperation('upsert', 'profiles', profilePayload);
-    return;
-  }
-
-  await supabase.from('unlocked_skills').delete().eq('user_id', authUser.id);
-  if (unlockedSkills?.length > 0) {
-    const { error } = await supabase.from('unlocked_skills')
-      .insert(unlockedSkills.map(skillId => ({ user_id: authUser.id, skill_id: skillId })));
-    if (error) console.error('[Storage] Skills sync error:', error);
-  }
-
-  await supabase.from('completed_quests').delete().eq('user_id', authUser.id);
-  if (completedQuests?.length > 0) {
-    const { error } = await supabase.from('completed_quests')
-      .insert(completedQuests.map(questId => ({ user_id: authUser.id, quest_id: questId })));
-    if (error) console.error('[Storage] Quests sync error:', error);
   }
 }
 

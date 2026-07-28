@@ -67,7 +67,7 @@ export default function useLeaderboard(currentUser, { limit = 100 } = {}) {
 
   // NB: il n'y a plus de "syncMyScore" écrivant l'XP du joueur courant ici.
   // L'écriture du score se fait désormais exclusivement via la RPC
-  // sécurisée `increment_xp` (voir useSupabasePlayerData.fixed.js) au
+  // sécurisée `increment_xp` (voir `usePlayerData.js`) au
   // moment où l'XP est réellement gagnée, jamais depuis le composant
   // d'affichage du classement.
 

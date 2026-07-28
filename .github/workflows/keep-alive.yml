@@ -1,0 +1,14 @@
+name: Supabase Keep-Alive
+on:
+  schedule:
+    - cron: '0 8 * * 1,4'  # lundi et jeudi à 8h — largement sous les 7 jours
+  workflow_dispatch:        # bouton "run" manuel dans GitHub
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase
+        run: |
+          curl -X GET "${{ secrets.SUPABASE_URL }}/rest/v1/ai_questions?select=id&limit=1" \
+            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}"

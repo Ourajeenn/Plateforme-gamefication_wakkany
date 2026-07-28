@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Avatar from './Avatar';
 import BadgeGallery from './BadgeGallery';
 import HabitTracker from './profile/HabitTracker';
@@ -8,6 +9,7 @@ import { getDominantBranch } from '../utils/xpHelpers';
 import { BRANCHES } from '../data/branches';
 
 export default function ProfileView({ user, xp, unlockedSkills, unlockedAchievements, setXp, setUnlockedAchievements }) {
+  const navigate = useNavigate();
   const [scanning, setScanning] = useState(false);
   const [scanApproved, setScanApproved] = useState(false);
   
@@ -230,23 +232,34 @@ export default function ProfileView({ user, xp, unlockedSkills, unlockedAchievem
   return (
     <div className="max-w-6xl mx-auto space-y-10">
       
+      {/* Back button */}
+      <div className="flex items-center">
+        <button
+          onClick={() => navigate('/')}
+          className="group flex items-center gap-2 text-zinc-500 hover:text-white transition-all text-xs font-bold uppercase tracking-widest bg-zinc-900/50 hover:bg-zinc-900 border border-[#c28e3a]/10 hover:border-[#c28e3a]/30 px-4 py-2.5 rounded-xl cursor-pointer"
+        >
+          <iconify-icon icon="mdi:arrow-left" width="16" className="transform group-hover:-translate-x-1 transition-transform"></iconify-icon>
+          <span>Retour</span>
+        </button>
+      </div>
+
       {/* Title block */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between border-b border-purple-500/20 pb-6">
+      <div className="flex flex-col md:flex-row md:items-end justify-between border-b border-[#c28e3a]/20 pb-6">
         <div>
           <div className="flex items-center gap-3">
-            <span className="w-2.5 h-2.5 rounded-full bg-purple-500 animate-ping"></span>
-            <span className="text-[10px] text-purple-400 font-black uppercase tracking-[0.4em]">SYSTEM CHRONOS ACTIVE</span>
+            <span className="w-2.5 h-2.5 rounded-full bg-[#c28e3a] animate-ping"></span>
+            <span className="text-[10px] text-[#c28e3a] font-black uppercase tracking-[0.4em]">SYSTEM CHRONOS ACTIVE</span>
           </div>
-          <h1 className="text-white text-2xl sm:text-4xl md:text-5xl font-heading font-black italic uppercase mt-2 tracking-wider sm:tracking-widest filter drop-shadow-[0_0_15px_rgba(168,85,247,0.4)]">
+          <h1 className="text-white text-2xl sm:text-4xl md:text-5xl font-heading font-black italic uppercase mt-2 tracking-wider sm:tracking-widest filter drop-shadow-[0_0_15px_rgba(194,142,58,0.4)]">
             SYSTEM LEVELING
           </h1>
           <p className="text-zinc-500 text-[10px] sm:text-xs mt-1 font-heading font-bold uppercase tracking-[0.2em] sm:tracking-[0.25em]">
             Identité numérique et statistiques de puissance
           </p>
         </div>
-        <div className="mt-4 md:mt-0 flex gap-4 text-[10px] font-black uppercase tracking-widest bg-zinc-900/80 border border-purple-500/20 px-6 py-3 rounded-2xl">
+        <div className="mt-4 md:mt-0 flex gap-4 text-[10px] font-black uppercase tracking-widest bg-zinc-900/80 border border-[#c28e3a]/20 px-6 py-3 rounded-2xl">
           <span className="text-zinc-500">Rang Actuel :</span>
-          <span className="text-purple-400 filter drop-shadow-[0_0_5px_rgba(168,85,247,0.5)]">
+          <span className="text-[#c28e3a] filter drop-shadow-[0_0_5px_rgba(194,142,58,0.5)]">
             {xp > 200 ? "S-RANK HUNTER" : xp > 100 ? "A-RANK HUNTER" : "E-RANK NOVICE"}
           </span>
         </div>
@@ -257,19 +270,19 @@ export default function ProfileView({ user, xp, unlockedSkills, unlockedAchievem
         {/* Left Column - Avatar Scan & Task Management */}
         <div className="lg:col-span-6 flex flex-col gap-8 w-full">
           
-          <div className="bg-zinc-950 border border-purple-500/10 rounded-3xl p-5 sm:p-8 relative overflow-hidden group shadow-[inset_0_0_30px_rgba(168,85,247,0.05),0_10px_30px_rgba(0,0,0,0.8)]">
-            <div className="absolute inset-0 bg-radial-gradient from-purple-900/10 via-transparent to-transparent opacity-60 pointer-events-none"></div>
+          <div className="bg-zinc-950 border border-[#c28e3a]/10 rounded-3xl p-5 sm:p-8 relative overflow-hidden group shadow-[inset_0_0_30px_rgba(194,142,58,0.05),0_10px_30px_rgba(0,0,0,0.8)]">
+            <div className="absolute inset-0 bg-radial-gradient from-[#c28e3a]/10 via-transparent to-transparent opacity-60 pointer-events-none"></div>
             
             <div className="flex justify-between items-start mb-8 relative z-10">
               <div>
                 <h2 className="text-white text-3xl font-heading font-black italic uppercase tracking-wider">{user?.name || 'Nomade'}</h2>
-                <p className="text-purple-500 text-[10px] font-black uppercase tracking-[0.25em] mt-1">{user?.academy || 'Sans Académie'}</p>
+                <p className="text-[#c28e3a] text-[10px] font-black uppercase tracking-[0.25em] mt-1">{user?.academy || 'Sans Académie'}</p>
               </div>
               <button 
                 onClick={startScanning}
                 disabled={scanning}
                 className={`w-12 h-12 rounded-2xl border transition-all duration-300 flex items-center justify-center cursor-pointer 
-                  ${scanning ? 'bg-purple-500 border-purple-400 text-white animate-pulse' : 'bg-zinc-900 border-purple-500/25 text-purple-400 hover:border-purple-400'}`}
+                  ${scanning ? 'bg-[#c28e3a] border-[#c28e3a] text-white animate-pulse' : 'bg-zinc-900 border-[#c28e3a]/25 text-[#c28e3a] hover:border-[#c28e3a]'}`}
               >
                 <iconify-icon icon="mdi:scan" width="22"></iconify-icon>
               </button>
@@ -279,17 +292,17 @@ export default function ProfileView({ user, xp, unlockedSkills, unlockedAchievem
             <div className="py-10 flex justify-center items-center relative z-10">
               <div className="absolute w-[240px] h-[240px] flex items-center justify-center">
                 <svg className="w-full h-full animate-[spin_25s_linear_infinite]" viewBox="0 0 100 100">
-                  <circle cx="50" cy="50" r="46" fill="none" stroke="rgba(168, 85, 247, 0.12)" strokeWidth="1" strokeDasharray="3,3" />
-                  <circle cx="50" cy="50" r="40" fill="none" stroke="rgba(168, 85, 247, 0.2)" strokeWidth="0.5" />
-                  <line x1="50" y1="2" x2="50" y2="98" stroke="rgba(168, 85, 247, 0.1)" strokeWidth="0.5" />
-                  <line x1="2" y1="50" x2="98" y2="50" stroke="rgba(168, 85, 247, 0.1)" strokeWidth="0.5" />
-                  <path d="M 50 4 A 46 46 0 0 1 96 50" fill="none" stroke="#a855f7" strokeWidth="1.5" opacity="0.6" strokeDasharray="12,12" />
-                  <path d="M 50 96 A 46 46 0 0 1 4 50" fill="none" stroke="#a855f7" strokeWidth="1.5" opacity="0.6" strokeDasharray="12,12" />
+                  <circle cx="50" cy="50" r="46" fill="none" stroke="rgba(194, 142, 58, 0.12)" strokeWidth="1" strokeDasharray="3,3" />
+                  <circle cx="50" cy="50" r="40" fill="none" stroke="rgba(194, 142, 58, 0.2)" strokeWidth="0.5" />
+                  <line x1="50" y1="2" x2="50" y2="98" stroke="rgba(194, 142, 58, 0.1)" strokeWidth="0.5" />
+                  <line x1="2" y1="50" x2="98" y2="50" stroke="rgba(194, 142, 58, 0.1)" strokeWidth="0.5" />
+                  <path d="M 50 4 A 46 46 0 0 1 96 50" fill="none" stroke="#c28e3a" strokeWidth="1.5" opacity="0.6" strokeDasharray="12,12" />
+                  <path d="M 50 96 A 46 46 0 0 1 4 50" fill="none" stroke="#c28e3a" strokeWidth="1.5" opacity="0.6" strokeDasharray="12,12" />
                 </svg>
               </div>
 
               {scanning && (
-                <div className="absolute w-[210px] h-1 bg-gradient-to-r from-transparent via-purple-400 to-transparent shadow-[0_0_15px_#a855f7] animate-scan-line pointer-events-none z-30"></div>
+                <div className="absolute w-[210px] h-1 bg-gradient-to-r from-transparent via-[#c28e3a] to-transparent shadow-[0_0_15px_#c28e3a] animate-scan-line pointer-events-none z-30"></div>
               )}
 
               {/* Clickable Avatar custom aura trigger */}
@@ -298,7 +311,7 @@ export default function ProfileView({ user, xp, unlockedSkills, unlockedAchievem
                 className="transform scale-110 relative z-20 cursor-pointer group/avatar relative flex justify-center w-full"
                 title="Chambre de Fusion Élémentaire — Cliquez pour équiper une Aura !"
               >
-                <div className="absolute -top-10 bg-black/90 border border-purple-500/30 px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-wider text-purple-400 opacity-0 group-hover/avatar:opacity-100 transition-all duration-300 z-50 shadow-2xl">
+                <div className="absolute -top-10 bg-black/90 border border-[#c28e3a]/30 px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-wider text-[#c28e3a] opacity-0 group-hover/avatar:opacity-100 transition-all duration-300 z-50 shadow-2xl">
                   🧬 ACTIVER UNE AURA
                 </div>
                 <Avatar xp={xp} unlockedSkills={unlockedSkills} />
@@ -307,14 +320,14 @@ export default function ProfileView({ user, xp, unlockedSkills, unlockedAchievem
             
             {/* Identity Status Widget */}
             <div className="mt-10 space-y-4 relative z-10">
-              <div className="bg-black/50 border border-purple-500/10 p-4 rounded-2xl flex items-center justify-between">
+              <div className="bg-black/50 border border-[#c28e3a]/10 p-4 rounded-2xl flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400">
+                  <div className="w-10 h-10 rounded-xl bg-[#c28e3a]/10 border border-[#c28e3a]/20 flex items-center justify-center text-[#c28e3a]">
                     <iconify-icon icon="mdi:fingerprint" width="20"></iconify-icon>
                   </div>
                   <div>
                     <span className="text-[9px] text-zinc-500 font-black uppercase tracking-widest block">System Scan</span>
-                    <span className={`text-xs font-bold uppercase tracking-wider ${scanning ? 'text-yellow-500 animate-pulse' : scanApproved ? 'text-purple-400' : 'text-zinc-400'}`}>
+                    <span className={`text-xs font-bold uppercase tracking-wider ${scanning ? 'text-yellow-500 animate-pulse' : scanApproved ? 'text-[#c28e3a]' : 'text-zinc-400'}`}>
                       {scanning ? 'Analyse en cours...' : scanApproved ? 'Scan approuvé' : 'Attente du scan'}
                     </span>
                   </div>
@@ -326,7 +339,7 @@ export default function ProfileView({ user, xp, unlockedSkills, unlockedAchievem
               </div>
 
               {dominantBranch && (
-                <div className="flex items-center gap-4 bg-black/50 p-4 rounded-2xl border border-purple-500/10">
+                <div className="flex items-center gap-4 bg-black/50 p-4 rounded-2xl border border-[#c28e3a]/10">
                   <div 
                     className="w-10 h-10 rounded-xl flex items-center justify-center border font-bold"
                     style={{ backgroundColor: `${dominantBranch.color}15`, borderColor: `${dominantBranch.color}30`, color: dominantBranch.color }}
@@ -349,7 +362,7 @@ export default function ProfileView({ user, xp, unlockedSkills, unlockedAchievem
         {/* Right Column - Status & Radial Radar Chart (col-span-6) */}
         <div className="lg:col-span-6 flex flex-col gap-8 w-full">
           
-          <div className="bg-zinc-950 border border-purple-500/10 rounded-3xl p-5 sm:p-8 shadow-[inset_0_0_30px_rgba(168,85,247,0.05),0_10px_30px_rgba(0,0,0,0.8)] flex-1 flex flex-col justify-between">
+          <div className="bg-zinc-950 border border-[#c28e3a]/10 rounded-3xl p-5 sm:p-8 shadow-[inset_0_0_30px_rgba(194,142,58,0.05),0_10px_30px_rgba(0,0,0,0.8)] flex-1 flex flex-col justify-between">
             <div>
               <h3 className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.3em] mb-6">
                 Informations du Système de Pouvoir
@@ -358,7 +371,7 @@ export default function ProfileView({ user, xp, unlockedSkills, unlockedAchievem
               <div className="space-y-4">
                 <div className="bg-zinc-900/60 p-4 rounded-2xl border border-white/5 flex items-center justify-between">
                   <span className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Capacité Neuronale</span>
-                  <span className="font-monda font-black text-purple-400">920 Gigaflops</span>
+                  <span className="font-monda font-black text-[#c28e3a]">920 Gigaflops</span>
                 </div>
                 <div className="bg-zinc-900/60 p-4 rounded-2xl border border-white/5 flex items-center justify-between">
                   <span className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Niveau Global</span>
@@ -366,31 +379,31 @@ export default function ProfileView({ user, xp, unlockedSkills, unlockedAchievem
                 </div>
                 <div className="bg-zinc-900/60 p-4 rounded-2xl border border-white/5 flex items-center justify-between">
                   <span className="text-xs font-bold text-zinc-400 uppercase tracking-widest">XP Cumulée</span>
-                  <span className="font-monda font-black text-purple-400">{xp} / {nextLevelXp} XP</span>
+                  <span className="font-monda font-black text-[#c28e3a]">{xp} / {nextLevelXp} XP</span>
                 </div>
               </div>
             </div>
 
             {/* Radar Spider Chart with Faction Progress */}
-            <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+            <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-6 items-center">
               
               <div className="flex justify-center">
-                <svg viewBox="0 -10 120 120" className="w-40 h-40 filter drop-shadow-[0_0_15px_rgba(168,85,247,0.25)]">
+                <svg viewBox="0 -10 120 120" className="w-40 h-40 filter drop-shadow-[0_0_15px_rgba(194,142,58,0.25)]">
                   {/* Outer Grid Ring */}
                   <polygon points="50,0 100,50 50,100 0,50" fill="none" stroke="rgba(255, 255, 255, 0.03)" strokeWidth="0.8" />
                   <polygon points="50,12.5 87.5,50 50,87.5 12.5,50" fill="none" stroke="rgba(255, 255, 255, 0.05)" strokeWidth="0.8" />
-                  <polygon points="50,25 75,50 50,75 25,50" fill="none" stroke="rgba(168, 85, 247, 0.15)" strokeWidth="0.8" />
-                  <polygon points="50,37.5 62.5,50 50,62.5 37.5,50" fill="none" stroke="rgba(168, 85, 247, 0.2)" strokeWidth="0.8" />
+                  <polygon points="50,25 75,50 50,75 25,50" fill="none" stroke="rgba(194, 142, 58, 0.15)" strokeWidth="0.8" />
+                  <polygon points="50,37.5 62.5,50 50,62.5 37.5,50" fill="none" stroke="rgba(194, 142, 58, 0.2)" strokeWidth="0.8" />
                   
                   {/* Axis lines */}
                   <line x1="50" y1="0" x2="50" y2="100" stroke="rgba(255, 255, 255, 0.1)" strokeWidth="0.5" />
                   <line x1="0" y1="50" x2="100" y2="50" stroke="rgba(255, 255, 255, 0.1)" strokeWidth="0.5" />
 
-                  {/* Faction labels */}
-                  <text x="50" y="-4" textAnchor="middle" fill="#ff3b30" fontSize="5" fontWeight="bold" className="font-heading italic">HÉROS</text>
-                  <text x="104" y="52" textAnchor="start" fill="#c28e3a" fontSize="5" fontWeight="bold" className="font-heading italic">GUERRIERS</text>
-                  <text x="50" y="106" textAnchor="middle" fill="#34c759" fontSize="5" fontWeight="bold" className="font-heading italic">PRIMITIFS</text>
-                  <text x="-4" y="52" textAnchor="end" fill="#007aff" fontSize="5" fontWeight="bold" className="font-heading italic">SPEED</text>
+                  {/* Faction labels — palette Wakkany cohérente */}
+                  <text x="50" y="-4" textAnchor="middle" fill="#c28e3a" fontSize="5" fontWeight="bold" className="font-heading italic">HÉROS</text>
+                  <text x="104" y="52" textAnchor="start" fill="#e8b96a" fontSize="5" fontWeight="bold" className="font-heading italic">GUERRIERS</text>
+                  <text x="50" y="106" textAnchor="middle" fill="#a1752b" fontSize="5" fontWeight="bold" className="font-heading italic">PRIMITIFS</text>
+                  <text x="-4" y="52" textAnchor="end" fill="#f5dfa0" fontSize="5" fontWeight="bold" className="font-heading italic">SPEED</text>
 
                   {/* Polyline plotting actual progress */}
                   <polygon 
@@ -400,8 +413,8 @@ export default function ProfileView({ user, xp, unlockedSkills, unlockedAchievem
                       50,${50 + (branchProgress.dinos * 0.5)} 
                       ${50 - (branchProgress.cars * 0.5)},50
                     `} 
-                    fill="rgba(168, 85, 247, 0.25)" 
-                    stroke="#a855f7" 
+                    fill="rgba(194, 142, 58, 0.25)" 
+                    stroke="#c28e3a" 
                     strokeWidth="1.2" 
                     filter="url(#radarGlow)"
                   />
@@ -418,23 +431,23 @@ export default function ProfileView({ user, xp, unlockedSkills, unlockedAchievem
                 </svg>
               </div>
 
-              {/* Faction lists and bars */}
-              <div className="space-y-4">
+              {/* Faction bars — palette or Wakkany */}
+              <div className="space-y-3">
                 {[
-                  { name: 'Command (Héros)', val: branchProgress.raw.heroes, color: '#ff3b30' },
-                  { name: 'Combat (Guerriers)', val: branchProgress.raw.warriors, color: '#c28e3a' },
-                  { name: 'Cyber (Primitifs)', val: branchProgress.raw.dinos, color: '#34c759' },
-                  { name: 'Speed (Mécanique)', val: branchProgress.raw.cars, color: '#007aff' }
+                  { name: 'Command (Héros)', val: branchProgress.raw.heroes, color: '#c28e3a' },
+                  { name: 'Combat (Guerriers)', val: branchProgress.raw.warriors, color: '#e8b96a' },
+                  { name: 'Cyber (Primitifs)', val: branchProgress.raw.dinos, color: '#a1752b' },
+                  { name: 'Speed (Mécanique)', val: branchProgress.raw.cars, color: '#f5dfa0' }
                 ].map((item, idx) => (
-                  <div key={idx} className="space-y-1 bg-black/40 p-3 rounded-xl border border-white/5 hover:border-purple-500/10 transition-all">
+                  <div key={idx} className="space-y-1 bg-black/40 p-3 rounded-xl border border-white/5 hover:border-[#c28e3a]/10 transition-all">
                     <div className="flex justify-between text-[10px] font-bold uppercase tracking-wider">
-                      <span className="text-white">{item.name}</span>
+                      <span className="text-zinc-300">{item.name}</span>
                       <span style={{ color: item.color }}>{item.val} / 6</span>
                     </div>
-                    <div className="w-full h-1.5 bg-zinc-900 rounded-full overflow-hidden relative">
+                    <div className="w-full h-1.5 bg-zinc-900 rounded-full overflow-hidden">
                       <div 
-                        className="h-full rounded-full transition-all duration-1000 shadow-[0_0_10px_currentColor]" 
-                        style={{ width: `${(item.val / 6) * 100}%`, backgroundColor: item.color, color: item.color }}
+                        className="h-full rounded-full transition-all duration-1000" 
+                        style={{ width: `${(item.val / 6) * 100}%`, backgroundColor: item.color, boxShadow: `0 0 8px ${item.color}80` }}
                       ></div>
                     </div>
                   </div>
@@ -454,13 +467,13 @@ export default function ProfileView({ user, xp, unlockedSkills, unlockedAchievem
       </div>
 
       {/* Proposition D: Tableau de Chasse aux Quêtes Actives */}
-      <div className="bg-zinc-950 border border-purple-500/10 rounded-3xl p-5 sm:p-8 pt-8 sm:pt-10 shadow-[inset_0_0_30px_rgba(168,85,247,0.05),0_10px_30px_rgba(0,0,0,0.8)] relative overflow-hidden mt-10">
+      <div className="bg-zinc-950 border border-[#c28e3a]/10 rounded-3xl p-5 sm:p-8 pt-8 sm:pt-10 shadow-[inset_0_0_30px_rgba(194,142,58,0.05),0_10px_30px_rgba(0,0,0,0.8)] relative overflow-hidden mt-10">
         
-        <div className="absolute -top-0.5 left-1/2 -translate-x-1/2 bg-zinc-950 border-x border-b border-purple-500/30 px-8 py-2 rounded-b-2xl shadow-lg z-20">
+        <div className="absolute -top-0.5 left-1/2 -translate-x-1/2 bg-zinc-950 border-x border-b border-[#c28e3a]/30 px-8 py-2 rounded-b-2xl shadow-lg z-20">
           <span className="text-[10px] font-heading font-black tracking-[0.25em] text-white uppercase">TABLEAU DE CHASSE AUX QUÊTES</span>
         </div>
 
-        <div className="absolute inset-0 bg-radial-gradient from-purple-900/5 via-transparent to-transparent opacity-50 pointer-events-none"></div>
+        <div className="absolute inset-0 bg-radial-gradient from-[#c28e3a]/5 via-transparent to-transparent opacity-50 pointer-events-none"></div>
 
         <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-6">
           {[
@@ -489,7 +502,7 @@ export default function ProfileView({ user, xp, unlockedSkills, unlockedAchievem
                 </div>
 
                 <div className="flex items-center justify-between border-t border-white/5 pt-3 mt-1">
-                  <span className="text-[8px] text-zinc-500 font-bold uppercase">Récompense : <span className="text-purple-400 font-black">+{q.reward} XP</span></span>
+                  <span className="text-[8px] text-zinc-500 font-bold uppercase">Récompense : <span className="text-[#c28e3a] font-black">+{q.reward} XP</span></span>
                   
                   {isClaimed ? (
                     <span className="text-[8px] text-zinc-600 font-black uppercase tracking-widest">❖ ACCOMPLIE</span>
@@ -518,8 +531,8 @@ export default function ProfileView({ user, xp, unlockedSkills, unlockedAchievem
       {/* Holographic Aura Selection Modal Overlay */}
       {showAuraSelector && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/85 backdrop-blur-sm p-4 animate-fade-in">
-          <div className="bg-zinc-950 border-2 border-purple-500/30 p-8 rounded-[40px] max-w-md w-full relative overflow-hidden shadow-[0_0_50px_rgba(168,85,247,0.25)]">
-            <div className="absolute inset-0 bg-purple-500/5 animate-pulse pointer-events-none"></div>
+          <div className="bg-zinc-950 border-2 border-[#c28e3a]/30 p-8 rounded-[40px] max-w-md w-full relative overflow-hidden shadow-[0_0_50px_rgba(194,142,58,0.25)]">
+            <div className="absolute inset-0 bg-[#c28e3a]/5 animate-pulse pointer-events-none"></div>
             
             <button 
               onClick={() => setShowAuraSelector(false)}
@@ -540,14 +553,14 @@ export default function ProfileView({ user, xp, unlockedSkills, unlockedAchievem
                 { id: 'none', name: 'Aucune Aura 🛡️', desc: 'Rendu par défaut de votre niveau.', icon: 'mdi:shield', color: 'text-zinc-500' },
                 { id: 'fire', name: 'Aura de Feu 🔥', desc: 'Déchaînez les flammes éternelles du volcan.', icon: 'mdi:flame', color: 'text-red-500' },
                 { id: 'lightning', name: 'Aura Électrique ⚡', desc: 'Frayez un chemin de foudre néon.', icon: 'mdi:zap', color: 'text-blue-400' },
-                { id: 'cosmic', name: 'Aura Cosmique 🌌', desc: 'Invoquez les orbes de l\'abîme céleste.', icon: 'mdi:orbit', color: 'text-purple-400' },
+                { id: 'cosmic', name: 'Aura Cosmique 🌌', desc: 'Invoquez les orbes de l\'abîme céleste.', icon: 'mdi:orbit', color: 'text-amber-500' },
                 { id: 'divine', name: 'Aura Divine ✨', desc: 'Brillez de la lumière des monarques.', icon: 'mdi:sparkles', color: 'text-[#fce5a1]' }
               ].map(aura => (
                 <button
                   key={aura.id}
                   onClick={() => selectAura(aura.id)}
                   className={`w-full p-4 rounded-2xl border-2 text-left flex items-center justify-between transition-all hover:scale-102 active:scale-98 cursor-pointer
-                    ${selectedAura === aura.id ? 'border-purple-500 bg-purple-900/10 shadow-[0_0_15px_rgba(168,85,247,0.2)] scale-102' : 'border-white/5 bg-zinc-900/40 hover:border-white/10'}`}
+                    ${selectedAura === aura.id ? 'border-[#c28e3a] bg-[#c28e3a]/10 shadow-[0_0_15px_rgba(194,142,58,0.2)] scale-102' : 'border-white/5 bg-zinc-900/40 hover:border-white/10'}`}
                 >
                   <div>
                     <h4 className={`font-black uppercase tracking-wider text-xs ${aura.color}`}>{aura.name}</h4>
@@ -560,7 +573,7 @@ export default function ProfileView({ user, xp, unlockedSkills, unlockedAchievem
 
             <button
               onClick={() => setShowAuraSelector(false)}
-              className="mt-8 w-full py-4 bg-purple-600 text-white font-heading font-black uppercase text-xs tracking-widest rounded-xl hover:bg-white hover:text-black transition-all"
+              className="mt-8 w-full py-4 bg-[#c28e3a] text-black font-heading font-black uppercase text-xs tracking-widest rounded-xl hover:bg-white hover:text-black transition-all"
             >
               Fermer la Chambre
             </button>

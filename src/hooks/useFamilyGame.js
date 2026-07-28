@@ -1,7 +1,9 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { FAMILY_QUESTIONS } from '../data/familyQuizzes';
+import { useSoundFX } from './useSoundFX';
 
 export function useFamilyGame() {
+  const { playCountdownBeep, playCountdownGo } = useSoundFX();
   const [gameState, setGameState] = useState('home'); // 'home', 'profile', 'setup', 'starting', 'playing', 'results'
   const [gameConfig, setGameConfig] = useState({ theme: null, mode: 'coop', players: [], difficulty: 'hunter', timerLimit: 8 });
   const [questions, setQuestions] = useState([]);
@@ -60,12 +62,18 @@ export function useFamilyGame() {
     setIsTimerRunning(false);
   }, []);
 
-  // Start countdown logic
+  // Start countdown logic (avec sons)
   useEffect(() => {
     let timer;
     if (gameState === 'starting' && startCountdown > 0) {
+      playCountdownBeep();
       timer = setInterval(() => {
-        setStartCountdown(prev => prev - 1);
+        setStartCountdown(prev => {
+          const next = prev - 1;
+          if (next > 0) playCountdownBeep();
+          else playCountdownGo();
+          return next;
+        });
       }, 1000);
     } else if (gameState === 'starting' && startCountdown === 0) {
       setGameState('playing');
@@ -73,6 +81,7 @@ export function useFamilyGame() {
       setQuestionStartTime(Date.now());
     }
     return () => clearInterval(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gameState, startCountdown]);
 
   const handleAnswer = useCallback((selectedAnswer) => {
