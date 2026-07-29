@@ -83,7 +83,7 @@ export default defineConfig({
         navigateFallbackDenylist: [/^\/api\//],
       },
       manifest: {
-        name: 'Wakkany — Unissez les générations',
+        name: `Wakkany — renoué avec vos racines d'origine`,
         short_name: 'Wakkany',
         description: 'Plateforme de gamification familiale — fonctionne même sans connexion',
         start_url: '/',

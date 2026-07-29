@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { usePlayerData } from '../hooks/usePlayerData';
 
 const INITIAL_QUESTS = [
   { id: 1, type: 'project', title: 'Forge the React Core', desc: 'Architect an interactive web application', xp: 50, completed: false, icon: 'mdi:code-2' },
@@ -33,7 +34,7 @@ const LEVEL_DATA = {
 };
 
 export default function ChampionPath({ userClan }) {
-  const [xp, setXp] = useState(0);
+  const { xp, grantXp } = usePlayerData();
   const [quests, setQuests] = useState(INITIAL_QUESTS);
   const [level, setLevel] = useState(1);
   const [xpPopups, setXpPopups] = useState([]);
@@ -65,13 +66,15 @@ export default function ChampionPath({ userClan }) {
       y: rect.top
     };
 
+    grantXp(quest.xp);
+    // Note: XP will be updated via the hook's state.
     setXpPopups(prev => [...prev, newPopup]);
     setTimeout(() => {
       setXpPopups(prev => prev.filter(p => p.id !== newPopup.id));
     }, 1000);
 
     setQuests(quests.map(q => q.id === quest.id ? { ...q, completed: true } : q));
-    setXp(prev => Math.min(prev + quest.xp, MAX_XP));
+    // Note: XP will be updated via the hook's state.
   };
 
   const getProgressPercentage = () => {
