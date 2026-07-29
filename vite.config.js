@@ -11,6 +11,8 @@ export default defineConfig({
       // Inclut tous les assets dans le precache automatique
       includeAssets: ['**/*'],
       workbox: {
+        clientsClaim: true,
+        skipWaiting: true,
         cleanupOutdatedCaches: true,
         // Précache tous les chunks JS/CSS/HTML générés par Vite
         globPatterns: ['**/*.{js,css,html,ico,png,jpg,jpeg,svg,webp,woff,woff2}'],
