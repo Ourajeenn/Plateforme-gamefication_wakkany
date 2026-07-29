@@ -4,8 +4,12 @@
   "outputDirectory": "dist",
   "installCommand": "npm ci",
   "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
+    {
+      "source": "/((?!assets/|icons/|favicon|icon-|manifest|sw\\.js|workbox-).*)",
+      "destination": "/index.html"
+    }
   ],
+
   "headers": [
     {
       "source": "/assets/:path*.(mp3|wav|ogg)",
