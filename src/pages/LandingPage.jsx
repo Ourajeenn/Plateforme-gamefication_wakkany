@@ -1,5 +1,6 @@
 import React, { Suspense, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import MuxPlayer from '@mux/mux-player-react';
 import HistoireView from '../components/HistoireView';
 import LandingNav from '../components/layout/LandingNav';
 import PageLoader from '../components/common/PageLoader';
@@ -49,17 +50,16 @@ export default function LandingPage({ user, onJoin }) {
             {/* Hero Section */}
             <header id="hero" className="relative w-full h-screen overflow-hidden flex flex-col justify-end pb-10 sm:pb-24">
               <div className="absolute inset-0 z-0 bg-zinc-950 overflow-hidden stabilize-motion">
-                <video
-                  className="video-background opacity-85 brightness-125 pointer-events-none stabilize-motion object-cover"
-                  autoPlay
+                <MuxPlayer
+                  playbackId="01mywJGOo4l00f8YOasdq4nIXXI6vrrIIVTKtMN6PCeQM"
+                  autoPlay="muted"
                   loop
                   muted
                   playsInline
+                  controls={false}
                   preload="auto"
-                  poster="https://image.mux.com/01mywJGOo4l00f8YOasdq4nIXXI6vrrIIVTKtMN6PCeQM/thumbnail.jpg?time=0"
-                >
-                  <source src="https://stream.mux.com/01mywJGOo4l00f8YOasdq4nIXXI6vrrIIVTKtMN6PCeQM/high.mp4" type="video/mp4" />
-                </video>
+                  className="video-background opacity-85 brightness-125 pointer-events-none stabilize-motion object-cover"
+                />
                 <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-zinc-950/80"></div>
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_0%,_#09090b_70%)] opacity-60"></div>
                 <div className="absolute inset-0 bg-yellow-500/20 mix-blend-overlay"></div>
