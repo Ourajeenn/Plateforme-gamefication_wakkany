@@ -4,7 +4,7 @@ export const BRANCHES = {
     id: "heroes",
     label: "CLAN DES HÉROS",
     color: "#ff5a1f", // orange/red
-    icon: "🦸‍♂️",
+    icon: "mdi:shield-flash",
     nodes: [
       { id: "root", name: "NEXUS", xp: 0, tier: 0, req: [], desc: "Point de départ de votre cursus de talents Wakkany.", x: 5, y: 50, isRoot: true },
       { id: "ecca", name: "GENE-X", xp: 25, tier: 1, req: ["root"], desc: "L'éveil d'un potentiel cosmique latent.", x: 20, y: 20, label: "ÉVEIL" },
@@ -24,7 +24,7 @@ export const BRANCHES = {
     id: "warriors",
     label: "CLAN DES GUERRIERS",
     color: "#c28e3a", // imperial gold
-    icon: "⚔️",
+    icon: "mdi:swords",
     nodes: [
       { id: "ejpt", name: "SPART", xp: 25, tier: 1, req: ["root"], desc: "Discipline de fer et formation rigoureuse.", x: 20, y: 50, label: "DISCIPLINE" },
       { id: "ecppt", name: "KRATS", xp: 50, tier: 2, req: ["ejpt"], desc: "Force dévastatrice et puissance brute de colère.", x: 35, y: 50, label: "RAGE" },
@@ -51,7 +51,7 @@ export const BRANCHES = {
     id: "primitives",
     label: "CLAN DES PRIMITIFS",
     color: "#34c759", // green
-    icon: "🦖",
+    icon: "mdi:bone",
     nodes: [
       { id: "ejca", name: "JURAS", xp: 25, tier: 1, req: ["root"], desc: "Retour à l'état sauvage originel et instinct animal.", x: 20, y: 80, label: "SAUVAGE" },
       { id: "cdsa", name: "SCALE", xp: 60, tier: 2, req: ["ejca"], desc: "Armure naturelle impénétrable inspirée du Stégosaure.", x: 35, y: 80, label: "BLINDAGE" },

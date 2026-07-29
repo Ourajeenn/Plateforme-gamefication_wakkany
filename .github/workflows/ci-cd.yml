@@ -78,7 +78,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Scan du dépôt avec Trivy
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@0.28.0
         with:
           scan-type: fs
           exit-code: '1'
@@ -168,7 +168,7 @@ jobs:
       - name: Build de l'image Docker
         run: docker build -t wakkany:ci .
       - name: Scan de l'image avec Trivy
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@0.28.0
         with:
           image-ref: wakkany:ci
           exit-code: '1'
@@ -226,7 +226,7 @@ jobs:
           path: ./dist
 
       - name: Installer Vercel CLI
-        run: npm install -g vercel@latest
+        run: npm install -g vercel@39.3.0
 
       - name: Pull Vercel project settings
         env:

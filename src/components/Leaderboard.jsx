@@ -153,7 +153,7 @@ export default function Leaderboard({ currentUser }) {
                     className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-8 border border-white/5 bg-zinc-900 shadow-2xl"
                     style={{ boxShadow: `0 0 30px ${branch?.color}20` }}
                   >
-                     <span className="text-4xl">{branch?.icon}</span>
+                     <iconify-icon icon={branch?.icon} width="36" style={{ color: branch?.color }}></iconify-icon>
                   </div>
                   <h3 className="text-white font-black uppercase text-2xl tracking-tighter mb-2 italic font-heading" style={{ color: branch?.color }}>
                     {branch?.label}

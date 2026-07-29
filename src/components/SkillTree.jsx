@@ -564,7 +564,7 @@ export default function SkillTree({ xp, unlockedSkills, onUnlock, onReset }) {
               <div className="bg-black/50 border border-[#c28e3a]/10 p-5 rounded-2xl relative">
                 <div className="flex items-center gap-4 mb-3">
                   <div className="w-12 h-12 rounded-xl flex items-center justify-center border font-bold text-xl" style={{ backgroundColor: `${selectedBranch.color}15`, borderColor: `${selectedBranch.color}30`, color: selectedBranch.color }}>
-                    {selectedBranch.icon}
+                    <iconify-icon icon={selectedBranch.icon} width="24"></iconify-icon>
                   </div>
                   <div>
                     <h4 className="text-white font-black uppercase tracking-wider text-sm">{selectedNode.name}</h4>

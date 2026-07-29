@@ -10,15 +10,15 @@ import { useSoundFX } from '../../hooks/useSoundFX';
 import Button from '../common/Button';
 
 const MODES = [
-  { id: 'bluff_royal', label: 'Bluff Royal', icon: '🃏', desc: 'Bluffez et devinez qui ment' },
-  { id: 'family',      label: 'Quiz Famille', icon: '👨‍👩‍👧', desc: 'Quiz rapide en équipe' },
+  { id: 'bluff_royal', label: 'Bluff Royal', icon: 'mdi:cards-playing-outline', desc: 'Bluffez et devinez qui ment' },
+  { id: 'family',      label: 'Quiz Famille', icon: 'mdi:account-group', desc: 'Quiz rapide en équipe' },
 ];
 
 const THEMES = [
-  { id: 'rpg',      label: 'Univers RPG',    icon: '⚔️' },
-  { id: 'history',  label: 'Histoire',        icon: '📜' },
-  { id: 'science',  label: 'Science',         icon: '🔬' },
-  { id: 'general',  label: 'Culture générale',icon: '🌍' },
+  { id: 'rpg',      label: 'Univers RPG',    icon: 'mdi:swords' },
+  { id: 'history',  label: 'Histoire',        icon: 'mdi:scroll' },
+  { id: 'science',  label: 'Science',         icon: 'mdi:microscope' },
+  { id: 'general',  label: 'Culture générale',icon: 'mdi:earth' },
 ];
 
 export default function HostLobby() {
@@ -162,7 +162,9 @@ export default function HostLobby() {
                       : 'border-zinc-700 bg-zinc-900 text-zinc-400 hover:border-zinc-500'
                   }`}
                 >
-                  <div className="text-2xl mb-1">{m.icon}</div>
+                  <div className="text-2xl mb-1 flex items-center justify-center">
+                    <iconify-icon icon={m.icon} width="28"></iconify-icon>
+                  </div>
                   <div className="font-bold text-sm">{m.label}</div>
                   <div className="text-xs opacity-70 mt-1">{m.desc}</div>
                 </button>
@@ -178,13 +180,14 @@ export default function HostLobby() {
                 <button
                   key={t.id}
                   onClick={() => setTheme(t.id)}
-                  className={`px-4 py-2 rounded-xl border-2 text-sm font-medium transition-all ${
+                  className={`flex items-center justify-center gap-2 px-4 py-2 rounded-xl border-2 text-sm font-medium transition-all ${
                     theme === t.id
                       ? 'border-[#c28e3a] bg-[#c28e3a]/10 text-[#e8b96a]'
                       : 'border-zinc-700 bg-zinc-900 text-zinc-400 hover:border-zinc-500'
                   }`}
                 >
-                  {t.icon} {t.label}
+                  <iconify-icon icon={t.icon} width="18"></iconify-icon>
+                  <span>{t.label}</span>
                 </button>
               ))}
             </div>

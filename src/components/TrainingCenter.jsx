@@ -9,14 +9,14 @@ export default function TrainingCenter({ xp, unlockedSkills, completedQuests, on
   const [activeQuiz, setActiveQuiz] = useState(null);
 
   const categories = [
-    { id: 'heroes', label: 'Super-Héros', icon: '🦸‍♂️', color: '#ef4444', desc: 'Marvel, DC & au-delà' },
-    { id: 'warriors', label: 'Guerriers & Mythes', icon: '⚔️', color: '#f59e0b', desc: 'Spartacus, Odin, Kratos...' },
-    { id: 'dinos', label: 'Dinosaures', icon: '🦖', color: '#10b981', desc: 'Jurassique & Crétacé' },
-    { id: 'cars', label: 'Automobile', icon: '🏎️', color: '#3b82f6', desc: 'Monstres de puissance' },
-    { id: 'culture', label: 'Culture Générale', icon: '🌍', color: '#8b5cf6', desc: 'Art, Histoire & Savoir' },
-    { id: 'geography', label: 'Géographie', icon: '🗺️', color: '#06b6d4', desc: 'Fleuves, Montagnes & Pays' },
-    { id: 'math', label: 'Mathématiques', icon: '🧮', color: '#ec4899', desc: 'Nombres & Géométrie' },
-    { id: 'flags', label: 'Drapeaux', icon: '🚩', color: '#f43f5e', desc: 'Couleurs du Monde' }
+    { id: 'heroes', label: 'Super-Héros', icon: 'mdi:shield-flash', color: '#ef4444', desc: 'Marvel, DC & au-delà' },
+    { id: 'warriors', label: 'Guerriers & Mythes', icon: 'mdi:swords', color: '#f59e0b', desc: 'Spartacus, Odin, Kratos...' },
+    { id: 'dinos', label: 'Dinosaures', icon: 'mdi:bone', color: '#10b981', desc: 'Jurassique & Crétacé' },
+    { id: 'cars', label: 'Automobile', icon: 'mdi:car-sports', color: '#3b82f6', desc: 'Monstres de puissance' },
+    { id: 'culture', label: 'Culture Générale', icon: 'mdi:earth', color: '#8b5cf6', desc: 'Art, Histoire & Savoir' },
+    { id: 'geography', label: 'Géographie', icon: 'mdi:map-legend', color: '#06b6d4', desc: 'Fleuves, Montagnes & Pays' },
+    { id: 'math', label: 'Mathématiques', icon: 'mdi:calculator', color: '#ec4899', desc: 'Nombres & Géométrie' },
+    { id: 'flags', label: 'Drapeaux', icon: 'mdi:flag', color: '#f43f5e', desc: 'Couleurs du Monde' }
   ];
 
   const handleStartQuiz = (category) => {
@@ -97,10 +97,10 @@ export default function TrainingCenter({ xp, unlockedSkills, completedQuests, on
                 ></div>
 
                 <div 
-                  className="w-16 h-16 rounded-2xl bg-zinc-900 border border-white/5 flex items-center justify-center text-4xl mb-6 shadow-xl group-hover:scale-110 transition-transform duration-500"
+                  className="w-16 h-16 rounded-2xl bg-zinc-900 border border-white/5 flex items-center justify-center mb-6 shadow-xl group-hover:scale-110 transition-transform duration-500"
                   style={{ boxShadow: `0 0 30px ${cat.color}20` }}
                 >
-                  {cat.icon}
+                  <iconify-icon icon={cat.icon} width="36" style={{ color: cat.color }}></iconify-icon>
                 </div>
 
                 <h3 className="text-white font-black uppercase text-xl tracking-tighter mb-2 italic font-heading" style={{ color: cat.color }}>

@@ -4,9 +4,9 @@ export default function BottomNav({ activeTab, setActiveTab, hasNotifications })
     const tabs = [
         { id: 'profile', label: 'Profil', icon: 'mdi:account' },
         { id: 'quests', label: 'Quêtes', icon: 'mdi:scroll', special: true },
-        { id: 'skills', label: 'Skills', icon: 'mdi:git' },
+        { id: 'skills', label: 'Skills', icon: 'mdi:git-branch' },
         { id: 'rankings', label: 'Hall', icon: 'mdi:trophy' },
-        { id: 'quiz', label: 'Quiz', icon: 'mdi:gamepad-variant' },
+        { id: 'quiz', label: 'Quiz', icon: 'mdi:gamepad-2' },
     ];
 
     return (

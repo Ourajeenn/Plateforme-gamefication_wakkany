@@ -344,7 +344,7 @@ export default function ProfileView({ user, xp, unlockedSkills, unlockedAchievem
                     className="w-10 h-10 rounded-xl flex items-center justify-center border font-bold"
                     style={{ backgroundColor: `${dominantBranch.color}15`, borderColor: `${dominantBranch.color}30`, color: dominantBranch.color }}
                   >
-                    <span className="text-xl">{dominantBranch.icon}</span>
+                    <iconify-icon icon={dominantBranch.icon} width="20"></iconify-icon>
                   </div>
                   <div>
                     <span className="text-[9px] text-zinc-500 font-black uppercase tracking-widest block">Alignement Dominant</span>
