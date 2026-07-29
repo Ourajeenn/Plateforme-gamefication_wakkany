@@ -7,13 +7,23 @@ const audioCache = new Map();
 
 const createAudio = (fileName) => {
   try {
-    const audio = new Audio(`${assetBase}assets/${fileName}`);
+    const fullUrl = `${assetBase}assets/${fileName}`;
+    const audio = new Audio(fullUrl);
     audio.preload = 'metadata';
-    audio.addEventListener('error', (e) => {
-      console.error(`[Audio] Impossible de charger ${fileName}:`, e.target?.error?.message || e);
+
+    audio.addEventListener('canplaythrough', () => {
+      console.log(`[Audio] Fichier ${fileName} prêt à être joué (${fullUrl})`);
     });
+
+    audio.addEventListener('error', (e) => {
+      const errCode = e.target?.error?.code;
+      const errMsg = e.target?.error?.message;
+      console.error(`[Audio] Erreur de chargement pour ${fileName} (${fullUrl}): Code ${errCode} - ${errMsg || 'Fichier introuvable ou bloqué'}`);
+    });
+
     return audio;
-  } catch {
+  } catch (err) {
+    console.error(`[Audio] Exception lors de la création de l'objet Audio pour ${fileName}:`, err);
     return null;
   }
 };

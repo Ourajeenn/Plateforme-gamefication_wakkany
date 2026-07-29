@@ -17,7 +17,7 @@ import { ACHIEVEMENTS } from '../data/achievements';
 import { realtime } from '../utils/realtime';
 import { getTotalXp } from '../utils/xpHelpers';
 import { getLevel } from '../data/levels';
-import { useSoundFX } from '../hooks/useSoundFX';
+import { useSoundFX, getBgMusic } from '../hooks/useSoundFX';
 import useNotifications from '../hooks/useNotifications';
 import { flushOfflineQueue, getOfflineQueueLength } from '../utils/offlineQueue';
 import { supabase } from '../utils/supabaseClient';
@@ -94,6 +94,28 @@ export default function App() {
     const handleScroll = () => setShowScrollTop(window.scrollY > 400);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Déverrouillage et lancement de l'audio au premier clic/touche de l'utilisateur
+  useEffect(() => {
+    const handleFirstInteraction = () => {
+      const bgMusic = getBgMusic();
+      if (bgMusic && bgMusic.paused) {
+        bgMusic.play()
+          .then(() => console.log('[Audio] Musique de fond lancée avec succès'))
+          .catch((err) => console.warn('[Audio] Autoplay bloqué ou erreur:', err));
+      }
+      document.removeEventListener('click', handleFirstInteraction);
+      document.removeEventListener('keydown', handleFirstInteraction);
+    };
+
+    document.addEventListener('click', handleFirstInteraction);
+    document.addEventListener('keydown', handleFirstInteraction);
+
+    return () => {
+      document.removeEventListener('click', handleFirstInteraction);
+      document.removeEventListener('keydown', handleFirstInteraction);
+    };
   }, []);
 
   useEffect(() => {
