@@ -73,7 +73,7 @@ function EncounterNode({ enc, defeated, unlocked, onSelect, isNext }) {
         <div className="absolute -top-2 -right-2 text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full"
           style={{ background: enc.color, color: '#000' }}>BOSS FINAL</div>
       )}
-      <span className="text-3xl">{done ? '✅' : locked ? '🔒' : enc.icon}</span>
+      <span className="text-3xl flex items-center justify-center">{done ? '✅' : locked ? '🔒' : <iconify-icon icon={enc.icon} width="28" style={{ color: enc.color }}></iconify-icon>}</span>
       <div>
         <div className="text-[9px] font-black uppercase tracking-widest" style={{ color: enc.color }}>{enc.title}</div>
         <div className="text-white font-black text-sm leading-tight">{enc.name}</div>
@@ -161,7 +161,7 @@ export default function BossRaid() {
 
                 {/* Level Header */}
                 <div className="flex items-center gap-4">
-                  <div className="text-4xl">{lvl.icon}</div>
+                  <div className="text-4xl flex items-center"><iconify-icon icon={lvl.icon} width="36" style={{ color: lvl.color }}></iconify-icon></div>
                   <div>
                     <div className="text-[9px] font-black uppercase tracking-[0.4em]" style={{ color: lvl.color }}>Niveau {lvl.id}</div>
                     <h2 className="text-xl sm:text-2xl font-heading font-black italic uppercase">{lvl.name}</h2>
@@ -205,7 +205,7 @@ export default function BossRaid() {
     return (
       <div className="fixed inset-0 bg-zinc-950 flex flex-col items-center justify-center font-monda text-white">
         <div className="text-center space-y-6 animate-fade-in">
-          <div className="text-6xl">{currentEncounter?.icon}</div>
+          <div className="text-6xl flex justify-center"><iconify-icon icon={currentEncounter?.icon} width="64" style={{ color: currentEncounter?.color }}></iconify-icon></div>
           <div className="text-[10px] font-black uppercase tracking-[0.5em]" style={{ color: currentEncounter?.color }}>
             {currentEncounter?.type === 'final' ? '⚠️ BOSS FINAL ⚠️' : 'SEMI-BOSS'}
           </div>
@@ -261,7 +261,7 @@ export default function BossRaid() {
         <div className="relative z-10 rounded-2xl border p-4 mb-4 space-y-3"
           style={{ borderColor: `${enc?.color}40`, background: `${enc?.color}08` }}>
           <div className="flex items-center gap-3 flex-wrap">
-            <span className="text-3xl">{enc?.icon}</span>
+            <span className="text-3xl flex items-center"><iconify-icon icon={enc?.icon} width="32" style={{ color: enc?.color }}></iconify-icon></span>
             <div>
               <div className="text-[9px] font-black uppercase tracking-widest" style={{ color: enc?.color }}>
                 {isFinal ? '💀 BOSS FINAL' : '⚔️ SEMI-BOSS'} · Niveau {enc?.level}
