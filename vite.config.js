@@ -77,6 +77,11 @@ export default defineConfig({
               cacheableResponse: { statuses: [0, 200] },
             },
           },
+          // Fichiers audio (MP3, WAV) → NetworkOnly pour éviter les problèmes de Range Request du Service Worker
+          {
+            urlPattern: /\.(?:mp3|wav|ogg)$/,
+            handler: 'NetworkOnly',
+          },
         ],
         // Toutes les routes SPA → renvoie index.html (navigation offline)
         navigateFallback: '/index.html',
@@ -130,6 +135,9 @@ export default defineConfig({
         manualChunks: {
           // Core vendors
           vendor: ['react', 'react-dom', 'react-router-dom'],
+          // Animations & 3D
+          animation: ['framer-motion'],
+          three: ['three', '@react-three/fiber', '@react-three/drei'],
           // UI/Charting
           charts: ['recharts'],
           // Backend
@@ -158,7 +166,7 @@ export default defineConfig({
     // Source maps only for production debugging
     sourcemap: false,
     // Increase chunk size warning threshold
-    chunkSizeWarningLimit: 500,
+    chunkSizeWarningLimit: 1000,
   },
   test: {
     globals: true,
