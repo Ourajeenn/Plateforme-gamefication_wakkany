@@ -262,5 +262,5 @@ Projet privé — tous droits réservés © Wakkany 2026.
 ---
 
 <div align="center">
-  <sub>Fait avec ❤️ pour reconnecter les familles à leurs racines</sub>
+  <sub>Fait  pour reconnecter les familles à leurs racines</sub>
 </div>
