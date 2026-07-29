@@ -8,7 +8,10 @@ const audioCache = new Map();
 const createAudio = (fileName) => {
   try {
     const audio = new Audio(`${assetBase}assets/${fileName}`);
-    audio.preload = 'none';
+    audio.preload = 'metadata';
+    audio.addEventListener('error', (e) => {
+      console.error(`[Audio] Impossible de charger ${fileName}:`, e.target?.error?.message || e);
+    });
     return audio;
   } catch {
     return null;
