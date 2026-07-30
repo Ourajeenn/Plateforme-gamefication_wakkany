@@ -3,7 +3,6 @@ node_modules
 .env.local
 .env.*.local
 security-scan-results.txt
-*.mp3
 *.docx
 extracted_avatar
 wakkany-corrections
