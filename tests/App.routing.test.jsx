@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import App from './App';
+import App from '../src/pages/App';
 
 const mockUseAuth = vi.fn(() => ({
   isAuthenticated: false,
@@ -9,7 +9,7 @@ const mockUseAuth = vi.fn(() => ({
   loading: false,
 }));
 
-vi.mock('./hooks/usePlayerData', () => ({
+vi.mock('../src/hooks/usePlayerData', () => ({
   default: () => ({
     user: null,
     setUser: vi.fn(),
@@ -26,11 +26,11 @@ vi.mock('./hooks/usePlayerData', () => ({
   }),
 }));
 
-vi.mock('./hooks/useAuth', () => ({
+vi.mock('../src/hooks/useAuth', () => ({
   default: () => mockUseAuth(),
 }));
 
-vi.mock('./hooks/useSoundFX', () => ({
+vi.mock('../src/hooks/useSoundFX', () => ({
   useSoundFX: () => ({
     playClick: vi.fn(),
     playUnlock: vi.fn(),
@@ -48,7 +48,7 @@ vi.mock('./hooks/useSoundFX', () => ({
   }),
 }));
 
-vi.mock('./components/Preloader', () => ({
+vi.mock('../src/components/Preloader', () => ({
   default: ({ onComplete }) => {
     onComplete?.();
     return null;

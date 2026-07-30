@@ -30,18 +30,18 @@ describe('auth utils', () => {
 
   it('rejects signIn when Supabase is not configured', async () => {
     isSupabaseConfigured.mockReturnValue(false);
-    await expect(signIn('a@b.com', 'password123')).rejects.toThrow('Supabase non configuré');
+    await expect(signIn('a@b.com', 'example_password')).rejects.toThrow('Supabase non configuré');
   });
 
   it('calls supabase signInWithPassword when configured', async () => {
     isSupabaseConfigured.mockReturnValue(true);
     signInWithPasswordMock.mockResolvedValue({ data: { session: {} }, error: null });
 
-    await signIn('a@b.com', 'password123');
+    await signIn('a@b.com', 'example_password');
 
     expect(signInWithPasswordMock).toHaveBeenCalledWith({
       email: 'a@b.com',
-      password: 'password123',
+      password: 'example_password',
     });
   });
 
@@ -49,11 +49,11 @@ describe('auth utils', () => {
     isSupabaseConfigured.mockReturnValue(true);
     signUpMock.mockResolvedValue({ data: { user: {} }, error: null });
 
-    await signUp('a@b.com', 'password123');
+    await signUp('a@b.com', 'example_password');
 
     expect(signUpMock).toHaveBeenCalledWith({
       email: 'a@b.com',
-      password: 'password123',
+      password: 'example_password',
     });
   });
 

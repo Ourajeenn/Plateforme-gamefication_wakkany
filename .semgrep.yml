@@ -41,3 +41,8 @@ paths:
     - 'src/**'
     - 'scripts/**'
     - '.github/workflows/**'
+  exclude:
+    - '**/*.test.js'
+    - '**/*.test.jsx'
+    - '**/*.spec.js'
+    - '**/*.spec.jsx'
