@@ -80,7 +80,7 @@ export default function Preloader({ onComplete }) {
       {/* Conteneur de l'image de fond — charger en lazy si pas encore visible */}
       {bgImageLoaded && (
         <img
-          src={`${import.meta.env.BASE_URL}assets/wakkany_1.png`}
+          src={`${import.meta.env.BASE_URL}assets/wakkany_1.webp`}
           width="1376"
           height="768"
           decoding="async"
@@ -100,7 +100,7 @@ export default function Preloader({ onComplete }) {
       {/* Charger l'image en arrière-plan sans bloquer le rendu */}
       {!bgImageLoaded && (
         <img
-          src={`${import.meta.env.BASE_URL}assets/wakkany_1.png`}
+          src={`${import.meta.env.BASE_URL}assets/wakkany_1.webp`}
           width="1376"
           height="768"
           decoding="async"

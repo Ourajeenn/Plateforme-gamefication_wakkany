@@ -1,8 +1,8 @@
 import React from 'react';
-import morokhImg from '../assets/histoire/morokh_v2.png';
-import anyaImg from '../assets/histoire/anya_v2.png';
-import factionsImg from '../assets/histoire/factions_v2.png';
-import badgesImg from '../assets/histoire/badges_v2.png';
+import morokhImg from '../assets/histoire/morokh_v2.webp';
+import anyaImg from '../assets/histoire/anya_v2.webp';
+import factionsImg from '../assets/histoire/factions_v2.webp';
+import badgesImg from '../assets/histoire/badges_v2.webp';
 
 export default function BadgesView({ userLevel }) {
   const TOTAL_BADGES = 18;

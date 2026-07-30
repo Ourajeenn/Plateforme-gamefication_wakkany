@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { ACHIEVEMENTS } from '../data/achievements';
 import { getLevel } from '../data/levels';
-import morokhImg from '../assets/histoire/morokh_v2.png';
-import anyaImg from '../assets/histoire/anya_v2.png';
-import factionsImg from '../assets/histoire/factions_v2.png';
-import badgesImg from '../assets/histoire/badges_v2.png';
+import morokhImg from '../assets/histoire/morokh_v2.webp';
+import anyaImg from '../assets/histoire/anya_v2.webp';
+import factionsImg from '../assets/histoire/factions_v2.webp';
+import badgesImg from '../assets/histoire/badges_v2.webp';
 
 export default function BadgeGallery({ unlockedAchievements, xp }) {
     const [activeTab, setActiveTab] = useState('achievements');

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import morokhImg from '../assets/histoire/morokh_v2.png';
-import anyaImg from '../assets/histoire/anya_v2.png';
-import factionsImg from '../assets/histoire/factions_v2.png';
+import morokhImg from '../assets/histoire/morokh_v2.webp';
+import anyaImg from '../assets/histoire/anya_v2.webp';
+import factionsImg from '../assets/histoire/factions_v2.webp';
 import { ScrollDissolveReveal } from './ScrollDissolveReveal';
 
 export default function HistoireView() {

@@ -12,21 +12,21 @@ const INITIAL_QUESTS = [
 const LEVEL_DATA = {
   1: {
     title: "Novice Scrapper",
-    image: "assets/clan_fox_warrior.png",
+    image: "assets/clan_fox_warrior.webp",
     border: "border-zinc-700",
     aura: "",
     text: "text-gray-400"
   },
   2: {
     title: "Veteran Hunter",
-    image: "assets/clan_tiger_warrior.png",
+    image: "assets/clan_tiger_warrior.webp",
     border: "border-[#c28e3a]",
     aura: "shadow-[0_0_20px_rgba(194,142,58,0.3)]",
     text: "text-[#c28e3a]"
   },
   3: {
     title: "Ascended Champion",
-    image: "assets/ascended_champion.png",
+    image: "assets/ascended_champion.webp",
     border: "border-[#fce5a1]",
     aura: "aura-gold",
     text: "text-white text-shadow-strong"

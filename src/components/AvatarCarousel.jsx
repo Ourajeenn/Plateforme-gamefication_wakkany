@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ElasticStack } from './ElasticStack';
 
-import grid1 from '../assets/histoire/grid1.jpg';
-import grid2 from '../assets/histoire/grid2.jpg';
+import grid1 from '../assets/histoire/grid1.webp';
+import grid2 from '../assets/histoire/grid2.webp';
 
 const avatars = [
   { id: '03', name: 'Singe Stratège',    img: grid1, col: 0, row: 0, cols: 4, rows: 3 },

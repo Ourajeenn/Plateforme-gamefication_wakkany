@@ -4,10 +4,10 @@ import AuthForm from './AuthForm';
 import { isSupabaseConfigured } from '../utils/isSupabaseConfigured';
 
 const FACTIONS = [
-    { id: 'heroes', name: 'Légion Héroïque', icon: 'mdi:shield-flash', desc: 'Justice & Pouvoirs Cosmiques', image: '/assets/wakkany_heroes.png' },
-    { id: 'warriors', name: 'Ordre Antique', icon: 'mdi:swords', desc: 'Mythes & Force Brute', image: '/assets/wakkany_warriors.png' },
-    { id: 'dinos', name: 'Ère Primaire', icon: 'mdi:bone', desc: 'Instinct de Survie Jurassique', image: '/assets/wakkany_dinos.png' },
-    { id: 'cars', name: 'Syndicat Mécanique', icon: 'mdi:car-front', desc: 'Vitesse & Ingénierie Future', image: '/assets/wakkany_cars.png' },
+    { id: 'heroes', name: 'Légion Héroïque', icon: 'mdi:shield-flash', desc: 'Justice & Pouvoirs Cosmiques', image: '/assets/wakkany_heroes.webp' },
+    { id: 'warriors', name: 'Ordre Antique', icon: 'mdi:swords', desc: 'Mythes & Force Brute', image: '/assets/wakkany_warriors.webp' },
+    { id: 'dinos', name: 'Ère Primaire', icon: 'mdi:bone', desc: 'Instinct de Survie Jurassique', image: '/assets/wakkany_dinos.webp' },
+    { id: 'cars', name: 'Syndicat Mécanique', icon: 'mdi:car-front', desc: 'Vitesse & Ingénierie Future', image: '/assets/wakkany_cars.webp' },
 ];
 
 export default function ProfileSetup({ onComplete, isAuthenticated = true }) {
