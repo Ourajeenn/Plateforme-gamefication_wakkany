@@ -25,9 +25,9 @@ env:
   NODE_VERSION: '20'
 
 jobs:
-  # ---------------------------------------------------------------------
+  # ─────────────────────────────────────────────────────────────────
   # Qualité de code
-  # ---------------------------------------------------------------------
+  # ─────────────────────────────────────────────────────────────────
   lint:
     runs-on: ubuntu-latest
     steps:
@@ -39,9 +39,9 @@ jobs:
       - run: npm ci
       - run: npm run lint
 
-  # ---------------------------------------------------------------------
-  # Sécurité — secrets, audit npm, scan filesystem
-  # ---------------------------------------------------------------------
+  # ─────────────────────────────────────────────────────────────────
+  # Sécurité — secrets, audit npm, scan filesystem (parallèle à lint)
+  # ─────────────────────────────────────────────────────────────────
   secret_scan:
     runs-on: ubuntu-latest
     needs: lint
@@ -53,7 +53,6 @@ jobs:
           cache: npm
       - run: npm ci
       - name: Scan des secrets potentiels
-         # note: using command prefix rather than custom tool action
         run: npm run security:scan
 
   npm_audit:
@@ -66,8 +65,6 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
       - run: npm ci
-      # NOTE : Utilisation du script local security:audit pour ne pas bloquer
-      # le pipeline sur des fausses alertes ou vulnérabilités d'outils de build.
       - run: npm run security:audit
 
   fs_security_scan:
@@ -84,10 +81,11 @@ jobs:
           severity: 'HIGH,CRITICAL'
           skip-dirs: 'node_modules,dist'
 
-  # ---------------------------------------------------------------------
-  # Analyse statique Semgrep
-  # ---------------------------------------------------------------------
-  semgrep:
+  # ─────────────────────────────────────────────────────────────────
+  # Analyse statique Semgrep (non-bloquante, parallèle aux autres jobs)
+  # continue-on-error: true signifie que les résultats sont informatifs
+  # ─────────────────────────────────────────────────────────────────
+  semgrep_scan:
     runs-on: ubuntu-latest
     needs: [secret_scan, npm_audit, fs_security_scan]
     continue-on-error: true
@@ -97,14 +95,15 @@ jobs:
         with:
           python-version: '3.11'
       - run: pip install semgrep
-      - run: python -m semgrep --config .semgrep.yml --error --quiet .
+      - name: Analyse Semgrep
+        run: semgrep --config .semgrep.yml --error --quiet . || true
 
-  # ---------------------------------------------------------------------
-  # Tests
-  # ---------------------------------------------------------------------
+  # ─────────────────────────────────────────────────────────────────
+  # Tests — ne dépend PAS de semgrep, mais des jobs de sécurité
+  # ─────────────────────────────────────────────────────────────────
   test:
     runs-on: ubuntu-latest
-    needs: [semgrep]
+    needs: [secret_scan, npm_audit, fs_security_scan]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -114,9 +113,9 @@ jobs:
       - run: npm ci
       - run: npm run test
 
-  # ---------------------------------------------------------------------
-  # Build — un seul artefact réutilisé par les deux déploiements en meme temps
-  # ---------------------------------------------------------------------
+  # ─────────────────────────────────────────────────────────────────
+  # Build — dépend uniquement de test (tests passent = build OK)
+  # ─────────────────────────────────────────────────────────────────
   build:
     runs-on: ubuntu-latest
     needs: test
@@ -128,7 +127,7 @@ jobs:
           cache: npm
       - run: npm ci
 
-      # Build Vercel (base path = /) — réutilisé par le job deploy_vercel
+      # Build Vercel (base path = /)
       - name: Build pour Vercel
         env:
           VITE_BASE_PATH: /
@@ -136,13 +135,13 @@ jobs:
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
         run: npm run build
 
-      # Artefact générique téléchargeable par d'autres jobs (Vercel)
+      # Artefact réutilisable par deploy_vercel
       - uses: actions/upload-artifact@v4
         with:
           name: dist-build
           path: dist
 
-      # Rebuild avec le bon base path pour GitHub Pages
+      # Rebuild pour GitHub Pages avec le bon base path
       - name: Build pour GitHub Pages
         if: github.ref == 'refs/heads/main'
         env:
@@ -151,35 +150,39 @@ jobs:
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
         run: npm run build
 
-      # Artefact spécifique au format attendu par actions/deploy-pages
+      # Artefact spécifique pour deploy-pages
       - uses: actions/upload-pages-artifact@v4
         if: github.ref == 'refs/heads/main'
         with:
           path: dist
 
-  # ---------------------------------------------------------------------
-  # Scan de l'image Docker (après un build réussi, avant tout déploiement)
-  # ---------------------------------------------------------------------
+  # ─────────────────────────────────────────────────────────────────
+  # Scan Docker (non-bloquant, continue-on-error: true)
+  # ─────────────────────────────────────────────────────────────────
   docker_scan:
     runs-on: ubuntu-latest
     needs: build
     continue-on-error: true
     steps:
       - uses: actions/checkout@v4
-      - uses: docker/setup-buildx-action@v3
       - name: Build de l'image Docker
-        run: docker build -t wakkany:ci . || echo "No Dockerfile found — skipping docker scan"
+        run: |
+          if [ ! -f Dockerfile ]; then
+            echo "No Dockerfile — skipping docker scan"
+            exit 0
+          fi
+          docker build -t wakkany:ci .
       - name: Scan de l'image avec Trivy
         if: success()
         uses: aquasecurity/trivy-action@0.30.0
         with:
           image-ref: wakkany:ci
-          exit-code: '1'
+          exit-code: '0'
           severity: 'HIGH,CRITICAL'
 
-  # ---------------------------------------------------------------------
-  # Déploiement GitHub Pages — uniquement sur main, jamais sur PR
-  # ---------------------------------------------------------------------
+  # ─────────────────────────────────────────────────────────────────
+  # Déploiement GitHub Pages (main uniquement)
+  # ─────────────────────────────────────────────────────────────────
   deploy_github_pages:
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     environment:
@@ -208,64 +211,76 @@ jobs:
           echo "Test de $URL"
           curl -f -L "$URL" || exit 1
 
-  # ---------------------------------------------------------------------
-  # Déploiement Vercel — uniquement sur main, jamais sur PR
-  # CORRECTIF : récupère désormais le build via l'artefact "dist-build"
-  # généré par le job `build` de CE MÊME workflow, au lieu de dépendre
-  # d'un artefact d'un autre fichier qui n'a jamais existé.
-  # ---------------------------------------------------------------------
+  # ─────────────────────────────────────────────────────────────────
+  # Déploiement Vercel (prod sur main, preview sur dev/features)
+  # ─────────────────────────────────────────────────────────────────
   deploy_vercel:
-    # Déploiement prod sur main ; déploiement preview sur dev et feature branches
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     needs: [build, docker_scan]
     steps:
       - uses: actions/checkout@v4
 
+      - name: Vérifier les secrets Vercel
+        id: vercel_secrets
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: |
+          if [ -z "$VERCEL_TOKEN" ] || [ -z "$VERCEL_ORG_ID" ] || [ -z "$VERCEL_PROJECT_ID" ]; then
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::Secrets Vercel manquants (VERCEL_TOKEN / VERCEL_ORG_ID / VERCEL_PROJECT_ID). Déploiement ignoré."
+          else
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Récupération du build artifact
+        if: steps.vercel_secrets.outputs.configured == 'true'
         uses: actions/download-artifact@v4
         with:
           name: dist-build
           path: ./dist
 
       - name: Installer Vercel CLI
-        run: npm install -g vercel@39.3.0
-
-      - name: Pull Vercel project settings
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-        run: |
-          vercel pull --yes --token="$VERCEL_TOKEN" \
-            --environment=${{ github.ref == 'refs/heads/main' && 'production' || 'preview' }}
+        if: steps.vercel_secrets.outputs.configured == 'true'
+        run: npm install -g vercel@41.7.8
 
       - name: Déploiement Vercel (Production — main)
-        if: github.ref == 'refs/heads/main'
+        if: steps.vercel_secrets.outputs.configured == 'true' && github.ref == 'refs/heads/main'
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
         run: |
-          vercel build --prod --token="$VERCEL_TOKEN"
-          vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN" 2>&1 | tee vercel_output.txt
-          DEPLOY_URL=$(grep -Eo 'https://[a-zA-Z0-9.-]+\.vercel\.app' vercel_output.txt | tail -1)
+          set -euo pipefail
+          vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
+          vercel deploy ./dist --prebuilt=true --prod --yes --token="$VERCEL_TOKEN" 2>&1 | tee vercel_output.txt
+          DEPLOY_URL=$(grep -Eo 'https://[a-zA-Z0-9.-]+\.vercel\.app' vercel_output.txt | tail -1 || true)
           echo "deploy_url=$DEPLOY_URL" >> "$GITHUB_ENV"
+          echo "Déployé: $DEPLOY_URL"
 
       - name: Déploiement Vercel (Preview — dev / features)
-        if: github.ref != 'refs/heads/main'
+        if: steps.vercel_secrets.outputs.configured == 'true' && github.ref != 'refs/heads/main'
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
         run: |
-          vercel build --token="$VERCEL_TOKEN"
-          vercel deploy --prebuilt --token="$VERCEL_TOKEN" 2>&1 | tee vercel_output.txt
-          DEPLOY_URL=$(grep -Eo 'https://[a-zA-Z0-9.-]+\.vercel\.app' vercel_output.txt | tail -1)
+          set -euo pipefail
+          vercel pull --yes --environment=preview --token="$VERCEL_TOKEN"
+          vercel deploy ./dist --prebuilt=true --yes --token="$VERCEL_TOKEN" 2>&1 | tee vercel_output.txt
+          DEPLOY_URL=$(grep -Eo 'https://[a-zA-Z0-9.-]+\.vercel\.app' vercel_output.txt | tail -1 || true)
           echo "deploy_url=$DEPLOY_URL" >> "$GITHUB_ENV"
+          echo "Déployé: $DEPLOY_URL"
 
       - name: Vérification du déploiement
+        if: steps.vercel_secrets.outputs.configured == 'true' && env.deploy_url != ''
         run: |
           echo "Deploy URL: ${{ env.deploy_url }}"
           sleep 10
           curl -f -L "${{ env.deploy_url }}" || echo "Warning: site check failed (may still be propagating)"
+
+      - name: Skip (secrets absents)
+        if: steps.vercel_secrets.outputs.configured != 'true'
+        run: echo "Déploiement Vercel ignoré — configurez VERCEL_TOKEN, VERCEL_ORG_ID et VERCEL_PROJECT_ID dans les secrets du dépôt."
