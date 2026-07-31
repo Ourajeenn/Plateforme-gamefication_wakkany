@@ -1,0 +1,10 @@
+# Fichiers exclus de l'analyse Semgrep (exemples de sécurité, artefacts de scan)
+docs/
+**/security-scan-results.txt
+**/SECURITY_BEST_PRACTICES.md
+**/SECURITY_ACTION_PLAN.md
+**/AUDIT_SECURITY.md
+node_modules/
+dist/
+coverage/
+*.min.js

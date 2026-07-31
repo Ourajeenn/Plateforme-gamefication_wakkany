@@ -107,7 +107,7 @@ fetch('/api/login', {
   method: 'POST',
   body: JSON.stringify({ 
     email: 'user@example.com',
-    password: 'plaintext123'  // 🔴 DANGER
+    password: 'REPLACE_ME_plaintext'  // 🔴 DANGER (exemple — ne pas utiliser)
   })
 });
 ```
