@@ -103,15 +103,27 @@ export function useGameRoom() {
 
     try {
       const code = generateRoomCode();
+      const expiresAt = new Date(Date.now() + 3600000).toISOString();
 
-      // 1. Créer la salle
+      // 1. Créer la salle avec host_id et expires_at pour RLS
       const { data: roomData, error: roomErr } = await supabase
         .from('game_rooms')
-        .insert({ code, mode, theme, status: 'lobby', game_state: {} })
+        .insert({
+          code,
+          mode,
+          theme,
+          status: 'lobby',
+          game_state: {},
+          host_id: deviceId.current,
+          expires_at: expiresAt
+        })
         .select()
         .single();
 
-      if (roomErr) throw roomErr;
+      if (roomErr) {
+        console.error('Room creation error:', roomErr);
+        throw roomErr;
+      }
 
       // 2. S'enregistrer comme hôte
       const { data: playerData, error: playerErr } = await supabase
@@ -122,11 +134,16 @@ export function useGameRoom() {
           pseudo,
           is_host: true,
           is_ready: true,
+          joined_at: new Date().toISOString(),
+          score: 0
         })
         .select()
         .single();
 
-      if (playerErr) throw playerErr;
+      if (playerErr) {
+        console.error('Player insert error:', playerErr);
+        throw playerErr;
+      }
 
       roomIdRef.current = roomData.id;
       setRoom(roomData);
@@ -136,7 +153,9 @@ export function useGameRoom() {
 
       return { room: roomData, player: playerData };
     } catch (err) {
-      setError(err.message || 'Impossible de créer la salle.');
+      const errorMsg = err.message || 'Impossible de créer la salle.';
+      console.error('createRoom error:', errorMsg);
+      setError(errorMsg);
       return null;
     } finally {
       setLoading(false);
@@ -170,6 +189,8 @@ export function useGameRoom() {
             pseudo,
             is_host: false,
             is_ready: false,
+            joined_at: new Date().toISOString(),
+            score: 0
           },
           { onConflict: 'room_id,device_id' }
         )

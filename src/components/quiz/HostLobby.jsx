@@ -172,7 +172,7 @@ export default function HostLobby() {
             </div>
           </div>
 
-          {/* Thème */}
+          {/* Thème — text-xs, gap-1, truncate sur le label */}
           <div className="mb-8">
             <label className="block text-sm text-zinc-400 mb-2 font-medium">Thème</label>
             <div className="grid grid-cols-2 gap-2">
@@ -180,14 +180,15 @@ export default function HostLobby() {
                 <button
                   key={t.id}
                   onClick={() => setTheme(t.id)}
-                  className={`flex items-center justify-center gap-2 px-4 py-2 rounded-xl border-2 text-sm font-medium transition-all ${
+                  className={`flex items-center justify-center gap-1 px-3 py-2 rounded-xl border-2 text-xs font-medium transition-all min-h-[2.5rem] ${
                     theme === t.id
                       ? 'border-[#c28e3a] bg-[#c28e3a]/10 text-[#e8b96a]'
                       : 'border-zinc-700 bg-zinc-900 text-zinc-400 hover:border-zinc-500'
                   }`}
+                  title={t.label}
                 >
-                  <iconify-icon icon={t.icon} width="18"></iconify-icon>
-                  <span>{t.label}</span>
+                  <iconify-icon icon={t.icon} width="16" className="flex-shrink-0"></iconify-icon>
+                  <span className="truncate">{t.label}</span>
                 </button>
               ))}
             </div>
