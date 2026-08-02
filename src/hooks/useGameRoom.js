@@ -1,6 +1,6 @@
 /**
  * useGameRoom — Hook multijoueur Wakkany
- * Gère la création, la connexion et la synchronisation temps réel
+ * Gère la création, la connexion et la synchronisation en temps réel
  * d'une salle de jeu via Supabase Realtime.
  *
  * Utilisation :
@@ -22,11 +22,20 @@ function generateRoomCode() {
   return code;
 }
 
-/** Récupère ou génère un device_id persistant dans localStorage */
+/** Génère un UUID v4 valide */
+function generateUUID() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    const r = (Math.random() * 16) | 0;
+    const v = c === 'x' ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+}
+
+/** Récupère ou génère un device_id (UUID) persistant dans localStorage */
 function getDeviceId() {
   let id = localStorage.getItem('wakkany_device_id');
   if (!id) {
-    id = `dev_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+    id = generateUUID();
     localStorage.setItem('wakkany_device_id', id);
   }
   return id;
@@ -105,7 +114,7 @@ export function useGameRoom() {
       const code = generateRoomCode();
       const expiresAt = new Date(Date.now() + 3600000).toISOString();
 
-      // 1. Créer la salle avec host_id et expires_at pour RLS
+      // 1. Créer la salle avec host_id (UUID) et expires_at pour RLS
       const { data: roomData, error: roomErr } = await supabase
         .from('game_rooms')
         .insert({
