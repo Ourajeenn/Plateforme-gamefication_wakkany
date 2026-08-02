@@ -14,8 +14,8 @@ export default defineConfig({
         clientsClaim: true,
         skipWaiting: true,
         cleanupOutdatedCaches: true,
-        // Précache tous les chunks JS/CSS/HTML générés par Vite
-        globPatterns: ['**/*.{js,css,html,ico,png,jpg,jpeg,svg,webp,woff,woff2}'],
+        // Précache tous les chunks JS/CSS/HTML/audio générés par Vite
+        globPatterns: ['**/*.{js,css,html,ico,png,jpg,jpeg,svg,webp,woff,woff2,mp3,ogg,wav}'],
         // Taille max d'un fichier en precache (5 MB)
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
         runtimeCaching: [
@@ -79,10 +79,15 @@ export default defineConfig({
               cacheableResponse: { statuses: [0, 200] },
             },
           },
-          // Fichiers audio (MP3, WAV) → NetworkOnly pour éviter les problèmes de Range Request du Service Worker
+          // Fichiers audio (MP3, WAV, OGG) → CacheFirst pour réduire les erreurs réseau en production
           {
             urlPattern: /\.(?:mp3|wav|ogg)$/,
-            handler: 'NetworkOnly',
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'audio-cache',
+              expiration: { maxEntries: 50, maxAgeSeconds: 60 * 60 * 24 * 30 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
           },
         ],
         // Toutes les routes SPA → renvoie index.html (navigation offline)

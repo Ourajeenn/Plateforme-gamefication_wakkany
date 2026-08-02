@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Icon from '../common/Icons.jsx';
 
 export default function LandingNav({ user, landingTab, setLandingTab, onJoin }) {
   const navigate = useNavigate();
@@ -20,7 +21,7 @@ export default function LandingNav({ user, landingTab, setLandingTab, onJoin }) 
     <nav className="fixed top-0 left-0 w-full glass-panel border-b border-white/10 flex items-center justify-between px-4 sm:px-8 py-3 sm:py-4 z-[100] shadow-[0_18px_50px_rgba(0,0,0,0.35)]" style={{ transform: 'translateZ(0)', willChange: 'transform' }}>
       <div className="flex items-center gap-3 group cursor-pointer" onClick={goHome}>
         <div className="relative">
-          <iconify-icon icon="mdi:triangle" width="32" height="32" className="text-[#c28e3a] rotate-180 stroke-[1.5]"></iconify-icon>
+          <Icon name="triangleLogo" width={32} height={32} className="text-[#c28e3a] rotate-180" />
           <div className="absolute inset-0 bg-[#c28e3a] blur-xl opacity-0 group-hover:opacity-40 transition-opacity"></div>
         </div>
         <span className="text-white font-heading font-bold italic tracking-tighter uppercase text-lg sm:text-xl">Wakkany</span>
@@ -42,17 +43,17 @@ export default function LandingNav({ user, landingTab, setLandingTab, onJoin }) 
         >
           {user && (
             <div className="w-8 h-8 rounded-full overflow-hidden border border-white/20 bg-black flex items-center justify-center shrink-0">
-              {user.clan?.id === 'heroes' && <iconify-icon icon="mdi:shield" className="text-red-500"></iconify-icon>}
-              {user.clan?.id === 'warriors' && <iconify-icon icon="mdi:sword" className="text-orange-500"></iconify-icon>}
-              {user.clan?.id === 'dinos' && <iconify-icon icon="mdi:Zap" className="text-green-500"></iconify-icon>}
-              {user.clan?.id === 'cars' && <iconify-icon icon="mdi:gauge" className="text-blue-500"></iconify-icon>}
+              {user.clan?.id === 'heroes' && <Icon name="shield" width={18} height={18} className="text-red-500" />}
+              {user.clan?.id === 'warriors' && <Icon name="sword" width={18} height={18} className="text-orange-500" />}
+              {user.clan?.id === 'dinos' && <Icon name="zap" width={18} height={18} className="text-green-500" />}
+              {user.clan?.id === 'cars' && <Icon name="gauge" width={18} height={18} className="text-blue-500" />}
             </div>
           )}
           <span className="truncate max-w-[150px]">{user ? `${user.name}` : 'Commencer'}</span>
         </button>
 
         <button type="button" onClick={() => setIsMenuOpen(!isMenuOpen)} className="lg:hidden text-white p-2" aria-label="Basculer le menu mobile">
-          <iconify-icon icon={isMenuOpen ? 'mdi:x' : 'mdi:menu'} width="24"></iconify-icon>
+          <Icon name={isMenuOpen ? 'close' : 'menu'} width={24} height={24} />
         </button>
       </div>
 

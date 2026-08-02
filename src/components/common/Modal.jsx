@@ -1,4 +1,5 @@
 import React from 'react';
+import Icon from './Icons.jsx';
 
 export default function Modal({ isOpen, onClose, title, children }) {
   if (!isOpen) return null;
@@ -11,7 +12,7 @@ export default function Modal({ isOpen, onClose, title, children }) {
           <h3 id="modal-title" className="text-white font-heading font-bold italic text-2xl uppercase">{title}</h3>
           {onClose && (
             <button onClick={onClose} aria-label="Fermer la fenêtre" className="text-zinc-500 hover:text-white transition-colors">
-              <iconify-icon icon="mdi:x" width="24"></iconify-icon>
+              <Icon name="close" width={24} height={24} />
             </button>
           )}
         </div>

@@ -207,12 +207,12 @@ export default function AvatarCarousel() {
         </p>
       </div>
 
-      {/* Cards row */} 
-      <div className=" relative w-full flex justify-center\ style={{ height: cardH + 60, display: " flex\, justifyContent: \center\, alignItems: \center\ }}>
-      <div className="relative w-full" style={{ height: cardH + 60, display: " flex\, justifyContent: \center\, alignItems: \center\ }}>
-        {visibleCards.map(({ avatar, offset, realIdx }) => {
-          const dist = Math.abs(offset);
-          const scale = Math.max(0.62, 1 - dist * 0.1);
+      {/* Cards row */}
+      <div className="relative w-full flex justify-center" style={{ height: cardH + 60, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <div className="relative w-full" style={{ height: cardH + 60, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+          {visibleCards.map(({ avatar, offset, realIdx }) => {
+            const dist = Math.abs(offset);
+            const scale = Math.max(0.62, 1 - dist * 0.1);
           const opac = dist === 0 ? 1 : dist === 1 ? 0.78 : dist === 2 ? 0.52 : 0.28;
           const zIdx = visible - dist;
           const slotX = offset * (cardW + gap);
@@ -313,6 +313,7 @@ export default function AvatarCarousel() {
           );
         })}
       </div>
+    </div>
 
       {/* Name + ElasticStack navigator */}
       <div className="flex flex-col items-center pt-10 pb-14">

@@ -1,5 +1,7 @@
 import { useMemo, useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import usePlayerData from '../hooks/usePlayerData';
+import { useSoundFX } from '../hooks/useSoundFX';
 import games from '../data/anaisGames.json';
 import {
   topicRouletteCategories,
@@ -43,14 +45,19 @@ function BgGlows({ color1 = '#c28e3a', color2 = 'rgb(147,51,234)' }) {
 }
 
 // ── TOPIC ROULETTE PAGE ──────────────────────────────────────────────────────
-function TopicRoulettePage({ game, navigate }) {
+function TopicRoulettePage({ game, navigate, grantXp }) {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [topic, setTopic] = useState('Choisis une catégorie et clique sur "Tourner !" pour lancer la roulette.');
-  const [rounds, setRounds] = useState(0);
+  const [rounds, setRounds] = useState(() => parseInt(localStorage.getItem('wakkany_topic_rounds') || '0', 10));
+  const [wins, setWins] = useState(() => parseInt(localStorage.getItem('wakkany_topic_wins') || '0', 10));
   const [timerDuration, setTimerDuration] = useState(60);
   const [timeLeft, setTimeLeft] = useState(60);
   const [timerRunning, setTimerRunning] = useState(false);
   const [timerFinished, setTimerFinished] = useState(false);
+  const [resultMessage, setResultMessage] = useState('');
+  const [resultType, setResultType] = useState('');
+  const [rewarded, setRewarded] = useState(false);
+  const WIN_XP_REWARD = 20;
 
   const promptPool = useMemo(() => {
     if (selectedCategory === 'all') return allTopics;
@@ -67,15 +74,34 @@ function TopicRoulettePage({ game, navigate }) {
   }, [promptPool, timerDuration]);
 
   useEffect(() => {
+    localStorage.setItem('wakkany_topic_rounds', rounds.toString());
+  }, [rounds]);
+
+  useEffect(() => {
+    localStorage.setItem('wakkany_topic_wins', wins.toString());
+  }, [wins]);
+
+  useEffect(() => {
     if (!timerRunning) return;
     if (timeLeft <= 0) {
       setTimerRunning(false);
       setTimerFinished(true);
+      setResultType('win');
+      setResultMessage(`✅ Bravo ! +${WIN_XP_REWARD} XP gagnés pour avoir tenu jusqu'au bout.`);
+      setWins((w) => {
+        const next = w + 1;
+        localStorage.setItem('wakkany_topic_wins', next.toString());
+        return next;
+      });
+      if (!rewarded) {
+        grantXp?.(WIN_XP_REWARD);
+        setRewarded(true);
+      }
       return;
     }
     const id = setTimeout(() => setTimeLeft((t) => t - 1), 1000);
     return () => clearTimeout(id);
-  }, [timerRunning, timeLeft]);
+  }, [timerRunning, timeLeft, rewarded, grantXp, wins]);
 
   const handleDuration = (d) => {
     setTimerDuration(d);
@@ -88,6 +114,9 @@ function TopicRoulettePage({ game, navigate }) {
     setTimeLeft(timerDuration);
     setTimerRunning(true);
     setTimerFinished(false);
+    setResultMessage('');
+    setResultType('');
+    setRewarded(false);
   };
 
   const catInfo = topicRouletteCategories.find((c) => c.id === selectedCategory) || topicRouletteCategories[0];
@@ -147,20 +176,36 @@ function TopicRoulettePage({ game, navigate }) {
                 <p className="text-2xl sm:text-3xl font-heading font-medium text-white leading-snug min-h-[4rem]">
                   {topic}
                 </p>
-                <div className="mt-8 flex gap-3 flex-wrap">
+                <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                   <button
                     onClick={spin}
-                    className="rounded-2xl bg-gradient-to-r from-[#e6aa45] to-[#c28e3a] px-8 py-4 text-xs font-black uppercase tracking-[0.2em] text-black transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(194,142,58,0.4)]"
+                    className="w-full sm:w-auto rounded-2xl bg-gradient-to-r from-[#e6aa45] to-[#c28e3a] px-8 py-4 text-xs font-black uppercase tracking-[0.2em] text-black transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(194,142,58,0.4)]"
                   >
                     🎰 Tourner !
                   </button>
                   <button
                     onClick={startTimer}
                     disabled={topic.startsWith('Choisis')}
-                    className="rounded-2xl border border-[#c28e3a]/50 bg-[#c28e3a]/10 px-8 py-4 text-xs font-bold uppercase tracking-[0.2em] text-[#c28e3a] transition-all hover:bg-[#c28e3a]/20 hover:scale-105 active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed"
+                    className="w-full sm:w-auto rounded-2xl border border-[#c28e3a]/50 bg-[#c28e3a]/10 px-8 py-4 text-xs font-bold uppercase tracking-[0.2em] text-[#c28e3a] transition-all hover:bg-[#c28e3a]/20 hover:scale-105 active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed"
                   >
                     ⏱ Lancer le chrono
                   </button>
+                  {timerRunning && (
+                    <button
+                      onClick={() => {
+                        setTimerRunning(false);
+                        setResultType('win');
+                        setResultMessage(`✅ Super ! +${WIN_XP_REWARD} XP pour cette prise de parole.`);
+                        if (!rewarded) {
+                          grantXp?.(WIN_XP_REWARD);
+                          setRewarded(true);
+                        }
+                      }}
+                      className="w-full sm:w-auto rounded-2xl bg-white/10 border border-white/10 px-8 py-4 text-xs font-black uppercase tracking-[0.2em] text-white transition-all hover:bg-white/20 hover:scale-105 active:scale-95"
+                    >
+                      🏁 Terminer et marquer
+                    </button>
+                  )}
                 </div>
               </div>
 
@@ -209,7 +254,7 @@ function TopicRoulettePage({ game, navigate }) {
               </div>
 
               {/* Stats */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="rounded-3xl border border-white/5 bg-white/5 p-6 text-center">
                   <p className="text-[10px] uppercase tracking-[0.3em] text-zinc-500 font-black mb-2">Sujets tirés</p>
                   <p className="text-4xl font-black bg-gradient-to-b from-white to-zinc-400 bg-clip-text text-transparent">{rounds}</p>
@@ -282,14 +327,24 @@ function TopicRoulettePage({ game, navigate }) {
 }
 
 // ── PARLE OU PERDS PAGE ──────────────────────────────────────────────────────
-function ParleOuPerdsPage({ game, navigate }) {
+function ParleOuPerdsPage({ game, navigate, grantXp }) {
   const [topic, setTopic] = useState('Clique sur "Commencer" pour lancer le défi !');
-  const [rounds, setRounds] = useState(0);
-  const [wins, setWins] = useState(0);
+  const [rounds, setRounds] = useState(() => parseInt(localStorage.getItem('wakkany_parle_rounds') || '0', 10));
+  const [wins, setWins] = useState(() => parseInt(localStorage.getItem('wakkany_parle_wins') || '0', 10));
   const [timer, setTimer] = useState(LAVA_DURATION);
   const [running, setRunning] = useState(false);
   const [resultMessage, setResultMessage] = useState('');
   const [resultType, setResultType] = useState(''); // 'win' | 'lose' | ''
+  const { playLevelUp } = useSoundFX();
+  const WIN_XP_REWARD = 25;
+
+  useEffect(() => {
+    localStorage.setItem('wakkany_parle_rounds', rounds.toString());
+  }, [rounds]);
+
+  useEffect(() => {
+    localStorage.setItem('wakkany_parle_wins', wins.toString());
+  }, [wins]);
 
   useEffect(() => {
     if (!running) return;
@@ -319,9 +374,12 @@ function ParleOuPerdsPage({ game, navigate }) {
 
   const stopChallenge = () => {
     setRunning(false);
-    setResultMessage('✅ Tu as tenu ! Round validé !');
+    setResultMessage(`✅ Tu as tenu ! +${WIN_XP_REWARD} XP gagnés !`);
     setResultType('win');
+    setRounds((r) => r + 1);
     setWins((w) => w + 1);
+    grantXp?.(WIN_XP_REWARD);
+    playLevelUp();
   };
 
   const progressPct = (timer / LAVA_DURATION) * 100;
@@ -393,7 +451,7 @@ function ParleOuPerdsPage({ game, navigate }) {
                 <div className="flex gap-3 flex-wrap">
                   <button
                     onClick={running ? stopChallenge : startChallenge}
-                    className={`rounded-2xl px-8 py-4 text-xs font-black uppercase tracking-[0.2em] transition-all hover:scale-105 active:scale-95 shadow-lg ${
+                    className={`w-full sm:w-auto rounded-2xl px-8 py-4 text-xs font-black uppercase tracking-[0.2em] transition-all hover:scale-105 active:scale-95 shadow-lg ${
                       running
                         ? 'bg-gradient-to-r from-red-600 to-red-500 text-white shadow-[0_0_20px_rgba(239,68,68,0.5)]'
                         : 'bg-gradient-to-r from-[#e6aa45] to-[#c28e3a] text-black shadow-[0_0_20px_rgba(194,142,58,0.4)]'
@@ -404,7 +462,7 @@ function ParleOuPerdsPage({ game, navigate }) {
                   {!running && rounds > 0 && (
                     <button
                       onClick={startChallenge}
-                      className="rounded-2xl border border-white/20 bg-white/5 px-8 py-4 text-xs font-black uppercase tracking-[0.2em] text-white transition-all hover:bg-white/10 hover:scale-105 active:scale-95"
+                      className="w-full sm:w-auto rounded-2xl border border-white/20 bg-white/5 px-8 py-4 text-xs font-black uppercase tracking-[0.2em] text-white transition-all hover:bg-white/10 hover:scale-105 active:scale-95"
                     >
                       🔄 Nouveau round
                     </button>
@@ -628,12 +686,13 @@ export default function GameDetails() {
   const { slug } = useParams();
   const navigate = useNavigate();
   const game = useMemo(() => games.find((item) => item.slug === slug), [slug]);
+  const { grantXp } = usePlayerData();
 
   if (!game) return <NotFoundPage navigate={navigate} />;
 
   if (slug === 'shadowing') return <ShadowingPage navigate={navigate} />;
-  if (slug === 'parle-ou-perds') return <ParleOuPerdsPage game={game} navigate={navigate} />;
-  if (slug === 'topic-roulette') return <TopicRoulettePage game={game} navigate={navigate} />;
+  if (slug === 'parle-ou-perds') return <ParleOuPerdsPage game={game} navigate={navigate} grantXp={grantXp} />;
+  if (slug === 'topic-roulette') return <TopicRoulettePage game={game} navigate={navigate} grantXp={grantXp} />;
 
   return <NotFoundPage navigate={navigate} />;
 }

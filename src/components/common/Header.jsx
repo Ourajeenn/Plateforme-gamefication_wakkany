@@ -1,5 +1,6 @@
 import React, { useContext } from 'react';
 import { ThemeContext } from '../../context/ThemeContext';
+import Icon from './Icons.jsx';
 
 export default function Header({ title, subtitle, onBack }) {
   const { theme, toggleTheme } = useContext(ThemeContext);
@@ -15,7 +16,7 @@ export default function Header({ title, subtitle, onBack }) {
             onClick={onBack}
             className="flex items-center gap-2 text-zinc-500 hover:text-white transition-colors uppercase font-bold text-[10px] tracking-widest"
           >
-            <iconify-icon icon="mdi:arrow-left"></iconify-icon> Retour
+            <Icon name="arrowLeft" width={18} height={18} /> Retour
           </button>
         )}
         <button

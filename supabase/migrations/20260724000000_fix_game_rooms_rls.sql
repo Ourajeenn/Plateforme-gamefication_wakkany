@@ -2,7 +2,7 @@
 -- Fix RLS for game_rooms — Allow anonymous users (public gameplay)
 -- ════════════════════════════════════════════════════════════
 
--- Drop existing policies that are too restrictive
+-- Drop existing policies that are too restrictive or obsolete
 DROP POLICY IF EXISTS "game_rooms_insert" ON game_rooms;
 DROP POLICY IF EXISTS "game_rooms_update" ON game_rooms;
 DROP POLICY IF EXISTS "game_rooms_delete" ON game_rooms;

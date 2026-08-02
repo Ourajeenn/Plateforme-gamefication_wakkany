@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Icon from '../common/Icons.jsx';
 import { realtime } from '../../utils/realtime';
 
 function LiveFeed() {
@@ -42,7 +43,7 @@ export default function DashboardNav({ user, onLogout }) {
     <nav className="fixed top-0 left-0 w-full glass-panel border-b border-white/10 flex items-center justify-between px-4 sm:px-8 py-3 sm:py-4 z-[60] shadow-[0_18px_50px_rgba(0,0,0,0.35)]">
       <div className="flex items-center gap-3 sm:gap-8 min-w-0">
         <div className="flex items-center gap-3 sm:gap-4 cursor-pointer group shrink-0" onClick={() => navigate('/')}>
-          <iconify-icon icon="mdi:triangle" width="24" height="24" className="text-[#c28e3a] rotate-180 group-hover:rotate-0 transition-transform duration-500"></iconify-icon>
+          <Icon name="triangleLogo" width={24} height={24} className="text-[#c28e3a] rotate-180 group-hover:rotate-0 transition-transform duration-500" />
           <span className="text-white font-heading font-bold tracking-widest text-base sm:text-lg italic uppercase">Wakkany</span>
         </div>
         <LiveFeed />
@@ -57,11 +58,11 @@ export default function DashboardNav({ user, onLogout }) {
           {user?.clan?.image ? (
             <img src={user.clan.image} alt={`Clan ${user.clan.name}`} className="w-full h-full object-cover" />
           ) : (
-            <iconify-icon icon={user?.clan?.icon || 'mdi:user'} className="text-[#c28e3a] text-xl"></iconify-icon>
+            <Icon name={user?.clan?.id === 'heroes' ? 'shield' : user?.clan?.id === 'warriors' ? 'sword' : user?.clan?.id === 'cars' ? 'gauge' : 'user'} className="text-[#c28e3a] text-xl" width={24} height={24} />
           )}
         </div>
         <button type="button" onClick={onLogout} className="text-zinc-600 hover:text-red-500 transition-all hover:scale-110 shrink-0">
-          <iconify-icon icon="solar:logout-2-linear" width="24"></iconify-icon>
+          <Icon name="logout" width={24} height={24} />
         </button>
       </div>
     </nav>

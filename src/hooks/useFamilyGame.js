@@ -3,7 +3,7 @@ import { FAMILY_QUESTIONS } from '../data/familyQuizzes';
 import { useSoundFX } from './useSoundFX';
 
 export function useFamilyGame() {
-  const { playCountdownBeep, playCountdownGo } = useSoundFX();
+  const { playCountdownBeep, playCountdownGo, stopBgMusic } = useSoundFX();
   const [gameState, setGameState] = useState('home'); // 'home', 'profile', 'setup', 'starting', 'playing', 'results'
   const [gameConfig, setGameConfig] = useState({ theme: null, mode: 'coop', players: [], difficulty: 'hunter', timerLimit: 8 });
   const [questions, setQuestions] = useState([]);
@@ -66,6 +66,7 @@ export function useFamilyGame() {
   useEffect(() => {
     let timer;
     if (gameState === 'starting' && startCountdown > 0) {
+      stopBgMusic();
       playCountdownBeep();
       timer = setInterval(() => {
         setStartCountdown(prev => {
@@ -81,8 +82,7 @@ export function useFamilyGame() {
       setQuestionStartTime(Date.now());
     }
     return () => clearInterval(timer);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [gameState, startCountdown]);
+  }, [gameState, startCountdown, playCountdownBeep, playCountdownGo, stopBgMusic]);
 
   const handleAnswer = useCallback((selectedAnswer) => {
     setIsTimerRunning(false);

@@ -2,7 +2,7 @@
 
 # ⚔️ Wakkany
 
-**Plateforme de gamification familiale — renoué avec vos racines d'origine**
+**Plateforme de gamification familiale — Wakkany, revenez à vos origines.**
 
 [![Vercel](https://img.shields.io/badge/Déployé%20sur-Vercel-black?logo=vercel)](https://vercel.com)
 [![React](https://img.shields.io/badge/React-18-61DAFB?logo=react)](https://react.dev)
@@ -108,7 +108,7 @@ wakkany/
 
 - **Node.js** ≥ 18
 - **npm** ≥ 9
-- Un projet **Supabase** (optionnel — l'app fonctionne en mode local sans Supabase)
+- Un projet **Supabase** (optionnel si l'app fonctionne en mode local sans Supabase)
 
 ### 1. Cloner le dépôt
 
@@ -136,7 +136,7 @@ VITE_SUPABASE_URL=https://xxxxxxxxxxxx.supabase.co
 VITE_SUPABASE_ANON_KEY=your_anon_key_here
 ```
 
-> **Sans ces variables**, l'application démarre en **mode démo local** — toutes les données sont stockées dans `localStorage`.
+> **Sans ces variables**, l'application démarre en **mode démo local** — toutes les données sont stockées dans le `localStorage`.
 
 ### 4. Lancer le serveur de développement
 
@@ -203,6 +203,8 @@ Pour appliquer les migrations :
 ```bash
 supabase db push
 ```
+
+> En CI GitHub, le workflow est maintenant configuré pour exécuter `supabase db push` sur la branche `main` si les secrets `SUPABASE_URL` et `SUPABASE_SERVICE_ROLE_KEY` sont définis.
 
 ---
 

@@ -5,11 +5,19 @@ let sharedAudioCtx = null;
 const assetBase = import.meta.env.BASE_URL || '/';
 const audioCache = new Map();
 
+const normalizeAssetPath = (fileName) => {
+  const base = assetBase.endsWith('/') ? assetBase.slice(0, -1) : assetBase;
+  const path = `${base}/assets/${fileName}`.replace(/\/\/+/g, '/');
+  if (typeof window === 'undefined') return path;
+  return path.startsWith('http') ? path : `${window.location.origin}${path}`;
+};
+
 const createAudio = (fileName) => {
   try {
-    const fullUrl = `${assetBase}assets/${fileName}`;
+    const fullUrl = normalizeAssetPath(fileName);
     const audio = new Audio(fullUrl);
-    audio.preload = 'metadata';
+    audio.preload = 'auto';
+    audio.fallbackAttempted = false;
 
     audio.addEventListener('canplaythrough', () => {
       console.log(`[Audio] Fichier ${fileName} prêt à être joué (${fullUrl})`);
@@ -19,6 +27,16 @@ const createAudio = (fileName) => {
       const errCode = e.target?.error?.code;
       const errMsg = e.target?.error?.message;
       console.error(`[Audio] Erreur de chargement pour ${fileName} (${fullUrl}): Code ${errCode} - ${errMsg || 'Fichier introuvable ou bloqué'}`);
+
+      if (!audio.fallbackAttempted) {
+        audio.fallbackAttempted = true;
+        const fallbackUrl = `${window.location.origin}/assets/${fileName}`;
+        if (fallbackUrl !== fullUrl) {
+          console.warn(`[Audio] Tentative de fallback pour ${fileName} via ${fallbackUrl}`);
+          audio.src = fallbackUrl;
+          audio.load();
+        }
+      }
     });
 
     return audio;
