@@ -207,8 +207,9 @@ export default function AvatarCarousel() {
         </p>
       </div>
 
-      {/* Cards row */}
-      <div className="relative w-full" style={{ height: cardH + 60 }}>
+      {/* Cards row */} 
+      <div className=" relative w-full flex justify-center\ style={{ height: cardH + 60, display: " flex\, justifyContent: \center\, alignItems: \center\ }}>
+      <div className="relative w-full" style={{ height: cardH + 60, display: " flex\, justifyContent: \center\, alignItems: \center\ }}>
         {visibleCards.map(({ avatar, offset, realIdx }) => {
           const dist = Math.abs(offset);
           const scale = Math.max(0.62, 1 - dist * 0.1);
