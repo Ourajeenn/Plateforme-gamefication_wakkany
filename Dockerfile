@@ -1,5 +1,5 @@
 # Stage 1: Build — installe les dépendances et compile l'app React/Vite
-FROM node:20-alpine AS build
+FROM node:24-alpine AS build
 WORKDIR /app
 
 # Copier les manifestes en premier pour bénéficier du cache Docker layer
