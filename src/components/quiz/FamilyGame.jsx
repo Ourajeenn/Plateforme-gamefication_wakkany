@@ -256,7 +256,7 @@ export default function FamilyGame() {
             {/* Double Diagonal Red Neon Slashes */}
             <div className="absolute w-[150%] h-4 bg-gradient-to-r from-transparent via-red-500 to-transparent rotate-[35deg] shadow-[0_0_40px_#ef4444] animate-[ping_0.3s_ease-out_infinite]"></div>
             <div className="absolute w-[150%] h-4 bg-gradient-to-r from-transparent via-red-500 to-transparent rotate-[-35deg] shadow-[0_0_40px_#ef4444] animate-[ping_0.3s_ease-out_infinite]"></div>
-            <span className="absolute text-5xl md:text-7xl font-heading font-black italic text-red-500 drop-shadow-[0_0_20px_#ef4444] tracking-wider animate-bounce">
+            <span className="absolute text-5xl md:text-7xl font-heading font-black italic text-yellow-400 drop-shadow-[0_0_20px_#eab308] tracking-wider animate-bounce">
               💥 -25 HP!
             </span>
           </div>
