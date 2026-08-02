@@ -31,13 +31,30 @@ function generateUUID() {
   });
 }
 
+/** Vérifie si une chaîne est un UUID valide */
+function isValidUUID(str) {
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  return uuidRegex.test(str);
+}
+
 /** Récupère ou génère un device_id (UUID) persistant dans localStorage */
 function getDeviceId() {
   let id = localStorage.getItem('wakkany_device_id');
+  
+  // Si l'ID existe mais n'est pas un UUID valide, le régénérer
+  if (id && !isValidUUID(id)) {
+    console.warn('Invalid device_id format detected, regenerating...');
+    localStorage.removeItem('wakkany_device_id');
+    id = null;
+  }
+  
+  // Générer un nouvel UUID si nécessaire
   if (!id) {
     id = generateUUID();
     localStorage.setItem('wakkany_device_id', id);
+    console.log('New device_id generated:', id);
   }
+  
   return id;
 }
 
