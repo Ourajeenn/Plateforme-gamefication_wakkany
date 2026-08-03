@@ -145,7 +145,7 @@ export default function usePlayerData() {
         } else if (!isSupabaseConfigured()) {
             localStorage.removeItem('wakkany_active_session');
         }
-    }, [user, xp, unlockedSkills, completedQuests, unlockedAchievements, isLoaded]);
+    }, [user, xp, unlockedSkills, completedQuests, unlockedAchievements, isLoaded, spellingScore, xpHistory]);
 
     // Abonnement Realtime aux changements de profil Supabase
     useEffect(() => {

@@ -36,7 +36,7 @@ export function useNetworkStatus() {
       setWasOffline(true);
       checkQuality();
       // Réinitialise wasOffline après 5s (le temps d'afficher le message de reconnexion)
-      setTimeout(() => setWasOffline(false), 5000);
+      pingRef.current = setTimeout(() => setWasOffline(false), 5000);
     };
 
     const handleOffline = () => {
@@ -59,7 +59,8 @@ export function useNetworkStatus() {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
       if (conn) conn.removeEventListener('change', checkQuality);
-      if (pingRef.current) clearTimeout(pingRef.current);
+      const timeoutId = pingRef.current;
+      if (timeoutId) clearTimeout(timeoutId);
     };
   }, [checkQuality]);
 
