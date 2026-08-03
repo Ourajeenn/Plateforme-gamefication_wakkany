@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useBossRaid } from '../../hooks/useBossRaid';
+import { useGameCompletion } from '../../hooks/useGameCompletion';
+import UnlockNotification from '../notifications/UnlockNotification';
 import { BOSS_ENCOUNTERS, BOSS_LEVELS, getEncountersByLevel } from '../../data/bossEncounters';
 
 /* ─── tiny synth SFX ─────────────────────────────────────── */
@@ -108,6 +110,15 @@ export default function BossRaid() {
 
   const [shakeScreen, setShakeScreen] = useState(false);
   const [slashActive, setSlashActive] = useState(false);
+  const [unlockedSkill, setUnlockedSkill] = useState(null);
+  const [startTime] = useState(Date.now());
+  const [userId] = useState(localStorage.getItem('wakkany_user_id'));
+  const [deviceId] = useState(localStorage.getItem('wakkany_device_id'));
+
+  const { completeGame } = useGameCompletion({
+    userId,
+    onSkillUnlocked: (skill) => setUnlockedSkill(skill)
+  });
 
   // Trigger visual FX on answer
   useEffect(() => {
@@ -118,6 +129,19 @@ export default function BossRaid() {
   useEffect(() => {
     if (raidState === 'victory' || raidState === 'levelComplete' || raidState === 'allComplete') sfx('win');
   }, [raidState]);
+
+  const handleGameEnd = async (won) => {
+    const duration = Math.round((Date.now() - startTime) / 1000);
+
+    await completeGame({
+      mode: 'boss-raid',
+      category: 'raid',
+      won,
+      deviceId,
+      score,
+      duration
+    });
+  };
 
   /* ── MAP ─────────────────────────────────────────────── */
   if (raidState === 'map') {
@@ -315,79 +339,110 @@ export default function BossRaid() {
     const isLevel = raidState === 'levelComplete';
     const enc     = currentEncounter;
 
+    // Trigger game completion on victory
+    useEffect(() => {
+      handleGameEnd(true);
+    }, [raidState]);
+
     return (
-      <div className="min-h-screen bg-zinc-950 flex flex-col items-center justify-center p-6 font-monda text-white">
-        <div className="max-w-lg w-full text-center space-y-6 animate-scale-up">
-          <div className="text-7xl sm:text-9xl">{isAll ? '🏆' : isLevel ? '🎖️' : '✅'}</div>
-          <div>
-            <div className="text-[10px] font-black uppercase tracking-[0.5em] mb-2" style={{ color: enc?.color }}>
-              {isAll ? 'VICTOIRE ABSOLUE' : isLevel ? `NIVEAU ${enc?.level} COMPLÉTÉ` : 'BOSS VAINCU'}
+      <>
+        {unlockedSkill && (
+          <UnlockNotification
+            skillId={unlockedSkill.skillId}
+            xpGain={unlockedSkill.xpGain}
+            message={unlockedSkill.message}
+            onClose={() => setUnlockedSkill(null)}
+          />
+        )}
+        
+        <div className="min-h-screen bg-zinc-950 flex flex-col items-center justify-center p-6 font-monda text-white">
+          <div className="max-w-lg w-full text-center space-y-6 animate-scale-up">
+            <div className="text-7xl sm:text-9xl">{isAll ? '🏆' : isLevel ? '🎖️' : '✅'}</div>
+            <div>
+              <div className="text-[10px] font-black uppercase tracking-[0.5em] mb-2" style={{ color: enc?.color }}>
+                {isAll ? 'VICTOIRE ABSOLUE' : isLevel ? `NIVEAU ${enc?.level} COMPLÉTÉ` : 'BOSS VAINCU'}
+              </div>
+              <h1 className="text-3xl sm:text-5xl font-heading font-black italic uppercase">
+                {isAll ? 'Le Néant est Vaincu !' : isLevel ? 'Niveau Terminé !' : `${enc?.name} est vaincu !`}
+              </h1>
+              {isAll && <p className="text-zinc-400 mt-3 italic">Vous avez terrassé les 3 Boss Finaux et sauvé la Faille. La Meute est légendaire.</p>}
             </div>
-            <h1 className="text-3xl sm:text-5xl font-heading font-black italic uppercase">
-              {isAll ? 'Le Néant est Vaincu !' : isLevel ? 'Niveau Terminé !' : `${enc?.name} est vaincu !`}
-            </h1>
-            {isAll && <p className="text-zinc-400 mt-3 italic">Vous avez terrassé les 3 Boss Finaux et sauvé la Faille. La Meute est légendaire.</p>}
-          </div>
 
-          <div className="flex justify-center gap-6">
-            <div className="bg-black/40 border border-white/10 rounded-2xl p-5 text-center">
-              <div className="text-3xl font-black italic" style={{ color: enc?.color }}>+{xpEarned}</div>
-              <div className="text-[10px] text-zinc-500 uppercase font-bold">XP Gagnée</div>
+            <div className="flex justify-center gap-6">
+              <div className="bg-black/40 border border-white/10 rounded-2xl p-5 text-center">
+                <div className="text-3xl font-black italic" style={{ color: enc?.color }}>+{xpEarned}</div>
+                <div className="text-[10px] text-zinc-500 uppercase font-bold">XP Gagnée</div>
+              </div>
+              <div className="bg-black/40 border border-white/10 rounded-2xl p-5 text-center">
+                <div className="text-3xl font-black italic text-[#c28e3a]">{score}</div>
+                <div className="text-[10px] text-zinc-500 uppercase font-bold">Score Combat</div>
+              </div>
             </div>
-            <div className="bg-black/40 border border-white/10 rounded-2xl p-5 text-center">
-              <div className="text-3xl font-black italic text-[#c28e3a]">{score}</div>
-              <div className="text-[10px] text-zinc-500 uppercase font-bold">Score Combat</div>
-            </div>
-          </div>
 
-          <div className="flex gap-3 justify-center flex-wrap">
-            <button onClick={() => setRaidState('map')}
-              className="px-8 py-4 bg-white text-black font-black uppercase tracking-widest rounded-xl hover:bg-[#c28e3a] transition-all cursor-pointer">
-              {isAll ? 'Voir la carte' : isLevel ? 'Niveau suivant →' : 'Prochain boss →'}
-            </button>
-            <button onClick={() => navigate('/quiz')}
-              className="px-6 py-4 border border-white/10 text-zinc-400 font-bold uppercase tracking-widest rounded-xl hover:bg-white/5 transition-all cursor-pointer">
-              Quitter
-            </button>
+            <div className="flex gap-3 justify-center flex-wrap">
+              <button onClick={() => setRaidState('map')}
+                className="px-8 py-4 bg-white text-black font-black uppercase tracking-widest rounded-xl hover:bg-[#c28e3a] transition-all cursor-pointer">
+                {isAll ? 'Voir la carte' : isLevel ? 'Niveau suivant →' : 'Prochain boss →'}
+              </button>
+              <button onClick={() => navigate('/quiz')}
+                className="px-6 py-4 border border-white/10 text-zinc-400 font-bold uppercase tracking-widest rounded-xl hover:bg-white/5 transition-all cursor-pointer">
+                Quitter
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      </>
     );
   }
 
   /* ── DEFEAT ──────────────────────────────────────────── */
   if (raidState === 'defeat') {
+    // Trigger game completion on defeat
+    useEffect(() => {
+      handleGameEnd(false);
+    }, [raidState]);
+
     const enc = currentEncounter;
     return (
-      <div className="min-h-screen bg-zinc-950 flex flex-col items-center justify-center p-6 font-monda text-white">
-        <div className="max-w-lg w-full text-center space-y-6 animate-scale-up">
-          <div className="text-8xl">💀</div>
-          <div>
-            <div className="text-[10px] font-black uppercase tracking-[0.5em] text-red-400 mb-2">DÉFAITE</div>
-            <h1 className="text-4xl sm:text-5xl font-heading font-black italic uppercase text-red-400">La Meute est Tombée</h1>
-            <p className="text-zinc-400 mt-3 italic text-sm">"{enc?.name}" : "{enc?.taunt}"</p>
-          </div>
+      <>
+        {unlockedSkill && (
+          <UnlockNotification
+            skillId={unlockedSkill.skillId}
+            xpGain={unlockedSkill.xpGain}
+            message={unlockedSkill.message}
+            onClose={() => setUnlockedSkill(null)}
+          />
+        )}
+        
+        <div className="min-h-screen bg-zinc-950 flex flex-col items-center justify-center p-6 font-monda text-white">
+          <div className="max-w-lg w-full text-center space-y-6 animate-scale-up">
+            <div className="text-8xl">💀</div>
+            <div>
+              <div className="text-[10px] font-black uppercase tracking-[0.5em] text-red-400 mb-2">DÉFAITE</div>
+              <h1 className="text-4xl sm:text-5xl font-heading font-black italic uppercase text-red-400">La Meute est Tombée</h1>
+              <p className="text-zinc-400 mt-3 italic text-sm">"{enc?.name}" : "{enc?.taunt}"</p>
+            </div>
 
-          <div className="bg-black/40 border border-red-500/20 rounded-2xl p-5">
-            <div className="text-3xl font-black italic text-red-400">{bossHp} HP</div>
-            <div className="text-[10px] text-zinc-500 uppercase font-bold">PV restants du boss</div>
-          </div>
+            <div className="bg-black/40 border border-red-500/20 rounded-2xl p-5">
+              <div className="text-3xl font-black italic text-red-400">{bossHp} HP</div>
+              <div className="text-[10px] text-zinc-500 uppercase font-bold">PV restants du boss</div>
+            </div>
 
-          <div className="flex gap-3 justify-center flex-wrap">
-            <button onClick={() => startEncounter(enc)}
-              className="px-8 py-4 bg-red-600 text-white font-black uppercase tracking-widest rounded-xl hover:bg-white hover:text-black transition-all cursor-pointer">
-              Recommencer ce combat
-            </button>
-            <button onClick={() => setRaidState('map')}
-              className="px-6 py-4 border border-white/10 text-zinc-400 font-bold uppercase tracking-widest rounded-xl hover:bg-white/5 transition-all cursor-pointer">
-              Carte
-            </button>
+            <div className="flex gap-3 justify-center flex-wrap">
+              <button onClick={() => startEncounter(enc)}
+                className="px-8 py-4 bg-red-600 text-white font-black uppercase tracking-widest rounded-xl hover:bg-white hover:text-black transition-all cursor-pointer">
+                Recommencer ce combat
+              </button>
+              <button onClick={() => setRaidState('map')}
+                className="px-6 py-4 border border-white/10 text-zinc-400 font-bold uppercase tracking-widest rounded-xl hover:bg-white/5 transition-all cursor-pointer">
+                Carte
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      </>
     );
   }
 
   return null;
 }
-

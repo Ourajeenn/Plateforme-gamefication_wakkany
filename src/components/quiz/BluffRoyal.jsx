@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { supabase } from '../../utils/supabaseClient';
 import Button from '../common/Button';
+import { useGameCompletion } from '../../hooks/useGameCompletion';
+import UnlockNotification from '../notifications/UnlockNotification';
 
 import { BLUFF_QUESTIONS } from '../../data/bluffQuestions';
 
@@ -27,13 +29,23 @@ export default function BluffRoyal() {
   const [error, setError] = useState(null);
 
   const [roundIndex, setRoundIndex] = useState(0);
-  // phase: 'pass-collect' | 'collect' | 'pass-vote' | 'vote' | 'results' | 'gameover'
   const [phase, setPhase] = useState('pass-collect');
   const [playerCursor, setPlayerCursor] = useState(0);
-  const [bluffs, setBluffs] = useState({});     // { playerName: text }
-  const [votes, setVotes] = useState({});       // { playerName: chosenAnswerText }
+  const [bluffs, setBluffs] = useState({});
+  const [votes, setVotes] = useState({});
   const [bluffInput, setBluffInput] = useState('');
   const [scores, setScores] = useState(() => Object.fromEntries(players.map((p) => [p, 0])));
+  
+  // Game completion
+  const [unlockedSkill, setUnlockedSkill] = useState(null);
+  const [startTime] = useState(Date.now());
+  const [userId] = useState(localStorage.getItem('wakkany_user_id'));
+  const [deviceId] = useState(localStorage.getItem('wakkany_device_id'));
+  
+  const { completeGame } = useGameCompletion({
+    userId,
+    onSkillUnlocked: (skill) => setUnlockedSkill(skill)
+  });
 
   const currentQuestion = questions[roundIndex];
 
@@ -52,8 +64,6 @@ export default function BluffRoyal() {
           .limit(ROUNDS_PER_GAME * 2);
 
         if (fetchError || !data || data.length === 0) {
-          // Utilisation du fallback local si vide ou erreur
-          console.log("Utilisation des questions de bluff locales en fallback pour le thème:", currentTheme);
           const localSet = BLUFF_QUESTIONS[currentTheme] || BLUFF_QUESTIONS['rpg'];
           setQuestions(shuffle(localSet).slice(0, ROUNDS_PER_GAME));
         } else {
@@ -99,7 +109,6 @@ export default function BluffRoyal() {
       const next = { ...prev, [voter]: choice };
 
       if (isLastVoter) {
-        // Calcul des scores une fois tous les votes connus
         setScores((prevScores) => {
           const updated = { ...prevScores };
           Object.entries(next).forEach(([voterName, chosen]) => {
@@ -125,6 +134,26 @@ export default function BluffRoyal() {
     }
   }, [playerCursor, players, bluffs, currentQuestion]);
 
+  const handleGameEnd = async () => {
+    // Déterminer le gagnant et si c'est un sweep (5/5)
+    const sortedByScore = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+    const winner = sortedByScore[0]?.[0];
+    const topScore = sortedByScore[0]?.[1];
+    const isSweep = topScore >= ROUNDS_PER_GAME * 1000; // 5000+ points = sweep
+
+    const mode = isSweep ? 'bluff-royal:sweep' : 'bluff-royal';
+    const duration = Math.round((Date.now() - startTime) / 1000);
+
+    await completeGame({
+      mode,
+      category: 'bluff',
+      won: true,
+      deviceId,
+      score: topScore,
+      duration
+    });
+  };
+
   function nextRound() {
     if (roundIndex + 1 < questions.length) {
       setRoundIndex(roundIndex + 1);
@@ -133,6 +162,7 @@ export default function BluffRoyal() {
       setPlayerCursor(0);
       setPhase('pass-collect');
     } else {
+      handleGameEnd();
       setPhase('gameover');
     }
   }
@@ -151,104 +181,115 @@ export default function BluffRoyal() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center px-6 py-10">
-      {/* Bouton retour persistant */}
-      <button
-        onClick={() => navigate('/quiz')}
-        className="fixed top-6 left-6 z-50 flex items-center gap-2 px-3 py-2 rounded-xl bg-zinc-900/80 border border-white/10 text-zinc-400 hover:text-white hover:border-white/30 transition-all text-sm backdrop-blur-sm"
-        title="Retour au QG"
-      >
-        <iconify-icon icon="mdi:arrow-left" width="16" />
-        Quitter
-      </button>
+    <>
+      {unlockedSkill && (
+        <UnlockNotification
+          skillId={unlockedSkill.skillId}
+          xpGain={unlockedSkill.xpGain}
+          message={unlockedSkill.message}
+          onClose={() => setUnlockedSkill(null)}
+        />
+      )}
+      
+      <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center px-6 py-10">
+        {/* Bouton retour persistant */}
+        <button
+          onClick={() => navigate('/quiz')}
+          className="fixed top-6 left-6 z-50 flex items-center gap-2 px-3 py-2 rounded-xl bg-zinc-900/80 border border-white/10 text-zinc-400 hover:text-white hover:border-white/30 transition-all text-sm backdrop-blur-sm"
+          title="Retour au QG"
+        >
+          <iconify-icon icon="mdi:arrow-left" width="16" />
+          Quitter
+        </button>
 
-      <div className="w-full max-w-2xl">
-        <div className="flex justify-between items-center mb-8 text-sm text-zinc-500 uppercase tracking-widest">
-          <span>Manche {roundIndex + 1}/{questions.length}</span>
-          <span className="text-[#c28e3a] font-bold">Bluff Royal</span>
-        </div>
+        <div className="w-full max-w-2xl">
+          <div className="flex justify-between items-center mb-8 text-sm text-zinc-500 uppercase tracking-widest">
+            <span>Manche {roundIndex + 1}/{questions.length}</span>
+            <span className="text-[#c28e3a] font-bold">Bluff Royal</span>
+          </div>
 
-        {phase === 'pass-collect' && (
-          <PassScreen
-            player={players[playerCursor]}
-            instruction="invente une fausse réponse crédible"
-            onReady={() => setPhase('collect')}
-          />
-        )}
-
-        {phase === 'collect' && (
-          <div className="text-center">
-            <p className="text-xs uppercase tracking-widest text-[#c28e3a] mb-2">{players[playerCursor]}</p>
-            <h2 className="text-2xl font-bold mb-8">{currentQuestion.question}</h2>
-            <input
-              autoFocus
-              value={bluffInput}
-              onChange={(e) => setBluffInput(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && submitBluff()}
-              placeholder="Ta fausse réponse la plus convaincante…"
-              className="w-full bg-zinc-900 border border-white/10 rounded-xl px-4 py-3 text-center mb-6 focus:outline-none focus:border-[#c28e3a]"
+          {phase === 'pass-collect' && (
+            <PassScreen
+              player={players[playerCursor]}
+              instruction="invente une fausse réponse crédible"
+              onReady={() => setPhase('collect')}
             />
-            <Button onClick={submitBluff} disabled={!bluffInput.trim()}>Valider mon bluff</Button>
-          </div>
-        )}
+          )}
 
-        {phase === 'pass-vote' && (
-          <PassScreen
-            player={players[playerCursor]}
-            instruction="trouve la vraie réponse parmi les bluffs"
-            onReady={() => setPhase('vote')}
-          />
-        )}
+          {phase === 'collect' && (
+            <div className="text-center">
+              <p className="text-xs uppercase tracking-widest text-[#c28e3a] mb-2">{players[playerCursor]}</p>
+              <h2 className="text-2xl font-bold mb-8">{currentQuestion.question}</h2>
+              <input
+                autoFocus
+                value={bluffInput}
+                onChange={(e) => setBluffInput(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && submitBluff()}
+                placeholder="Ta fausse réponse la plus convaincante…"
+                className="w-full bg-zinc-900 border border-white/10 rounded-xl px-4 py-3 text-center mb-6 focus:outline-none focus:border-[#c28e3a]"
+              />
+              <Button onClick={submitBluff} disabled={!bluffInput.trim()}>Valider mon bluff</Button>
+            </div>
+          )}
 
-        {phase === 'vote' && (
-          <div className="text-center">
-            <p className="text-xs uppercase tracking-widest text-[#c28e3a] mb-2">{players[playerCursor]}</p>
-            <h2 className="text-2xl font-bold mb-8">{currentQuestion.question}</h2>
-            <div className="grid gap-3">
-              {votingOptions
-                .filter((opt) => opt !== bluffs[players[playerCursor]]) // pas de vote pour son propre bluff
-                .map((opt) => (
-                  <button
-                    key={opt}
-                    onClick={() => submitVote(opt)}
-                    className="bg-zinc-900 border border-white/10 rounded-xl px-4 py-3 hover:border-[#c28e3a] transition-colors"
-                  >
-                    {opt}
-                  </button>
+          {phase === 'pass-vote' && (
+            <PassScreen
+              player={players[playerCursor]}
+              instruction="trouve la vraie réponse parmi les bluffs"
+              onReady={() => setPhase('vote')}
+            />
+          )}
+
+          {phase === 'vote' && (
+            <div className="text-center">
+              <p className="text-xs uppercase tracking-widest text-[#c28e3a] mb-2">{players[playerCursor]}</p>
+              <h2 className="text-2xl font-bold mb-8">{currentQuestion.question}</h2>
+              <div className="grid gap-3">
+                {votingOptions
+                  .filter((opt) => opt !== bluffs[players[playerCursor]])
+                  .map((opt) => (
+                    <button
+                      key={opt}
+                      onClick={() => submitVote(opt)}
+                      className="bg-zinc-900 border border-white/10 rounded-xl px-4 py-3 hover:border-[#c28e3a] transition-colors"
+                    >
+                      {opt}
+                    </button>
+                  ))}
+              </div>
+            </div>
+          )}
+
+          {phase === 'results' && (
+            <div className="text-center">
+              <h2 className="text-xl font-bold text-[#c28e3a] mb-4">Vraie réponse : {currentQuestion.answer}</h2>
+              {currentQuestion.explanation && (
+                <p className="text-zinc-400 italic mb-6">{currentQuestion.explanation}</p>
+              )}
+              <div className="bg-zinc-900 border border-white/10 rounded-xl p-4 mb-6 text-left">
+                {Object.entries(bluffs).map(([author, text]) => (
+                  <p key={author} className="text-sm mb-1">
+                    <span className="text-[#c28e3a] font-bold">{author}</span> a proposé : "{text}"
+                  </p>
                 ))}
+              </div>
+              <ScoreBoard scores={scores} />
+              <Button onClick={nextRound} className="mt-6">
+                {roundIndex + 1 < questions.length ? 'Manche suivante' : 'Voir le classement final'}
+              </Button>
             </div>
-          </div>
-        )}
+          )}
 
-        {phase === 'results' && (
-          <div className="text-center">
-            <h2 className="text-xl font-bold text-[#c28e3a] mb-4">Vraie réponse : {currentQuestion.answer}</h2>
-            {currentQuestion.explanation && (
-              <p className="text-zinc-400 italic mb-6">{currentQuestion.explanation}</p>
-            )}
-            <div className="bg-zinc-900 border border-white/10 rounded-xl p-4 mb-6 text-left">
-              {Object.entries(bluffs).map(([author, text]) => (
-                <p key={author} className="text-sm mb-1">
-                  <span className="text-[#c28e3a] font-bold">{author}</span> a proposé : "{text}"
-                </p>
-              ))}
+          {phase === 'gameover' && (
+            <div className="text-center">
+              <h2 className="text-3xl font-bold text-[#c28e3a] mb-6 uppercase">Fin de partie</h2>
+              <ScoreBoard scores={scores} highlightWinner />
+              <Button onClick={() => navigate('/quiz')} className="mt-6">Retour au QG</Button>
             </div>
-            <ScoreBoard scores={scores} />
-            <Button onClick={nextRound} className="mt-6">
-              {roundIndex + 1 < questions.length ? 'Manche suivante' : 'Voir le classement final'}
-            </Button>
-          </div>
-        )}
-
-        {phase === 'gameover' && (
-          <div className="text-center">
-            <h2 className="text-3xl font-bold text-[#c28e3a] mb-6 uppercase">Fin de partie</h2>
-            <ScoreBoard scores={scores} highlightWinner />
-            <Button onClick={() => navigate('/quiz')} className="mt-6">Retour au QG</Button>
-          </div>
-        )}
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
