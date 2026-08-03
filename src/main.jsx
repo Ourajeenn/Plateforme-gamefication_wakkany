@@ -5,10 +5,10 @@ import App from './pages/App.jsx';
 import './index.css';
 import 'iconify-icon';
 import { ThemeProvider } from './context/ThemeContext';
+import { registerSW } from 'virtual:pwa-register';
 
 // Register PWA service worker for offline capability
 try {
-  const { registerSW } = await import('virtual:pwa-register');
   registerSW({ immediate: false });
 } catch (e) {
   console.warn('PWA registration skipped:', e);
