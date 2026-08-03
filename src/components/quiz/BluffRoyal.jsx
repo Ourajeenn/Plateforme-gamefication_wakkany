@@ -22,19 +22,18 @@ export default function BluffRoyal() {
   const location = useLocation();
   const navigate = useNavigate();
   const config = location?.state?.config || { players: ['Chasseur 1', 'Chasseur 2'], theme: 'rpg' };
-  const players = config.players?.length >= 2 ? config.players : ['Chasseur 1', 'Chasseur 2'];
+  const playersInit = config.players?.length >= 2 ? config.players : ['Chasseur 1', 'Chasseur 2'];
 
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
+  
   const [roundIndex, setRoundIndex] = useState(0);
   const [phase, setPhase] = useState('pass-collect');
   const [playerCursor, setPlayerCursor] = useState(0);
   const [bluffs, setBluffs] = useState({});
   const [votes, setVotes] = useState({});
   const [bluffInput, setBluffInput] = useState('');
-  const [scores, setScores] = useState(() => Object.fromEntries(players.map((p) => [p, 0])));
+  const [scores, setScores] = useState(() => Object.fromEntries(playersInit.map((p) => [p, 0])));
   
   // Game completion
   const [unlockedSkill, setUnlockedSkill] = useState(null);
@@ -90,56 +89,49 @@ export default function BluffRoyal() {
 
   const submitBluff = useCallback(() => {
     if (!bluffInput.trim()) return;
-    setBluffs((prev) => ({ ...prev, [players[playerCursor]]: bluffInput.trim() }));
+    setBluffs((prev) => ({ ...prev, [playersInit[playerCursor]]: bluffInput.trim() }));
     setBluffInput('');
-    if (playerCursor + 1 < players.length) {
+    if (playerCursor + 1 < playersInit.length) {
       setPlayerCursor(playerCursor + 1);
       setPhase('pass-collect');
     } else {
       setPlayerCursor(0);
       setPhase('pass-vote');
     }
-  }, [bluffInput, playerCursor, players]);
+  }, [bluffInput, playerCursor, playersInit]);
 
   const submitVote = useCallback((choice) => {
-    const voter = players[playerCursor];
-    const isLastVoter = playerCursor + 1 >= players.length;
+    const voter = playersInit[playerCursor];
+    const isLastVoter = playerCursor + 1 >= playersInit.length;
 
-    setVotes((prev) => {
-      const next = { ...prev, [voter]: choice };
+    const next = { ...votes, [voter]: choice };
+    setVotes(next);
 
-      if (isLastVoter) {
-        setScores((prevScores) => {
-          const updated = { ...prevScores };
-          Object.entries(next).forEach(([voterName, chosen]) => {
-            if (chosen === currentQuestion.answer) {
-              updated[voterName] = (updated[voterName] || 0) + 1000;
-            }
-          });
-          Object.entries(bluffs).forEach(([author, bluffText]) => {
-            const foolCount = Object.values(next).filter((v) => v === bluffText).length;
-            updated[author] = (updated[author] || 0) + foolCount * 500;
-          });
-          return updated;
+    if (isLastVoter) {
+      setScores((prevScores) => {
+        const updated = { ...prevScores };
+        Object.entries(next).forEach(([voterName, chosen]) => {
+          if (chosen === currentQuestion.answer) {
+            updated[voterName] = (updated[voterName] || 0) + 1000;
+          }
         });
-      }
-      return next;
-    });
-
-    if (!isLastVoter) {
+        Object.entries(bluffs).forEach(([author, bluffText]) => {
+          const foolCount = Object.values(next).filter((v) => v === bluffText).length;
+          updated[author] = (updated[author] || 0) + foolCount * 500;
+        });
+        return updated;
+      });
+      setPhase('results');
+    } else {
       setPlayerCursor(playerCursor + 1);
       setPhase('pass-vote');
-    } else {
-      setPhase('results');
     }
-  }, [playerCursor, players, bluffs, currentQuestion]);
+  }, [playerCursor, playersInit, bluffs, currentQuestion, votes]);
 
   const handleGameEnd = async () => {
-    // Déterminer le gagnant et si c'est un sweep (5/5)
     const sortedByScore = Object.entries(scores).sort((a, b) => b[1] - a[1]);
-    const winner = sortedByScore[0]?.[0];
     const topScore = sortedByScore[0]?.[1];
-    const isSweep = topScore >= ROUNDS_PER_GAME * 1000; // 5000+ points = sweep
+    const isSweep = topScore >= ROUNDS_PER_GAME * 1000;
 
     const mode = isSweep ? 'bluff-royal:sweep' : 'bluff-royal';
     const duration = Math.round((Date.now() - startTime) / 1000);
@@ -169,15 +161,6 @@ export default function BluffRoyal() {
 
   if (loading) {
     return <div className="min-h-screen bg-black text-zinc-500 flex items-center justify-center">Préparation de l'arène…</div>;
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center gap-4 px-6 text-center">
-        <p className="text-red-400">{error}</p>
-        <Button variant="secondary" onClick={() => navigate('/quiz')}>Retour au QG</Button>
-      </div>
-    );
   }
 
   return (
@@ -210,7 +193,7 @@ export default function BluffRoyal() {
 
           {phase === 'pass-collect' && (
             <PassScreen
-              player={players[playerCursor]}
+              player={playersInit[playerCursor]}
               instruction="invente une fausse réponse crédible"
               onReady={() => setPhase('collect')}
             />
@@ -218,15 +201,15 @@ export default function BluffRoyal() {
 
           {phase === 'collect' && (
             <div className="text-center">
-              <p className="text-xs uppercase tracking-widest text-[#c28e3a] mb-2">{players[playerCursor]}</p>
+              <p className="text-xs uppercase tracking-widest text-[#c28e3a] mb-2">{playersInit[playerCursor]}</p>
               <h2 className="text-2xl font-bold mb-8">{currentQuestion.question}</h2>
               <input
                 autoFocus
                 value={bluffInput}
                 onChange={(e) => setBluffInput(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && submitBluff()}
-                placeholder="Ta fausse réponse la plus convaincante…"
-                className="w-full bg-zinc-900 border border-white/10 rounded-xl px-4 py-3 text-center mb-6 focus:outline-none focus:border-[#c28e3a]"
+                placeholder="Ta fausse réponse la plus convaincante..."
+                className="w-full bg-zinc-900 border border-white/10 rounded-xl px-4 py-3 text-center text-white mb-6 focus:outline-none focus:border-[#c28e3a]"
               />
               <Button onClick={submitBluff} disabled={!bluffInput.trim()}>Valider mon bluff</Button>
             </div>
@@ -234,7 +217,7 @@ export default function BluffRoyal() {
 
           {phase === 'pass-vote' && (
             <PassScreen
-              player={players[playerCursor]}
+              player={playersInit[playerCursor]}
               instruction="trouve la vraie réponse parmi les bluffs"
               onReady={() => setPhase('vote')}
             />
@@ -242,11 +225,11 @@ export default function BluffRoyal() {
 
           {phase === 'vote' && (
             <div className="text-center">
-              <p className="text-xs uppercase tracking-widest text-[#c28e3a] mb-2">{players[playerCursor]}</p>
+              <p className="text-xs uppercase tracking-widest text-[#c28e3a] mb-2">{playersInit[playerCursor]}</p>
               <h2 className="text-2xl font-bold mb-8">{currentQuestion.question}</h2>
               <div className="grid gap-3">
                 {votingOptions
-                  .filter((opt) => opt !== bluffs[players[playerCursor]])
+                  .filter((opt) => opt !== bluffs[playersInit[playerCursor]])
                   .map((opt) => (
                     <button
                       key={opt}
@@ -269,7 +252,7 @@ export default function BluffRoyal() {
               <div className="bg-zinc-900 border border-white/10 rounded-xl p-4 mb-6 text-left">
                 {Object.entries(bluffs).map(([author, text]) => (
                   <p key={author} className="text-sm mb-1">
-                    <span className="text-[#c28e3a] font-bold">{author}</span> a proposé : "{text}"
+                    <span className="text-[#c28e3a] font-bold">{author}</span> a proposé : &quot;{text}&quot;
                   </p>
                 ))}
               </div>
@@ -296,10 +279,10 @@ export default function BluffRoyal() {
 function PassScreen({ player, instruction, onReady }) {
   return (
     <div className="text-center py-16">
-      <p className="text-zinc-500 mb-2 uppercase tracking-widest text-xs">Passe l'appareil à</p>
+      <p className="text-zinc-500 mb-2 uppercase tracking-widest text-xs">Passe l&apos;appareil à</p>
       <h2 className="text-3xl font-bold text-[#c28e3a] mb-4">{player}</h2>
       <p className="text-zinc-400 mb-8">{instruction}</p>
-      <Button onClick={onReady}>C'est bon, j'ai l'appareil</Button>
+      <Button onClick={onReady}>C&apos;est bon, j&apos;ai l&apos;appareil</Button>
     </div>
   );
 }
