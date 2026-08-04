@@ -1,26 +1,61 @@
+# Semgrep Configuration — Wakkany Security Rules
+# Scans for security vulnerabilities, best practices, and Wakkany-specific patterns
+# Severity: CRITICAL/ERROR blocks pipeline; HIGH/MEDIUM are warnings
+
 rules:
+  # =========================================================================
+  # CODE INJECTION & EVAL — CRITICAL
+  # =========================================================================
   - id: avoid-eval
     languages:
       - javascript
       - typescript
-    message: Avoid eval() and Function() constructors because they execute arbitrary code.
+    message: Avoid eval() and Function() constructors because they execute arbitrary code and are a major security risk.
     severity: ERROR
     pattern-either:
       - pattern: eval(...)
       - pattern: new Function(...)
+      - pattern: $X.eval(...)
+      - pattern: Function(...)
 
+  # =========================================================================
+  # XSS — Cross-Site Scripting
+  # =========================================================================
   - id: avoid-innerhtml
     languages:
       - javascript
       - typescript
-    message: Prefer DOM APIs over innerHTML when rendering untrusted content.
+      - jsx
+      - tsx
+    message: Prefer DOM APIs (textContent, setAttribute) over innerHTML when rendering untrusted content to prevent XSS.
     severity: WARNING
-    pattern: $X.innerHTML = ...
+    patterns:
+      - pattern-either:
+          - pattern: $X.innerHTML = ...
+          - pattern: $X.innerHTML += ...
+          - pattern: element.innerHTML = ...
 
+  - id: avoid-dangerouslysetinnerhtml
+    languages:
+      - javascript
+      - typescript
+      - jsx
+      - tsx
+    message: Avoid dangerouslySetInnerHTML in React - it opens XSS vulnerabilities. Use sanitization libraries like DOMPurify.
+    severity: WARNING
+    pattern: dangerouslySetInnerHTML={{ __html: ... }}
+
+  # =========================================================================
+  # HARDCODED SECRETS & CREDENTIALS — CRITICAL
+  # =========================================================================
   - id: avoid-hardcoded-secrets
     languages:
-      - generic
-    message: Avoid hard-coded credentials or tokens in source code.
+      - javascript
+      - typescript
+      - python
+      - json
+      - yaml
+    message: Avoid hard-coded credentials, tokens, API keys, or passwords in source code. Use environment variables or GitHub Secrets.
     severity: ERROR
     patterns:
       - pattern-either:
@@ -28,26 +63,312 @@ rules:
           - pattern: "$VAR = '$VALUE'"
           - pattern: "$VAR: \"$VALUE\""
           - pattern: "$VAR: '$VALUE'"
+          - pattern: "$VAR = `$VALUE`"
       - metavariable-regex:
           metavariable: $VAR
-          regex: '^(password|apiKey|token|secret)$'
+          regex: '^(password|passwd|pwd|apiKey|api_key|token|secret|secretKey|secret_key|auth|Authorization|credential|credentials|privKey|private_key|accessKey|access_key|privateToken|private_token|supabaseKey|supabase_key|vercelToken|vercel_token)$'
       - metavariable-regex:
           metavariable: $VALUE
           regex: '.{8,}'
-      - pattern-not-regex: ".*(REPLACE_ME|YOUR_.*|changeme|example).*"
+      - pattern-not-regex: ".*(REPLACE_ME|YOUR_|changeme|example|xxx|test|demo|placeholder|null|undefined|false|true|0|1).*"
 
+  # =========================================================================
+  # SQL INJECTION
+  # =========================================================================
+  - id: potential-sql-injection
+    languages:
+      - javascript
+      - typescript
+      - python
+    message: Potential SQL injection vulnerability. Use parameterized queries or prepared statements instead of string concatenation.
+    severity: ERROR
+    patterns:
+      - pattern-either:
+          - pattern: $DB.query($X + $Y)
+          - pattern: $DB.query(`...${$VAR}...`)
+          - pattern: $DB.execute($X + $Y)
+      - pattern-not: $DB.query($PREPARED_STATEMENT, [$PARAMS])
+
+  # =========================================================================
+  # AUTHENTICATION & AUTHORIZATION BYPASS
+  # =========================================================================
+  - id: auth-bypass-pattern
+    languages:
+      - javascript
+      - typescript
+    message: Potential authentication bypass. Ensure all routes that should require authentication are properly protected.
+    severity: HIGH
+    patterns:
+      - pattern-either:
+          - pattern: |
+              if ($AUTH_CHECK) {
+                ...
+              } else {
+                return true;
+              }
+          - pattern: |
+              if (!$AUTH_CHECK) {
+                // Allow access anyway
+                ...
+              }
+
+  # =========================================================================
+  # WEAK CRYPTOGRAPHY
+  # =========================================================================
+  - id: weak-crypto-md5-sha1
+    languages:
+      - javascript
+      - typescript
+      - python
+    message: MD5 and SHA1 are cryptographically weak. Use SHA256 or stronger algorithms for security.
+    severity: HIGH
+    patterns:
+      - pattern-either:
+          - pattern: crypto.createHash('md5')
+          - pattern: crypto.createHash('sha1')
+          - pattern: require('md5')
+          - pattern: require('sha1')
+
+  - id: insecure-random-for-crypto
+    languages:
+      - javascript
+      - typescript
+    message: Math.random() is not cryptographically secure. Use crypto.getRandomValues() or crypto.randomBytes() for security-sensitive operations.
+    severity: HIGH
+    patterns:
+      - pattern-either:
+          - pattern: Math.random().toString(36).substr(...)
+          - pattern: Math.random().toString(16).slice(...)
+          - pattern: |
+              $X = Math.random()
+
+  # =========================================================================
+  # SENSITIVE DATA IN LOGS
+  # =========================================================================
+  - id: sensitive-data-logging
+    languages:
+      - javascript
+      - typescript
+    message: Avoid logging sensitive data (passwords, tokens, keys, PII). Use redaction or skip logging altogether.
+    severity: HIGH
+    patterns:
+      - pattern-either:
+          - pattern: console.log($PASSWORD)
+          - pattern: console.error($TOKEN)
+          - pattern: console.warn($API_KEY)
+      - metavariable-regex:
+          metavariable: $PASSWORD
+          regex: '(password|token|secret|apiKey|api_key|auth|Authorization)'
+
+  # =========================================================================
+  # INSECURE DEPENDENCY USAGE
+  # =========================================================================
+  - id: deprecated-request-library
+    languages:
+      - javascript
+      - typescript
+    message: The 'request' library is deprecated. Use 'axios', 'node-fetch', or native fetch() instead.
+    severity: MEDIUM
+    pattern-either:
+      - pattern: require('request')
+      - pattern: import ... from 'request'
+
+  # =========================================================================
+  # SUPABASE-SPECIFIC SECURITY — WAKKANY
+  # =========================================================================
+  - id: supabase-missing-rls
+    languages:
+      - javascript
+      - typescript
+    message: Ensure Row-Level Security (RLS) is enabled on this Supabase table. Check your Supabase SQL migrations.
+    severity: HIGH
+    pattern: $TABLE.select($X)
+    pattern-not: |
+      // RLS enabled on $TABLE
+
+  - id: supabase-direct-upsert-not-recommended
+    languages:
+      - javascript
+      - typescript
+    message: Avoid direct table upserts without RLS. Use Supabase RPC functions or stored procedures with security context instead.
+    severity: MEDIUM
+    pattern: $SUPABASE.from($TABLE).upsert(...)
+    pattern-not: $RPC = ... # This is a secured RPC call
+
+  - id: supabase-no-anon-key-in-build
+    languages:
+      - javascript
+      - typescript
+    message: VITE_SUPABASE_ANON_KEY is safe to expose (it's for public client access), but never hardcode database URLs or service role keys.
+    severity: HIGH
+    patterns:
+      - pattern-either:
+          - pattern: const $VAR = "$SECRET_KEY"
+      - metavariable-regex:
+          metavariable: $VAR
+          regex: '(supabaseServiceRoleKey|SUPABASE_SERVICE_ROLE_KEY|databaseUrl|DATABASE_URL)'
+
+  # =========================================================================
+  # ENV VARIABLE EXPOSURE IN FRONTEND
+  # =========================================================================
+  - id: backend-secrets-exposed-to-frontend
+    languages:
+      - javascript
+      - typescript
+      - jsx
+      - tsx
+    message: Backend secrets (database URLs, API secrets) should NEVER be exposed to frontend. Only use VITE_* prefixed public env vars.
+    severity: CRITICAL
+    patterns:
+      - pattern-either:
+          - pattern: process.env.DATABASE_URL
+          - pattern: process.env.SUPABASE_SERVICE_ROLE_KEY
+          - pattern: process.env.STRIPE_SECRET_KEY
+          - pattern: process.env.API_SECRET
+          - pattern: process.env.ADMIN_TOKEN
+          - pattern: process.env.PRIVATE_KEY
+
+  - id: vite-env-prefix-required
+    languages:
+      - javascript
+      - typescript
+      - jsx
+      - tsx
+    message: In Vite, use 'import.meta.env.VITE_*' for public variables, not 'process.env'. Frontend can only access VITE_ prefixed vars.
+    severity: MEDIUM
+    pattern: process.env.$PUBLIC_VAR
+    pattern-not: process.env.NODE_ENV
+
+  # =========================================================================
+  # WAKKANY-SPECIFIC PATTERNS
+  # =========================================================================
+  - id: xp-grant-via-rpc-only
+    languages:
+      - javascript
+      - typescript
+    message: XP grants should always go through the grantXp() RPC function, never setXp() directly from the frontend. This prevents cheating.
+    severity: HIGH
+    pattern-either:
+      - pattern: setXp($X)
+      - pattern: $STATE.setXp($X)
+    pattern-not: |
+      // Fallback in offline queue
+      setXp(...)
+
+  - id: skill-unlock-via-rpc-only
+    languages:
+      - javascript
+      - typescript
+    message: Skill unlocks must go through unlock_skill_secure RPC, never modify unlockedSkills directly. Prevents unauthorized unlocks.
+    severity: HIGH
+    pattern-either:
+      - pattern: setUnlockedSkills([...$X])
+      - pattern: setUnlockedSkills($X.concat(...))
+    pattern-not: |
+      // Fallback in offline queue
+      setUnlockedSkills(...)
+
+  - id: game-session-tracking-required
+    languages:
+      - javascript
+      - typescript
+    message: Game completion should call completeGame() RPC to track session data (XP, duration, score). Required for analytics.
+    severity: MEDIUM
+    pattern-either:
+      - pattern: setXp($POINTS)
+      - pattern: setScore($SCORE)
+    pattern-not: |
+      completeGame(...)
+
+  # =========================================================================
+  # CORS MISCONFIGURATION
+  # =========================================================================
+  - id: cors-allow-all-origins
+    languages:
+      - javascript
+      - typescript
+    message: CORS should not allow all origins ('*'). Specify allowed origins explicitly to prevent unauthorized cross-origin requests.
+    severity: HIGH
+    pattern-either:
+      - pattern: cors({ origin: '*' })
+      - pattern: app.use(cors())  # Without origin config
+
+  # =========================================================================
+  # CLICKJACKING PROTECTION
+  # =========================================================================
+  - id: missing-x-frame-options
+    languages:
+      - javascript
+      - typescript
+    message: Consider adding X-Frame-Options header to prevent clickjacking attacks.
+    severity: MEDIUM
+    pattern: app.use(...)
+    pattern-not-inside: app.use((req, res) => { res.set('X-Frame-Options', ...) })
+
+  # =========================================================================
+  # PATH TRAVERSAL
+  # =========================================================================
+  - id: path-traversal-risk
+    languages:
+      - javascript
+      - typescript
+    message: Potential path traversal vulnerability. Validate and sanitize user input before using in file paths.
+    severity: HIGH
+    patterns:
+      - pattern-either:
+          - pattern: fs.readFile($USER_INPUT)
+          - pattern: fs.readFileSync($USER_INPUT)
+          - pattern: fs.writeFile($USER_INPUT, ...)
+          - pattern: path.join(...)
+      - pattern-not: path.join(__dirname, 'safe-folder', $FILENAME)
+
+  # =========================================================================
+  # COMMAND INJECTION
+  # =========================================================================
+  - id: command-injection-risk
+    languages:
+      - javascript
+      - typescript
+    message: Potential command injection. Use safe APIs (like child_process.execFile) instead of shell execution.
+    severity: CRITICAL
+    patterns:
+      - pattern-either:
+          - pattern: child_process.exec($USER_INPUT)
+          - pattern: child_process.execSync($USER_INPUT)
+          - pattern: require('child_process').exec(...)
+
+# =========================================================================
+# GLOBAL CONFIGURATION
+# =========================================================================
 paths:
   include:
     - 'src/**'
     - 'scripts/**'
     - '.github/workflows/**'
+    - 'supabase/functions/**'
+
   exclude:
     - '**/*.test.js'
     - '**/*.test.jsx'
+    - '**/*.test.ts'
+    - '**/*.test.tsx'
     - '**/*.spec.js'
     - '**/*.spec.jsx'
+    - '**/*.spec.ts'
+    - '**/*.spec.tsx'
+    - 'node_modules/**'
+    - 'dist/**'
+    - 'build/**'
+    - '.next/**'
+    - 'coverage/**'
     - 'docs/**'
+    - 'docs-generated/**'
     - '**/security-scan-results.txt'
     - '**/SECURITY_BEST_PRACTICES.md'
     - '**/SECURITY_ACTION_PLAN.md'
     - '**/AUDIT_SECURITY.md'
+    - '**/AMELIORATIONS_wakkany.md'
+
+# Severity threshold for pipeline failure
+# CRITICAL and ERROR will fail the build
+severity: MEDIUM
