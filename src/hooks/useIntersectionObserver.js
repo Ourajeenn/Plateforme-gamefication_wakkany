@@ -9,24 +9,25 @@ export function useIntersectionObserver(options = {}) {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    if (!ref.current) return;
+    const element = ref.current;
+    if (!element) return;
 
     const observer = new IntersectionObserver(([entry]) => {
       if (entry.isIntersecting) {
         setIsVisible(true);
         // Unobserve after first visibility
-        observer.unobserve(ref.current);
+        observer.unobserve(element);
       }
     }, {
       threshold: 0.1,
       ...options,
     });
 
-    observer.observe(ref.current);
+    observer.observe(element);
 
     return () => {
-      if (ref.current) {
-        observer.unobserve(ref.current);
+      if (element) {
+        observer.unobserve(element);
       }
     };
   }, [options]);
