@@ -145,20 +145,21 @@ export default defineConfig({
     sourcemap: false,
     // Increase chunk size warning threshold to reduce noisy warnings
     chunkSizeWarningLimit: 1500,
-    // Use a function to create focused chunks for very large deps like three
+    // Use a function to create per-package vendor chunks to avoid one huge vendor bundle
     rollupOptions: {
       output: {
         manualChunks(id) {
-          if (id.includes('node_modules')) {
-            if (id.includes('node_modules/three')) return 'three';
-            if (id.includes('node_modules/@react-three')) return 'three-react';
-            if (id.includes('node_modules/framer-motion')) return 'animation';
-            if (id.includes('node_modules/@supabase')) return 'supabase';
-            if (id.includes('node_modules/react') || id.includes('node_modules/react-dom')) return 'react-vendor';
-            return 'vendor';
+          if (!id.includes('node_modules')) return null;
+          // Derive package name from node_modules path
+          const parts = id.split('node_modules/')[1].split('/');
+          let pkg = parts[0];
+          if (pkg && pkg.startsWith('@')) {
+            pkg = parts.slice(0, 2).join('/');
           }
+          // Sanitize chunk name
+          const name = `vendor_${pkg.replace('/', '_')}`;
+          return name;
         },
-        // keep asset naming configured below
         chunkFileNames: 'assets/[name]-[hash].js',
         entryFileNames: 'assets/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash][extname]',

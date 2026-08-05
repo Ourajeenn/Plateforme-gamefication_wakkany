@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, Suspense, lazy } from 'react';
 import morokhImg from '../assets/histoire/morokh_v2.webp';
 import anyaImg from '../assets/histoire/anya_v2.webp';
 import factionsImg from '../assets/histoire/factions_v2.webp';
-import { ScrollDissolveReveal } from './ScrollDissolveReveal';
+const ScrollDissolveReveal = lazy(() => import('./ScrollDissolveReveal').then(mod => ({ default: mod.ScrollDissolveReveal })));
 
 export default function HistoireView() {
   const [activeTab, setActiveTab] = useState('personnages');
@@ -61,12 +61,14 @@ export default function HistoireView() {
             {/* ── MOROKH – Scroll Dissolve Reveal ── */}
             <section className="relative">
               {/* Dissolve canvas (300vh scroll zone) */}
-              <ScrollDissolveReveal
-                imageFront={morokhImg}
-                imageBack={morokhImg}
-                containerClassName="z-0"
-                className="bg-black"
-              />
+              <Suspense fallback={<div className="h-screen w-full bg-black" /> }>
+                <ScrollDissolveReveal
+                  imageFront={morokhImg}
+                  imageBack={morokhImg}
+                  containerClassName="z-0"
+                  className="bg-black"
+                />
+              </Suspense>
 
               {/* Info card – floats below the scroll zone */}
               <div className="relative z-10 max-w-4xl mx-auto px-4 md:px-8 -mt-32 pb-24">
@@ -115,12 +117,14 @@ export default function HistoireView() {
 
             {/* ── ANYA – Scroll Dissolve Reveal ── */}
             <section className="relative">
-              <ScrollDissolveReveal
-                imageFront={anyaImg}
-                imageBack={anyaImg}
-                containerClassName="z-0"
-                className="bg-black"
-              />
+              <Suspense fallback={<div className="h-screen w-full bg-black" /> }>
+                <ScrollDissolveReveal
+                  imageFront={anyaImg}
+                  imageBack={anyaImg}
+                  containerClassName="z-0"
+                  className="bg-black"
+                />
+              </Suspense>
 
               <div className="relative z-10 max-w-4xl mx-auto px-4 md:px-8 -mt-32 pb-24">
                 <div className="w-full rounded-[2rem] border border-red-500/20 bg-zinc-950/90 backdrop-blur-2xl overflow-hidden shadow-[0_0_80px_rgba(239,68,68,0.12)]">
