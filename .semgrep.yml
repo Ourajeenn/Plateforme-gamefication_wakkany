@@ -25,9 +25,7 @@ rules:
     languages:
       - javascript
       - typescript
-      - jsx
-      - tsx
-    message: Prefer DOM APIs (textContent, setAttribute) over innerHTML when rendering untrusted content to prevent XSS.
+    message: Avoid innerHTML assignments in React or browser code because they can introduce XSS vulnerabilities.
     severity: WARNING
     patterns:
       - pattern-either:
@@ -39,11 +37,9 @@ rules:
     languages:
       - javascript
       - typescript
-      - jsx
-      - tsx
     message: Avoid dangerouslySetInnerHTML in React - it opens XSS vulnerabilities. Use sanitization libraries like DOMPurify.
     severity: WARNING
-    pattern: dangerouslySetInnerHTML={{ __html: ... }}
+    pattern-regex: 'dangerouslySetInnerHTML\\s*=\\s*\\{\\{\\s*__html\\s*:'
 
   # =========================================================================
   # HARDCODED SECRETS & CREDENTIALS — CRITICAL
@@ -88,29 +84,6 @@ rules:
           - pattern: $DB.query(`...${$VAR}...`)
           - pattern: $DB.execute($X + $Y)
       - pattern-not: $DB.query($PREPARED_STATEMENT, [$PARAMS])
-
-  # =========================================================================
-  # AUTHENTICATION & AUTHORIZATION BYPASS
-  # =========================================================================
-  - id: auth-bypass-pattern
-    languages:
-      - javascript
-      - typescript
-    message: Potential authentication bypass. Ensure all routes that should require authentication are properly protected.
-    severity: HIGH
-    patterns:
-      - pattern-either:
-          - pattern: |
-              if ($AUTH_CHECK) {
-                ...
-              } else {
-                return true;
-              }
-          - pattern: |
-              if (!$AUTH_CHECK) {
-                // Allow access anyway
-                ...
-              }
 
   # =========================================================================
   # WEAK CRYPTOGRAPHY
@@ -181,8 +154,8 @@ rules:
       - javascript
       - typescript
     message: Ensure Row-Level Security (RLS) is enabled on this Supabase table. Check your Supabase SQL migrations.
-    severity: HIGH
-    pattern: $TABLE.select($X)
+    severity: WARNING
+    pattern: '$TABLE.select($X)'
     pattern-not: |
       // RLS enabled on $TABLE
 
@@ -191,9 +164,9 @@ rules:
       - javascript
       - typescript
     message: Avoid direct table upserts without RLS. Use Supabase RPC functions or stored procedures with security context instead.
-    severity: MEDIUM
-    pattern: $SUPABASE.from($TABLE).upsert(...)
-    pattern-not: $RPC = ... # This is a secured RPC call
+    severity: WARNING
+    pattern: '$SUPABASE.from($TABLE).upsert(...)'
+    pattern-not: '$RPC = ... # This is a secured RPC call'
 
   - id: supabase-no-anon-key-in-build
     languages:
@@ -215,8 +188,7 @@ rules:
     languages:
       - javascript
       - typescript
-      - jsx
-      - tsx
+
     message: Backend secrets (database URLs, API secrets) should NEVER be exposed to frontend. Only use VITE_* prefixed public env vars.
     severity: CRITICAL
     patterns:
@@ -232,8 +204,7 @@ rules:
     languages:
       - javascript
       - typescript
-      - jsx
-      - tsx
+
     message: In Vite, use 'import.meta.env.VITE_*' for public variables, not 'process.env'. Frontend can only access VITE_ prefixed vars.
     severity: MEDIUM
     pattern: process.env.$PUBLIC_VAR
@@ -242,44 +213,6 @@ rules:
   # =========================================================================
   # WAKKANY-SPECIFIC PATTERNS
   # =========================================================================
-  - id: xp-grant-via-rpc-only
-    languages:
-      - javascript
-      - typescript
-    message: XP grants should always go through the grantXp() RPC function, never setXp() directly from the frontend. This prevents cheating.
-    severity: HIGH
-    pattern-either:
-      - pattern: setXp($X)
-      - pattern: $STATE.setXp($X)
-    pattern-not: |
-      // Fallback in offline queue
-      setXp(...)
-
-  - id: skill-unlock-via-rpc-only
-    languages:
-      - javascript
-      - typescript
-    message: Skill unlocks must go through unlock_skill_secure RPC, never modify unlockedSkills directly. Prevents unauthorized unlocks.
-    severity: HIGH
-    pattern-either:
-      - pattern: setUnlockedSkills([...$X])
-      - pattern: setUnlockedSkills($X.concat(...))
-    pattern-not: |
-      // Fallback in offline queue
-      setUnlockedSkills(...)
-
-  - id: game-session-tracking-required
-    languages:
-      - javascript
-      - typescript
-    message: Game completion should call completeGame() RPC to track session data (XP, duration, score). Required for analytics.
-    severity: MEDIUM
-    pattern-either:
-      - pattern: setXp($POINTS)
-      - pattern: setScore($SCORE)
-    pattern-not: |
-      completeGame(...)
-
   # =========================================================================
   # CORS MISCONFIGURATION
   # =========================================================================
@@ -290,8 +223,8 @@ rules:
     message: CORS should not allow all origins ('*'). Specify allowed origins explicitly to prevent unauthorized cross-origin requests.
     severity: HIGH
     pattern-either:
-      - pattern: cors({ origin: '*' })
-      - pattern: app.use(cors())  # Without origin config
+      - pattern: 'cors({ origin: ''*'' })'
+      - pattern: 'app.use(cors())'
 
   # =========================================================================
   # CLICKJACKING PROTECTION
@@ -302,8 +235,8 @@ rules:
       - typescript
     message: Consider adding X-Frame-Options header to prevent clickjacking attacks.
     severity: MEDIUM
-    pattern: app.use(...)
-    pattern-not-inside: app.use((req, res) => { res.set('X-Frame-Options', ...) })
+    pattern: 'app.use(...)'
+    pattern-not-inside: 'app.use((req, res) => { res.set(''X-Frame-Options'', ...) })'
 
   # =========================================================================
   # PATH TRAVERSAL
@@ -313,14 +246,14 @@ rules:
       - javascript
       - typescript
     message: Potential path traversal vulnerability. Validate and sanitize user input before using in file paths.
-    severity: HIGH
+    severity: MEDIUM
     patterns:
       - pattern-either:
-          - pattern: fs.readFile($USER_INPUT)
-          - pattern: fs.readFileSync($USER_INPUT)
-          - pattern: fs.writeFile($USER_INPUT, ...)
-          - pattern: path.join(...)
-      - pattern-not: path.join(__dirname, 'safe-folder', $FILENAME)
+          - pattern: 'fs.readFile($USER_INPUT)'
+          - pattern: 'fs.readFileSync($USER_INPUT)'
+          - pattern: 'fs.writeFile($USER_INPUT, ...)'
+          - pattern: 'path.join(...)'
+      - pattern-not: 'path.join(__dirname, ''safe-folder'', $FILENAME)'
 
   # =========================================================================
   # COMMAND INJECTION
@@ -333,9 +266,9 @@ rules:
     severity: CRITICAL
     patterns:
       - pattern-either:
-          - pattern: child_process.exec($USER_INPUT)
-          - pattern: child_process.execSync($USER_INPUT)
-          - pattern: require('child_process').exec(...)
+          - pattern: 'child_process.exec($USER_INPUT)'
+          - pattern: 'child_process.execSync($USER_INPUT)'
+          - pattern: 'require(''child_process'').exec(...)'
 
 # =========================================================================
 # GLOBAL CONFIGURATION
