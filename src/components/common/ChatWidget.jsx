@@ -35,10 +35,18 @@ export default function ChatWidget({ user }) {
         <div className={`fixed bottom-4 left-4 z-[100] flex flex-col items-start pointer-events-none md:left-auto md:right-4 md:items-end`}>
             {/* Chat Window */}
             <div className={`
-                pointer-events-auto bg-zinc-950/95 backdrop-blur-xl border border-[#c28e3a]/30 
+                pointer-events-auto relative bg-zinc-950/95 backdrop-blur-xl border border-[#c28e3a]/30 
                 rounded-2xl overflow-hidden transition-all duration-300 flex flex-col origin-bottom-left md:origin-bottom-right
                 ${isOpen ? 'w-[calc(100vw-2rem)] md:w-80 h-96 mb-4 opacity-100 scale-100' : 'w-0 h-0 opacity-0 scale-95'}
             `}>
+                {/* Visible close button (overlay) for accessibility */}
+                <button
+                    onClick={() => setIsOpen(false)}
+                    aria-label="Fermer le chat"
+                    className="absolute top-3 right-3 z-50 w-8 h-8 rounded-full bg-zinc-800/80 text-zinc-200 flex items-center justify-center hover:bg-zinc-700"
+                >
+                    <iconify-icon icon="mdi:close" width="16" />
+                </button>
                 <div className="bg-zinc-900 border-b border-white/10 p-3 flex flex-col gap-3">
                     <div className="flex items-center justify-between gap-3">
                         <div className="flex items-center gap-2">
