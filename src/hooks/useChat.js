@@ -6,13 +6,47 @@ import { getOrCreateKeyForUser, encryptText, decryptText } from '../utils/e2ee';
 
 const MOCK_BOT_RESPONSES = [
   "Bien joué ! L'union des clans fait notre force. 🐺",
-  "Quelqu'un a-t-il réussi l'énigme du jour ?",
-  "Je cherche un groupe pour lancer un Boss Raid !",
+  "As-tu testé la nouvelle épreuve du donjon ?",
+  "Je cherche un groupe pour lancer un Boss Raid — qui est chaud ?",
   "Wakkany en force ! 🔥",
-  "Bienvenue au bercail, camarade !"
+  "Belle réussite — continue comme ça !",
+  "Tu veux un indice pour la quête ?"
 ];
 
 const MOCK_BOT_NAMES = ["Bledja", "Lina", "Kael", "Thorin", "Anya"];
+
+function generateBotResponse(userText, userName, recentMessages) {
+  const txt = (userText || '').toLowerCase();
+
+  // Greeting variants
+  if (/\b(salut|bonjour|hey|yo|salutations)\b/.test(txt)) {
+    return `Salut ${userName || 'aventurier'} ! Comment ça va ?`;
+  }
+
+  // Question handling
+  if (txt.includes('?')) {
+    return "Bonne question — voici une piste : essaye de regarder la carte pour trouver l'indice clé.";
+  }
+
+  // Short acknowledgements
+  if (txt.length < 20) {
+    return [`Hmm...`, `Intéressant.`, `Je note ça.`, `Cool !`][Math.floor(Math.random() * 4)];
+  }
+
+  // Otherwise pick a random reply that's not exactly equal to the last bot message
+  const last = (recentMessages && recentMessages.length) ? recentMessages[recentMessages.length - 1].content : '';
+  let pick = MOCK_BOT_RESPONSES[Math.floor(Math.random() * MOCK_BOT_RESPONSES.length)];
+  let tries = 0;
+  while (pick === last && tries < 6) {
+    pick = MOCK_BOT_RESPONSES[Math.floor(Math.random() * MOCK_BOT_RESPONSES.length)];
+    tries += 1;
+  }
+  // 30% chance to turn reply into a question to be more interactive
+  if (Math.random() < 0.3) {
+    return `${pick} Et toi, tu en penses quoi ?`;
+  }
+  return pick;
+}
 
 const STORAGE_KEY = 'wakkany_local_chat_messages';
 
@@ -207,10 +241,10 @@ export default function useChat(user) {
       broadcastRef.current.postMessage({ type: 'NEW_MESSAGE', payload: newMsg });
     }
 
-    // Simulation d'une réponse de bot après 2-4 secondes
+    // Simulation d'une réponse de bot après 1.5-3.5 secondes en mode hors-ligne
     setTimeout(() => {
       const botName = MOCK_BOT_NAMES[Math.floor(Math.random() * MOCK_BOT_NAMES.length)];
-      const botMsgText = MOCK_BOT_RESPONSES[Math.floor(Math.random() * MOCK_BOT_RESPONSES.length)];
+      const botMsgText = generateBotResponse(trimmedContent, user.name, messages);
       const botMsg = {
         id: `bot-${Date.now()}`,
         username: botName,
@@ -228,7 +262,7 @@ export default function useChat(user) {
       if (broadcastRef.current) {
         broadcastRef.current.postMessage({ type: 'NEW_MESSAGE', payload: botMsg });
       }
-    }, 2000 + Math.random() * 2000);
+    }, 1500 + Math.random() * 2000);
 
     return true;
   };
