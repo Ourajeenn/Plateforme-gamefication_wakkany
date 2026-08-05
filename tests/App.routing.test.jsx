@@ -50,7 +50,8 @@ vi.mock('../src/hooks/useSoundFX', () => ({
 
 vi.mock('../src/components/Preloader', () => ({
   default: ({ onComplete }) => {
-    onComplete?.();
+    // Call onComplete asynchronously to avoid setState during render
+    setTimeout(() => onComplete && onComplete(), 0);
     return null;
   },
 }));

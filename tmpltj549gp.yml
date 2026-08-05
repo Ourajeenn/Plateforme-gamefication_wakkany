@@ -1,0 +1,37 @@
+rules:
+- id: avoid-dangerouslysetinnerhtml
+  languages:
+  - javascript
+  - typescript
+  message: Avoid dangerouslySetInnerHTML in React - it opens XSS vulnerabilities.
+    Use sanitization libraries like DOMPurify.
+  severity: WARNING
+  pattern: 'dangerouslySetInnerHTML={{ __html: ... }}'
+paths:
+  include:
+  - src/**
+  - scripts/**
+  - .github/workflows/**
+  - supabase/functions/**
+  exclude:
+  - '**/*.test.js'
+  - '**/*.test.jsx'
+  - '**/*.test.ts'
+  - '**/*.test.tsx'
+  - '**/*.spec.js'
+  - '**/*.spec.jsx'
+  - '**/*.spec.ts'
+  - '**/*.spec.tsx'
+  - node_modules/**
+  - dist/**
+  - build/**
+  - .next/**
+  - coverage/**
+  - docs/**
+  - docs-generated/**
+  - '**/security-scan-results.txt'
+  - '**/SECURITY_BEST_PRACTICES.md'
+  - '**/SECURITY_ACTION_PLAN.md'
+  - '**/AUDIT_SECURITY.md'
+  - '**/AMELIORATIONS_wakkany.md'
+severity: MEDIUM

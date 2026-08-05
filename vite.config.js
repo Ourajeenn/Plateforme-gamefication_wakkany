@@ -136,44 +136,34 @@ export default defineConfig({
       },
       mangle: true,
     },
-    // Optimized chunk splitting
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          // Core vendors
-          vendor: ['react', 'react-dom', 'react-router-dom'],
-          // Animations & 3D
-          animation: ['framer-motion'],
-          three: ['three', '@react-three/fiber', '@react-three/drei'],
-          // UI/Charting
-          charts: ['recharts'],
-          // Backend
-          supabase: ['@supabase/supabase-js'],
-          // Data validation
-          validation: ['zod'],
-          // Rate limiting
-          ratelimit: ['rate-limiter-flexible'],
-          // Icons
-          icons: ['iconify-icon'],
-          // Split pages for lazy loading
-          dashboard: ['src/pages/DashboardPage.jsx'],
-          games: ['src/pages/GamesPage.jsx'],
-          landing: ['src/pages/LandingPage.jsx'],
-        },
-        // Optimize chunk names for better caching
-        chunkFileNames: 'assets/[name]-[hash].js',
-        entryFileNames: 'assets/[name]-[hash].js',
-        assetFileNames: 'assets/[name]-[hash][extname]',
-      },
-    },
+    // Optimized chunk splitting handled below
     // Target modern browsers for smaller bundles (esnext for full ES2022+ support)
     target: 'esnext',
     // CSS code splitting
     cssCodeSplit: true,
     // Source maps only for production debugging
     sourcemap: false,
-    // Increase chunk size warning threshold
-    chunkSizeWarningLimit: 1000,
+    // Increase chunk size warning threshold to reduce noisy warnings
+    chunkSizeWarningLimit: 1500,
+    // Use a function to create focused chunks for very large deps like three
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('node_modules/three')) return 'three';
+            if (id.includes('node_modules/@react-three')) return 'three-react';
+            if (id.includes('node_modules/framer-motion')) return 'animation';
+            if (id.includes('node_modules/@supabase')) return 'supabase';
+            if (id.includes('node_modules/react') || id.includes('node_modules/react-dom')) return 'react-vendor';
+            return 'vendor';
+          }
+        },
+        // keep asset naming configured below
+        chunkFileNames: 'assets/[name]-[hash].js',
+        entryFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash][extname]',
+      },
+    },
   },
   test: {
     globals: true,

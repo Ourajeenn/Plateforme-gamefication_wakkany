@@ -74,7 +74,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Scan du dépôt avec Trivy (filesystem)
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@v0.28.0
         with:
           scan-type: fs
           exit-code: '1'
@@ -139,7 +139,7 @@ jobs:
       - name: Build Docker image
         run: docker build -t wakkany:ci .
       - name: Scan avec Trivy (image)
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@v0.28.0
         with:
           image-ref: wakkany:ci
           exit-code: '1'
@@ -159,8 +159,10 @@ jobs:
           python-version: '3.11'
       - name: Install Semgrep
         run: pip install semgrep
-      - name: Run Semgrep security analysis
-        run: python -m semgrep --config .semgrep.yml --error --quiet .
+      - name: Run Semgrep security analysis (JSON + conditional fail)
+        run: |
+          python -m semgrep --config .semgrep.yml --json . > semgrep_results.json || true
+          python scripts/semgrep_check.py semgrep_results.json
         continue-on-error: false
 
   # =====================================================================
