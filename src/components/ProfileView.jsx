@@ -311,10 +311,19 @@ export default function ProfileView({ user, xp, unlockedSkills, unlockedAchievem
                 className="transform scale-110 relative z-20 cursor-pointer group/avatar relative flex justify-center w-full"
                 title="Chambre de Fusion Élémentaire — Cliquez pour équiper une Aura !"
               >
-                <div className="absolute -top-10 bg-black/90 border border-[#c28e3a]/30 px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-wider text-[#c28e3a] opacity-0 group-hover/avatar:opacity-100 transition-all duration-300 z-50 shadow-2xl">
+                <div className="absolute top-0 sm:-top-10 bg-black/90 border border-[#c28e3a]/30 px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-wider text-[#c28e3a] opacity-0 group-hover/avatar:opacity-100 transition-all duration-300 z-50 shadow-2xl">
                   🧬 ACTIVER UNE AURA
                 </div>
                 <Avatar xp={xp} unlockedSkills={unlockedSkills} />
+              </div>
+              {/* Mobile quick action to open Aura selector */}
+              <div className="sm:hidden mt-4 flex justify-center">
+                <button
+                  onClick={() => setShowAuraSelector(true)}
+                  className="py-2 px-4 bg-[#c28e3a] text-black font-black rounded-lg shadow-md"
+                >
+                  🧬 Activer Aura
+                </button>
               </div>
             </div>
             

@@ -131,7 +131,7 @@ export default function ChatWidget({ user }) {
                     ${isOpen ? 'hidden' : 'flex'}
                 `}
             >
-                <iconify-icon icon="mdi:message-circle" width="24"></iconify-icon>
+                <iconify-icon icon="mdi:message-circle" width="20" className="drop-shadow-sm"></iconify-icon>
             </button>
         </div>
     );

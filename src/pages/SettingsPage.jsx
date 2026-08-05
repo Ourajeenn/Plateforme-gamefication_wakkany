@@ -34,6 +34,7 @@ export default function SettingsPage() {
   const [notifications, setNotifications] = useState(true);
   const [language, setLanguage] = useState('fr');
   const [saved, setSaved] = useState(false);
+  const [activeTab, setActiveTab] = useState('appearance');
 
   // Charger les préférences
   useEffect(() => {
@@ -101,7 +102,21 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      {/* Contenu */}
+        {/* Tabs */}
+        <div className="max-w-4xl mx-auto px-4 py-4">
+          <div className="flex gap-2 bg-zinc-900/30 p-2 rounded-xl mb-6">
+            <button
+              onClick={() => setActiveTab('appearance')}
+              className={`px-4 py-2 rounded-lg font-bold ${activeTab === 'appearance' ? 'bg-[#c28e3a] text-black' : 'text-zinc-300'}`}
+            >Apparence</button>
+            <button
+              onClick={() => setActiveTab('game')}
+              className={`px-4 py-2 rounded-lg font-bold ${activeTab === 'game' ? 'bg-[#c28e3a] text-black' : 'text-zinc-300'}`}
+            >Paramètres</button>
+          </div>
+        </div>
+
+        {/* Contenu */}
       <div className="max-w-4xl mx-auto px-4 py-8">
         {/* Notification de sauvegarde */}
         {saved && (
@@ -110,8 +125,10 @@ export default function SettingsPage() {
           </div>
         )}
 
-        {/* Section Thème Visuel */}
-        <Section title="Thème Visuel" icon="mdi:palette">
+        {activeTab === 'appearance' && (
+          <>
+            {/* Section Thème Visuel */}
+            <Section title="Thème Visuel" icon="mdi:palette">
           <div className="grid grid-cols-3 gap-4">
             {THEMES.map((t) => (
               <button
@@ -130,10 +147,59 @@ export default function SettingsPage() {
               </button>
             ))}
           </div>
-        </Section>
+            </Section>
 
-        {/* Section Thème de Jeu */}
-        <Section title="Thème de Jeu" icon="mdi:sword">
+            {/* Section Difficulté */}
+            <Section title="Difficulté par Défaut" icon="mdi:target">
+              <div className="grid grid-cols-3 gap-4">
+                {DIFFICULTY_LEVELS.map((d) => (
+                  <button
+                    key={d.id}
+                    onClick={() => setDifficulty(d.id)}
+                    className={`p-4 rounded-xl border-2 transition-all text-center ${
+                      difficulty === d.id
+                        ? 'border-[#c28e3a] bg-[#c28e3a]/10'
+                        : 'border-white/10 bg-zinc-900 hover:border-white/20'
+                    }`}
+                  >
+                    <div className={`text-3xl flex justify-center mb-2 ${d.color}`}>
+                      <iconify-icon icon={d.icon} width="28"></iconify-icon>
+                    </div>
+                    <div className="text-sm font-bold">{d.label}</div>
+                  </button>
+                ))}
+              </div>
+            </Section>
+
+            {/* Section Langue */}
+            <Section title="Langue" icon="mdi:translate">
+              <div className="flex gap-4">
+                {[
+                  { id: 'fr', label: '🇫🇷 Français' },
+                  { id: 'en', label: '🇬🇧 English' },
+                  { id: 'es', label: '🇪🇸 Español' },
+                ].map((lang) => (
+                  <button
+                    key={lang.id}
+                    onClick={() => setLanguage(lang.id)}
+                    className={`px-6 py-3 rounded-xl border-2 font-bold transition-all ${
+                      language === lang.id
+                        ? 'border-[#c28e3a] bg-[#c28e3a]/10 text-white'
+                        : 'border-white/10 bg-zinc-900 text-zinc-400 hover:border-white/20'
+                    }`}
+                  >
+                    {lang.label}
+                  </button>
+                ))}
+              </div>
+            </Section>
+          </>
+        )}
+
+        {activeTab === 'game' && (
+          <>
+            {/* Section Thème de Jeu */}
+            <Section title="Thème de Jeu" icon="mdi:sword">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {GAME_THEMES.map((t) => (
               <button
@@ -153,32 +219,10 @@ export default function SettingsPage() {
               </button>
             ))}
           </div>
-        </Section>
+          </Section>
 
-        {/* Section Difficulté */}
-        <Section title="Difficulté par Défaut" icon="mdi:target">
-          <div className="grid grid-cols-3 gap-4">
-            {DIFFICULTY_LEVELS.map((d) => (
-              <button
-                key={d.id}
-                onClick={() => setDifficulty(d.id)}
-                className={`p-4 rounded-xl border-2 transition-all text-center ${
-                  difficulty === d.id
-                    ? 'border-[#c28e3a] bg-[#c28e3a]/10'
-                    : 'border-white/10 bg-zinc-900 hover:border-white/20'
-                }`}
-              >
-                <div className={`text-3xl flex justify-center mb-2 ${d.color}`}>
-                  <iconify-icon icon={d.icon} width="28"></iconify-icon>
-                </div>
-                <div className="text-sm font-bold">{d.label}</div>
-              </button>
-            ))}
-          </div>
-        </Section>
-
-        {/* Section Audio et Notifications */}
-        <Section title="Son et Notifications" icon="mdi:bell">
+            {/* Section Audio et Notifications */}
+            <Section title="Son et Notifications" icon="mdi:bell">
           <div className="space-y-4">
             <Toggle
               label="Effets sonores"
@@ -193,33 +237,10 @@ export default function SettingsPage() {
               description="Alertes de déblocage et achievements"
             />
           </div>
-        </Section>
+            </Section>
 
-        {/* Section Langue */}
-        <Section title="Langue" icon="mdi:translate">
-          <div className="flex gap-4">
-            {[
-              { id: 'fr', label: '🇫🇷 Français' },
-              { id: 'en', label: '🇬🇧 English' },
-              { id: 'es', label: '🇪🇸 Español' },
-            ].map((lang) => (
-              <button
-                key={lang.id}
-                onClick={() => setLanguage(lang.id)}
-                className={`px-6 py-3 rounded-xl border-2 font-bold transition-all ${
-                  language === lang.id
-                    ? 'border-[#c28e3a] bg-[#c28e3a]/10 text-white'
-                    : 'border-white/10 bg-zinc-900 text-zinc-400 hover:border-white/20'
-                }`}
-              >
-                {lang.label}
-              </button>
-            ))}
-          </div>
-        </Section>
-
-        {/* Section Données et Sécurité */}
-        <Section title="Données et Sécurité" icon="mdi:shield">
+            {/* Section Données et Sécurité */}
+            <Section title="Données et Sécurité" icon="mdi:shield">
           <div className="space-y-3">
             <DataButton
               label="Exporter mes données"
@@ -240,7 +261,9 @@ export default function SettingsPage() {
               variant="danger"
             />
           </div>
-        </Section>
+            </Section>
+          </>
+        )}
 
         {/* Boutons d'action */}
         <div className="flex gap-4 mt-12 mb-8">

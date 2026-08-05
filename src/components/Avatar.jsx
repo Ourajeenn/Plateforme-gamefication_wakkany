@@ -34,21 +34,21 @@ export default function Avatar({ xp, unlockedSkills = [] }) {
   }, [selectedAura]);
 
   return (
-    <div className="relative w-64 h-64 mx-auto group">
+    <div className="relative w-40 h-40 sm:w-56 sm:h-56 md:w-64 md:h-64 mx-auto group">
       
       {/* Background Aura (Level 3+ or Custom Element Aura) */}
       {selectedAura !== 'none' ? (
         <div 
-          className={`absolute inset-4 rounded-full blur-3xl opacity-35 animate-pulse transition-all duration-500
-            ${selectedAura === 'fire' ? 'bg-red-500 shadow-[0_0_50px_rgba(239,68,68,0.5)]' : ''}
-            ${selectedAura === 'lightning' ? 'bg-blue-400 shadow-[0_0_50px_rgba(59,130,246,0.5)]' : ''}
-            ${selectedAura === 'cosmic' ? 'bg-purple-600 shadow-[0_0_50px_rgba(168,85,247,0.5)]' : ''}
-            ${selectedAura === 'divine' ? 'bg-[#fce5a1] shadow-[0_0_50px_rgba(252,229,161,0.5)]' : ''}
+          className={`absolute inset-4 rounded-full blur-3xl opacity-60 animate-[pulse_2.5s_ease-in-out_infinite] transition-all duration-500
+            ${selectedAura === 'fire' ? 'bg-red-500/60 shadow-[0_0_60px_rgba(239,68,68,0.6)]' : ''}
+            ${selectedAura === 'lightning' ? 'bg-blue-400/55 shadow-[0_0_60px_rgba(59,130,246,0.55)]' : ''}
+            ${selectedAura === 'cosmic' ? 'bg-purple-600/55 shadow-[0_0_60px_rgba(168,85,247,0.55)]' : ''}
+            ${selectedAura === 'divine' ? 'bg-[#fce5a1]/60 shadow-[0_0_60px_rgba(252,229,161,0.55)]' : ''}
           `}
         ></div>
       ) : level >= 3 ? (
         <div 
-          className="absolute inset-4 rounded-full blur-3xl opacity-20 animate-pulse"
+          className="absolute inset-4 rounded-full blur-3xl opacity-25 animate-pulse"
           style={{ backgroundColor: branchColor }}
         ></div>
       ) : null}

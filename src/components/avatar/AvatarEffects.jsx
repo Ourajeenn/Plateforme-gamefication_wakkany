@@ -30,14 +30,14 @@ export default function AvatarEffects({ level, branchColor, dominant, unlockedSk
 
       {/* --- SKILL EFFECTS : h2 (Speed) & c2 (Jets) --- */}
       {unlockedSkills.includes('h2') && (
-         <g stroke="#3b82f6" strokeWidth="2" fill="none" className="animate-pulse">
+         <g stroke="#3b82f6" strokeWidth="2" fill="none" className="animate-[pulse_1.8s_ease-in-out_infinite]">
            <path d="M60,185 L50,195 M140,185 L150,195" />
            <path d="M70,188 L65,198 M130,188 L135,198" />
          </g>
       )}
       {unlockedSkills.includes('c2') && (
          <g stroke="#007aff" strokeWidth="2" fill="none" opacity="0.6">
-           <path d="M50,110 L30,100 M150,110 L170,100" className="animate-ping" />
+           <path d="M50,110 L30,100 M150,110 L170,100" className="animate-[ping_1.8s_ease-in-out_infinite]" />
          </g>
       )}
 
@@ -107,25 +107,25 @@ export default function AvatarEffects({ level, branchColor, dominant, unlockedSk
           {/* Crown */}
 <path d="M85,35 L92.5,20 L100,35 L107.5,20 L115,35" fill="none" stroke="#fce5a1" strokeWidth="4" filter="url(#glow)" strokeLinecap="round" />
 {/* Main lightning bolt */}
-<path d="M100,20 L105,40 L95,40 L100,60" fill="none" stroke="#fff" strokeWidth="3.5" filter="url(#glow)" className="animate-pulse" />
+<path d="M100,20 L105,40 L95,40 L100,60" fill="none" stroke="#fff" strokeWidth="3.5" filter="url(#glow)" className="animate-[pulse_1.0s_ease-in-out_infinite]" />
 {/* Forked bolt */}
-<path d="M105,40 L112,55 L106,55 L115,72" fill="none" stroke="#93c5fd" strokeWidth="2" filter="url(#glow)" className="animate-pulse" style={{animationDelay: '0.4s'}} />
+<path d="M105,40 L112,55 L106,55 L115,72" fill="none" stroke="#93c5fd" strokeWidth="2" filter="url(#glow)" className="animate-[pulse_1.0s_ease-in-out_infinite]" style={{animationDelay: '0.4s'}} />
           
           {/* Shield Level 4: Divine Radiating Shield */}
           <g transform="translate(45, 150)">
-             <circle r="25" fill="none" stroke="#fce5a1" strokeWidth="1" opacity="0.3" className="animate-pulse" />
+             <circle r="25" fill="none" stroke="#fce5a1" strokeWidth="1" opacity="0.3" className="animate-[pulse_2.2s_ease-in-out_infinite]" />
              <path d="M0,-25 L21.6,-12.5 L21.6,12.5 L0,25 L-21.6,12.5 L-21.6,-12.5 Z" fill="#242429" stroke="#fce5a1" strokeWidth="3" filter="url(#glow)" />
-             <circle r="8" fill="#fce5a1" filter="url(#glow)" className="animate-pulse" />
+             <circle r="8" fill="#fce5a1" filter="url(#glow)" className="animate-[pulse_1.8s_ease-in-out_infinite]" />
           </g>
 
           {/* Pulsing Aura */}
-          <circle cx="100" cy="90" r="70" fill="none" stroke="#fce5a1" strokeWidth="0.5" opacity="0.2" className="animate-ping" />
+          <circle cx="100" cy="90" r="70" fill="none" stroke="#fce5a1" strokeWidth="0.5" opacity="0.2" className="animate-[ping_2.4s_ease-in-out_infinite]" />
         </g>
       )}
 
       {/* --- SKILL: Ultimate Glow --- */}
       {unlockedSkills.some(id => BRANCHES.heroes.nodes.find(n => n.id === id)?.ultimate) && (
-         <circle cx="100" cy="90" r="85" fill="none" stroke="#fff" strokeWidth="1" opacity="0.1" className="animate-pulse" />
+        <circle cx="100" cy="90" r="85" fill="none" stroke="#fff" strokeWidth="1" opacity="0.1" className="animate-[pulse_2.4s_ease-in-out_infinite]" />
       )}
     </>
   );
