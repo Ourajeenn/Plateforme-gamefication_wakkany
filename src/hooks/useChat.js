@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from '../utils/supabaseClient';
 import { isSupabaseConfigured } from '../utils/isSupabaseConfigured';
+import { askAssistant } from '../utils/assistant';
+import { getOrCreateKeyForUser, encryptText, decryptText } from '../utils/e2ee';
 
 const MOCK_BOT_RESPONSES = [
   "Bien joué ! L'union des clans fait notre force. 🐺",
@@ -16,9 +18,36 @@ const STORAGE_KEY = 'wakkany_local_chat_messages';
 
 export default function useChat(user) {
   const [messages, setMessages] = useState([]);
+  const [assistantMessages, setAssistantMessages] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [chatKey, setChatKey] = useState(null);
   const channelRef = useRef(null);
   const broadcastRef = useRef(null);
+  const chatKeyRef = useRef(null);
+
+  useEffect(() => {
+    chatKeyRef.current = chatKey;
+  }, [chatKey]);
+
+  useEffect(() => {
+    if (!user?.id) {
+      setChatKey(null);
+      return;
+    }
+
+    let isCanceled = false;
+    getOrCreateKeyForUser(user.id)
+      .then((key) => {
+        if (!isCanceled) setChatKey(key);
+      })
+      .catch((err) => {
+        console.warn('[E2EE] key init failed', err);
+      });
+
+    return () => {
+      isCanceled = true;
+    };
+  }, [user?.id]);
 
   useEffect(() => {
     if (!user) {
@@ -34,9 +63,15 @@ export default function useChat(user) {
           .select('*')
           .order('created_at', { ascending: false })
           .limit(50);
-        
+
         if (!error && data) {
-          setMessages(data.reverse());
+          const hydrated = await Promise.all(
+            data.reverse().map(async (msg) => ({
+              ...msg,
+              content: chatKey ? await decryptText(msg.content, chatKey) : msg.content,
+            }))
+          );
+          setMessages(hydrated);
         }
         setLoading(false);
       };
@@ -50,7 +85,14 @@ export default function useChat(user) {
           schema: 'public',
           table: 'chat_messages'
         }, (payload) => {
-          setMessages(prev => [...prev, payload.new].slice(-50));
+          const decryptAndPush = async () => {
+            const newMessage = payload.new;
+            const content = chatKeyRef.current
+              ? await decryptText(newMessage.content, chatKeyRef.current)
+              : newMessage.content;
+            setMessages(prev => [...prev, { ...newMessage, content }].slice(-50));
+          };
+          void decryptAndPush();
         })
         .subscribe();
         
@@ -116,13 +158,14 @@ export default function useChat(user) {
         broadcastRef.current.close();
       }
     };
-  }, [user]);
+  }, [user, chatKey]);
 
   // Fonction d'envoi de message
   const sendMessage = async (content) => {
     if (!user || !content.trim()) return false;
 
     const trimmedContent = content.trim();
+    const encryptedContent = chatKey ? await encryptText(trimmedContent, chatKey) : trimmedContent;
 
     // ─── CAS 1 : SUPABASE CONFIGURÉ ──────────────────────────────────────────
     if (isSupabaseConfigured()) {
@@ -136,7 +179,7 @@ export default function useChat(user) {
         .insert([{
           user_id: userId,
           username: user.name || 'Joueur Anonyme',
-          content: trimmedContent,
+          content: encryptedContent,
           academy: user.academy || null
         }]);
         
@@ -190,5 +233,33 @@ export default function useChat(user) {
     return true;
   };
 
-  return { messages, sendMessage, loading };
+  const sendAssistantMessage = async (content) => {
+    if (!user || !content.trim()) return false;
+
+    const trimmedContent = content.trim();
+    const userMessage = {
+      id: `assistant-user-${Date.now()}`,
+      username: user.name || 'Moi',
+      content: trimmedContent,
+      academy: user.academy || null,
+      created_at: new Date().toISOString(),
+      assistant: true,
+    };
+    setAssistantMessages(prev => [...prev, userMessage].slice(-50));
+
+    const answer = await askAssistant(trimmedContent, user);
+    const assistantMsg = {
+      id: `assistant-bot-${Date.now()}`,
+      username: 'Wakkany Assistant',
+      content: answer,
+      academy: 'assistant',
+      created_at: new Date().toISOString(),
+      assistant: true,
+    };
+    setAssistantMessages(prev => [...prev, assistantMsg].slice(-50));
+
+    return true;
+  };
+
+  return { messages, sendMessage, assistantMessages, sendAssistantMessage, loading };
 }

@@ -7,6 +7,12 @@ vi.mock('../utils/isSupabaseConfigured', () => ({
   isSupabaseConfigured: vi.fn(() => true)
 }));
 
+vi.mock('../utils/e2ee', () => ({
+  getOrCreateKeyForUser: vi.fn(async () => ({ foo: 'bar' })),
+  encryptText: vi.fn(async (value) => `enc:${value}`),
+  decryptText: vi.fn(async (value) => value.startsWith('enc:') ? value.replace('enc:', '') : value),
+}));
+
 vi.mock('../utils/supabaseClient', () => ({
   supabase: {
     auth: {
