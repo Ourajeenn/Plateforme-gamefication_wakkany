@@ -74,7 +74,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Scan filesystem with Trivy
-        uses: aquasecurity/trivy-action@0.36.0
+        uses: aquasecurity/trivy-action@master
         with:
           scan-type: fs
           exit-code: '0'
@@ -153,7 +153,7 @@ jobs:
           docker build --progress=plain -t wakkany:ci .
       - name: Scan image with Trivy
         if: success()
-        uses: aquasecurity/trivy-action@0.36.0
+        uses: aquasecurity/trivy-action@master
         with:
           image-ref: wakkany:ci
           exit-code: '0'
