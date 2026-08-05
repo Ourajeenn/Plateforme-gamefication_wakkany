@@ -22,7 +22,7 @@ import useNotifications from '../hooks/useNotifications';
 import { flushOfflineQueue, getOfflineQueueLength } from '../utils/offlineQueue';
 import { supabase } from '../utils/supabaseClient';
 import { isSupabaseConfigured } from '../utils/isSupabaseConfigured';
-import { DashboardPage, QuizRoutes, GamesPage, LandingPage } from '../routes/lazyComponents';
+import { DashboardPage, QuizRoutes, GamesPage, LandingPage, SettingsPage } from '../routes/lazyComponents';
 
 export default function App() {
   const navigate = useNavigate();
@@ -241,6 +241,10 @@ export default function App() {
       ) : isQuiz ? (
         <Suspense fallback={<PageLoader />}>
           <QuizRoutes />
+        </Suspense>
+      ) : location.pathname === '/settings' ? (
+        <Suspense fallback={<PageLoader />}>
+          <SettingsPage />
         </Suspense>
       ) : (
         <div className="antialiased text-white min-h-screen bg-zinc-950 animate-fade-in overflow-y-auto">

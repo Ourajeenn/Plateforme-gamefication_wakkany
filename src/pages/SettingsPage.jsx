@@ -110,8 +110,8 @@ export default function SettingsPage() {
               className={`px-4 py-2 rounded-lg font-bold ${activeTab === 'appearance' ? 'bg-[#c28e3a] text-black' : 'text-zinc-300'}`}
             >Apparence</button>
             <button
-              onClick={() => setActiveTab('game')}
-              className={`px-4 py-2 rounded-lg font-bold ${activeTab === 'game' ? 'bg-[#c28e3a] text-black' : 'text-zinc-300'}`}
+              onClick={() => setActiveTab('settings')}
+              className={`px-4 py-2 rounded-lg font-bold ${activeTab === 'settings' ? 'bg-[#c28e3a] text-black' : 'text-zinc-300'}`}
             >Paramètres</button>
           </div>
         </div>
@@ -129,24 +129,51 @@ export default function SettingsPage() {
           <>
             {/* Section Thème Visuel */}
             <Section title="Thème Visuel" icon="mdi:palette">
-          <div className="grid grid-cols-3 gap-4">
-            {THEMES.map((t) => (
-              <button
-                key={t.id}
-                onClick={() => setAppTheme(t.id)}
-                className={`p-4 rounded-2xl border-2 transition-all text-center ${
-                  appTheme === t.id
-                    ? 'border-[#c28e3a] bg-[#c28e3a]/10'
-                    : 'border-white/10 bg-zinc-900 hover:border-white/20'
-                }`}
-              >
-                <div className={`text-3xl flex justify-center mb-2 ${t.color}`}>
-                  <iconify-icon icon={t.icon} width="28"></iconify-icon>
-                </div>
-                <div className="text-sm font-bold">{t.label}</div>
-              </button>
-            ))}
-          </div>
+              <div className="grid grid-cols-3 gap-4">
+                {THEMES.map((t) => (
+                  <button
+                    key={t.id}
+                    onClick={() => setAppTheme(t.id)}
+                    className={`p-4 rounded-2xl border-2 transition-all text-center ${
+                      appTheme === t.id
+                        ? 'border-[#c28e3a] bg-[#c28e3a]/10'
+                        : 'border-white/10 bg-zinc-900 hover:border-white/20'
+                    }`}
+                  >
+                    <div className={`text-3xl flex justify-center mb-2 ${t.color}`}>
+                      <iconify-icon icon={t.icon} width="28"></iconify-icon>
+                    </div>
+                    <div className="text-sm font-bold">{t.label}</div>
+                  </button>
+                ))}
+              </div>
+            </Section>
+          </>
+        )}
+
+        {activeTab === 'settings' && (
+          <>
+            {/* Section Thème de Jeu */}
+            <Section title="Thème de Jeu" icon="mdi:sword">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {GAME_THEMES.map((t) => (
+                  <button
+                    key={t.id}
+                    onClick={() => setGameTheme(t.id)}
+                    className={`p-4 rounded-xl border-2 transition-all text-center ${
+                      gameTheme === t.id
+                        ? 'border-[#c28e3a] bg-[#c28e3a]/10'
+                        : 'border-white/10 bg-zinc-900 hover:border-white/20'
+                    }`}
+                  >
+                    <div className="text-2xl flex justify-center mb-2 text-[#c28e3a]">
+                      <iconify-icon icon={t.icon} width="24"></iconify-icon>
+                    </div>
+                    <div className="text-xs font-bold">{t.label}</div>
+                    <div className="text-[10px] text-zinc-500 mt-1">{t.desc}</div>
+                  </button>
+                ))}
+              </div>
             </Section>
 
             {/* Section Difficulté */}
@@ -173,7 +200,7 @@ export default function SettingsPage() {
 
             {/* Section Langue */}
             <Section title="Langue" icon="mdi:translate">
-              <div className="flex gap-4">
+              <div className="flex gap-4 flex-wrap">
                 {[
                   { id: 'fr', label: '🇫🇷 Français' },
                   { id: 'en', label: '🇬🇧 English' },
@@ -193,74 +220,47 @@ export default function SettingsPage() {
                 ))}
               </div>
             </Section>
-          </>
-        )}
-
-        {activeTab === 'game' && (
-          <>
-            {/* Section Thème de Jeu */}
-            <Section title="Thème de Jeu" icon="mdi:sword">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {GAME_THEMES.map((t) => (
-              <button
-                key={t.id}
-                onClick={() => setGameTheme(t.id)}
-                className={`p-4 rounded-xl border-2 transition-all text-center ${
-                  gameTheme === t.id
-                    ? 'border-[#c28e3a] bg-[#c28e3a]/10'
-                    : 'border-white/10 bg-zinc-900 hover:border-white/20'
-                }`}
-              >
-                <div className="text-2xl flex justify-center mb-2 text-[#c28e3a]">
-                  <iconify-icon icon={t.icon} width="24"></iconify-icon>
-                </div>
-                <div className="text-xs font-bold">{t.label}</div>
-                <div className="text-[10px] text-zinc-500 mt-1">{t.desc}</div>
-              </button>
-            ))}
-          </div>
-          </Section>
 
             {/* Section Audio et Notifications */}
             <Section title="Son et Notifications" icon="mdi:bell">
-          <div className="space-y-4">
-            <Toggle
-              label="Effets sonores"
-              checked={soundEnabled}
-              onChange={setSoundEnabled}
-              description="Activer les bruitages et musiques du jeu"
-            />
-            <Toggle
-              label="Notifications"
-              checked={notifications}
-              onChange={setNotifications}
-              description="Alertes de déblocage et achievements"
-            />
-          </div>
+              <div className="space-y-4">
+                <Toggle
+                  label="Effets sonores"
+                  checked={soundEnabled}
+                  onChange={setSoundEnabled}
+                  description="Activer les bruitages et musiques du jeu"
+                />
+                <Toggle
+                  label="Notifications"
+                  checked={notifications}
+                  onChange={setNotifications}
+                  description="Alertes de déblocage et achievements"
+                />
+              </div>
             </Section>
 
             {/* Section Données et Sécurité */}
             <Section title="Données et Sécurité" icon="mdi:shield">
-          <div className="space-y-3">
-            <DataButton
-              label="Exporter mes données"
-              icon="mdi:download"
-              description="Télécharger vos données personnelles et progression"
-              onClick={() => alert('Fonctionnalité en développement')}
-            />
-            <DataButton
-              label="Effacer ma progression locale"
-              icon="mdi:trash-can"
-              description="Réinitialiser votre progression et scores"
-              onClick={() => {
-                if (window.confirm('Êtes-vous sûr? Cette action est irréversible.')) {
-                  localStorage.clear();
-                  window.location.reload();
-                }
-              }}
-              variant="danger"
-            />
-          </div>
+              <div className="space-y-3">
+                <DataButton
+                  label="Exporter mes données"
+                  icon="mdi:download"
+                  description="Télécharger vos données personnelles et progression"
+                  onClick={() => alert('Fonctionnalité en développement')}
+                />
+                <DataButton
+                  label="Effacer ma progression locale"
+                  icon="mdi:trash-can"
+                  description="Réinitialiser votre progression et scores"
+                  onClick={() => {
+                    if (window.confirm('Êtes-vous sûr? Cette action est irréversible.')) {
+                      localStorage.clear();
+                      window.location.reload();
+                    }
+                  }}
+                  variant="danger"
+                />
+              </div>
             </Section>
           </>
         )}
