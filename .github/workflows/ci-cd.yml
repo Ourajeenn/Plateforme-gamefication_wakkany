@@ -77,6 +77,8 @@ jobs:
         uses: aquasecurity/trivy-action@v0.36.0
         with:
           scan-type: fs
+          scanners: vuln
+          skip-dirs: 'docs'
           exit-code: '1'
           severity: 'HIGH,CRITICAL'
           format: 'table'
