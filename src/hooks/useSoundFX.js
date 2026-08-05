@@ -30,12 +30,28 @@ const createAudio = (fileName) => {
 
       if (!audio.fallbackAttempted) {
         audio.fallbackAttempted = true;
-        const fallbackUrl = `${window.location.origin}/assets/${fileName}`;
-        if (fallbackUrl !== fullUrl) {
-          console.warn(`[Audio] Tentative de fallback pour ${fileName} via ${fallbackUrl}`);
-          audio.src = fallbackUrl;
-          audio.load();
-        }
+        (async () => {
+          try {
+            const fallbackUrl = `${window.location.origin}/assets/${fileName}`;
+            if (fallbackUrl !== fullUrl) {
+              console.warn(`[Audio] Tentative de fallback pour ${fileName} via ${fallbackUrl}`);
+              // Try direct fallback first
+              audio.src = fallbackUrl;
+              audio.load();
+            }
+            // As a last resort, try fetching the file and using a blob URL (helps with some CORS/autoplay issues)
+            const resp = await fetch(fullUrl, { cache: 'no-cache' });
+            if (resp.ok) {
+              const blob = await resp.blob();
+              const blobUrl = URL.createObjectURL(blob);
+              console.warn(`[Audio] Loaded ${fileName} via fetch, using blob URL fallback.`);
+              audio.src = blobUrl;
+              audio.load();
+            }
+          } catch (fetchErr) {
+            console.error('[Audio] Fetch fallback failed for', fileName, fetchErr);
+          }
+        })();
       }
     });
 

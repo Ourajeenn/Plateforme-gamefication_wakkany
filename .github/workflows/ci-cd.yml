@@ -74,7 +74,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Scan du dépôt avec Trivy (filesystem)
-        uses: aquasecurity/trivy-action@v0.28.0
+        uses: aquasecurity/trivy-action@v1
         with:
           scan-type: fs
           exit-code: '1'
@@ -139,7 +139,7 @@ jobs:
       - name: Build Docker image
         run: docker build -t wakkany:ci .
       - name: Scan avec Trivy (image)
-        uses: aquasecurity/trivy-action@v0.28.0
+        uses: aquasecurity/trivy-action@v1
         with:
           image-ref: wakkany:ci
           exit-code: '1'
