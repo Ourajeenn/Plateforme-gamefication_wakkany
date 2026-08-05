@@ -19,14 +19,14 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  NODE_VERSION: '20'
+  NODE_VERSION: '24'
 
 jobs:
   # =====================================================================
   # LINT — Qualité de code
   # =====================================================================
   lint:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -41,7 +41,7 @@ jobs:
   # SECURITY — Scan de secrets et vulnérabilités
   # =====================================================================
   secret_scan:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24
     needs: lint
     steps:
       - uses: actions/checkout@v4
@@ -55,7 +55,7 @@ jobs:
         continue-on-error: true
 
   npm_audit:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24
     needs: lint
     steps:
       - uses: actions/checkout@v4
@@ -69,7 +69,7 @@ jobs:
         continue-on-error: true
 
   fs_security_scan:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24
     needs: lint
     steps:
       - uses: actions/checkout@v4
@@ -78,7 +78,7 @@ jobs:
         with:
           scan-type: fs
           scanners: vuln
-          skip-dirs: 'docs'
+          trivyignores: '.trivyignore'
           exit-code: '1'
           severity: 'HIGH,CRITICAL'
           format: 'table'
@@ -87,7 +87,7 @@ jobs:
   # TESTS — Exécution des tests
   # =====================================================================
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24
     needs: [secret_scan, npm_audit, fs_security_scan]
     steps:
       - uses: actions/checkout@v4
@@ -104,7 +104,7 @@ jobs:
   # BUILD — Production build for Vercel
   # =====================================================================
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24
     needs: test
     steps:
       - uses: actions/checkout@v4
@@ -133,7 +133,7 @@ jobs:
   # DOCKER SCAN — Scan de sécurité de l'image Docker
   # =====================================================================
   docker_scan:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24
     needs: build
     steps:
       - uses: actions/checkout@v4
@@ -152,7 +152,7 @@ jobs:
   # SEMGREP — Analyse statique du code
   # =====================================================================
   semgrep_scan:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24
     needs: [lint, test]
     steps:
       - uses: actions/checkout@v4
@@ -171,7 +171,7 @@ jobs:
   # SUCCESS — Pipeline complet
   # =====================================================================
   pipeline_success:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24
     needs: [build, docker_scan, semgrep_scan]
     if: success()
     steps:

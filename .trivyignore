@@ -1,0 +1,3 @@
+# Ignore documentation and example files that contain placeholder secret samples
+SECURITY_BEST_PRACTICES.md
+docs/
