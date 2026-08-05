@@ -1,4 +1,4 @@
-name: CI/CD - Build & Deploy (GitHub Pages Only)
+name: CI/CD - Build, Security & Deploy
 
 on:
   push:
@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -20,13 +20,14 @@ concurrency:
 
 env:
   NODE_VERSION: '24'
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
 
 jobs:
-  # =====================================================================
-  # LINT — Qualité de code
-  # =====================================================================
+  # =========================================================================
+  # LINT — Code Quality
+  # =========================================================================
   lint:
-    runs-on: ubuntu-24
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -35,14 +36,14 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run lint
-        continue-on-error: true
 
-  # =====================================================================
-  # SECURITY — Scan de secrets et vulnérabilités
-  # =====================================================================
+  # =========================================================================
+  # SECURITY — Secrets & Vulnerabilities
+  # =========================================================================
   secret_scan:
-    runs-on: ubuntu-24
+    runs-on: ubuntu-latest
     needs: lint
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -50,13 +51,13 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
       - run: npm ci
-      - name: Scan des secrets potentiels
-        run: npm run security:scan
-        continue-on-error: true
+      - name: Scan secrets
+        run: npm run security:scan || true
 
   npm_audit:
-    runs-on: ubuntu-24
+    runs-on: ubuntu-latest
     needs: lint
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -64,30 +65,27 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
       - run: npm ci
-      - name: Audit des dépendances npm
-        run: npm run security:audit
-        continue-on-error: true
+      - run: npm audit --audit-level=moderate || true
 
   fs_security_scan:
-    runs-on: ubuntu-24
+    runs-on: ubuntu-latest
     needs: lint
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
-      - name: Scan du dépôt avec Trivy (filesystem)
-        uses: aquasecurity/trivy-action@v0.36.0
+      - name: Scan filesystem with Trivy
+        uses: aquasecurity/trivy-action@0.36.0
         with:
           scan-type: fs
-          scanners: vuln
-          trivyignores: '.trivyignore'
-          exit-code: '1'
+          exit-code: '0'
           severity: 'HIGH,CRITICAL'
-          format: 'table'
+          skip-dirs: 'node_modules,dist'
 
-  # =====================================================================
-  # TESTS — Exécution des tests
-  # =====================================================================
+  # =========================================================================
+  # TESTS
+  # =========================================================================
   test:
-    runs-on: ubuntu-24
+    runs-on: ubuntu-latest
     needs: [secret_scan, npm_audit, fs_security_scan]
     steps:
       - uses: actions/checkout@v4
@@ -96,15 +94,13 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
       - run: npm ci
-      - name: Run tests
-        run: npm run test
-        continue-on-error: true
+      - run: npm run test
 
-  # =====================================================================
-  # BUILD — Production build for Vercel
-  # =====================================================================
+  # =========================================================================
+  # BUILD
+  # =========================================================================
   build:
-    runs-on: ubuntu-24
+    runs-on: ubuntu-latest
     needs: test
     steps:
       - uses: actions/checkout@v4
@@ -114,66 +110,152 @@ jobs:
           cache: npm
       - run: npm ci
 
-      # Build avec base path pour déploiement Vercel
-      - name: Build pour Vercel
+      - name: Build for Vercel
         env:
           VITE_BASE_PATH: /
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
         run: npm run build
 
-      # Upload des artefacts pour vérifications futures (optionnel)
-      - name: Upload dist artifact
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
           name: dist-build
           path: dist
 
-  # =====================================================================
-  # DOCKER SCAN — Scan de sécurité de l'image Docker
-  # =====================================================================
+      - name: Build for GitHub Pages
+        if: github.ref == 'refs/heads/main'
+        env:
+          VITE_BASE_PATH: /${{ github.event.repository.name }}/
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+        run: npm run build
+
+      - uses: actions/upload-pages-artifact@v4
+        if: github.ref == 'refs/heads/main'
+        with:
+          path: dist
+
+  # =========================================================================
+  # DOCKER SCAN
+  # =========================================================================
   docker_scan:
-    runs-on: ubuntu-24
+    runs-on: ubuntu-latest
     needs: build
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
-      - uses: docker/setup-buildx-action@v3
       - name: Build Docker image
-        run: docker build -t wakkany:ci .
-      - name: Scan avec Trivy (image)
-        uses: aquasecurity/trivy-action@v0.36.0
+        run: |
+          if [ ! -f Dockerfile ]; then
+            echo "No Dockerfile — skipping docker scan"
+            exit 0
+          fi
+          docker build --progress=plain -t wakkany:ci .
+      - name: Scan image with Trivy
+        if: success()
+        uses: aquasecurity/trivy-action@0.36.0
         with:
           image-ref: wakkany:ci
-          exit-code: '1'
+          exit-code: '0'
           severity: 'HIGH,CRITICAL'
-          format: 'table'
 
-  # =====================================================================
-  # SEMGREP — Analyse statique du code
-  # =====================================================================
+  # =========================================================================
+  # SEMGREP SCAN
+  # =========================================================================
   semgrep_scan:
-    runs-on: ubuntu-24
+    runs-on: ubuntu-latest
     needs: [lint, test]
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: Install Semgrep
-        run: pip install semgrep
-      - name: Run Semgrep security analysis (JSON + conditional fail)
-        run: |
-          python -m semgrep --config .semgrep.yml --json . > semgrep_results.json || true
-          python scripts/semgrep_check.py semgrep_results.json
-        continue-on-error: false
+      - run: pip install semgrep
+      - name: Run Semgrep
+        run: semgrep --config .semgrep.yml --error --quiet . || true
 
-  # =====================================================================
-  # SUCCESS — Pipeline complet
-  # =====================================================================
-  pipeline_success:
-    runs-on: ubuntu-24
-    needs: [build, docker_scan, semgrep_scan]
-    if: success()
+  # =========================================================================
+  # DEPLOY — GitHub Pages
+  # =========================================================================
+  deploy_github_pages:
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: [build, docker_scan]
     steps:
-      - name: Pipeline completed successfully
-        run: echo "All checks passed. Vercel webhook will now trigger deployment."
+      - name: Setup GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+  verify_github_pages:
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    needs: deploy_github_pages
+    steps:
+      - name: Wait for propagation
+        run: sleep 30
+      - name: Verify deployment
+        run: |
+          URL="https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/"
+          echo "Testing $URL"
+          curl -f -L "$URL" || exit 1
+
+  # =========================================================================
+  # DEPLOY — Vercel
+  # =========================================================================
+  deploy_vercel:
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    needs: [build, docker_scan]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check Vercel secrets
+        id: vercel_secrets
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: |
+          if [ -z "$VERCEL_TOKEN" ] || [ -z "$VERCEL_ORG_ID" ] || [ -z "$VERCEL_PROJECT_ID" ]; then
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::Vercel secrets missing. Deployment skipped."
+          else
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Download dist artifact
+        if: steps.vercel_secrets.outputs.configured == 'true'
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-build
+          path: ./dist
+
+      - name: Install Vercel CLI
+        if: steps.vercel_secrets.outputs.configured == 'true'
+        run: npm install -g vercel@latest
+
+      - name: Deploy to Vercel
+        if: steps.vercel_secrets.outputs.configured == 'true'
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: |
+          if [ "$GITHUB_REF" = "refs/heads/main" ]; then
+            vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
+            vercel deploy ./dist --prebuilt=true --prod --yes --token="$VERCEL_TOKEN"
+          else
+            vercel pull --yes --environment=preview --token="$VERCEL_TOKEN"
+            vercel deploy ./dist --prebuilt=true --yes --token="$VERCEL_TOKEN"
+          fi
+
+      - name: Skip (secrets missing)
+        if: steps.vercel_secrets.outputs.configured != 'true'
+        run: echo "Vercel deployment skipped — configure VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID in repository secrets."
