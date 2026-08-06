@@ -1,6 +1,5 @@
 import React, { Suspense, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import MuxPlayer from '@mux/mux-player-react';
 import HistoireView from '../components/HistoireView';
 import LandingNav from '../components/layout/LandingNav';
 import PageLoader from '../components/common/PageLoader';
@@ -10,6 +9,8 @@ import ArchetypesPage from './landing/ArchetypesPage';
 import { AvatarCarousel } from '../routes/lazyComponents';
 import ScrollReveal from '../components/common/ScrollReveal';
 import { ASSET_PATHS } from '../utils/assetPaths';
+
+const HERO_VIDEO_SRC = 'https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
 
 export default function LandingPage({ user, onJoin }) {
   const navigate = useNavigate();
@@ -52,19 +53,17 @@ export default function LandingPage({ user, onJoin }) {
             {/* Hero Section */}
             <header id="hero" className="relative w-full h-screen overflow-hidden flex flex-col justify-end pb-10 sm:pb-24">
               <div className="absolute inset-0 z-0 bg-zinc-950 overflow-hidden stabilize-motion">
-                <MuxPlayer
-                  playbackId="01mywJGOo4l00f8YOasdq4nIXXI6vrrIIVTKtMN6PCeQM"
+                <video
+                  src={HERO_VIDEO_SRC}
                   autoPlay
                   muted
                   loop
                   playsInline
                   controls={false}
                   preload="auto"
-                  className={`video-background transition-opacity duration-700 ${videoError ? 'opacity-0' : 'opacity-85'}`}
+                  className={`video-background transition-opacity duration-700 ${videoError ? 'opacity-0' : 'opacity-100'}`}
                   style={{ minHeight: '100%', minWidth: '100%' }}
                   onError={() => setVideoError(true)}
-                  onStalled={() => setVideoError(true)}
-                  onAbort={() => setVideoError(true)}
                 />
                 <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-zinc-950/80"></div>
                 <img
