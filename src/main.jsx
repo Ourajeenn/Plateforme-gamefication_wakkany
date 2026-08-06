@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import App from './pages/App.jsx';
+import { AssetErrorBoundary } from './components/common/AssetErrorHandler';
 import './index.css';
 import 'iconify-icon';
 import { ThemeProvider } from './context/ThemeContext';
@@ -16,10 +17,12 @@ try {
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <ThemeProvider>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
-    </ThemeProvider>
+    <AssetErrorBoundary>
+      <ThemeProvider>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </ThemeProvider>
+    </AssetErrorBoundary>
   </React.StrictMode>
 );
