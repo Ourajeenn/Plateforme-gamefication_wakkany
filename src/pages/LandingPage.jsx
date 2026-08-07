@@ -11,6 +11,8 @@ import ScrollReveal from '../components/common/ScrollReveal';
 import { ASSET_PATHS } from '../utils/assetPaths';
 
 const HERO_VIDEO_SRC = 'https://storage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4';
+// Primary homepage video (Mux player) — provided by user
+const MUX_IFRAME_SRC = "https://player.mux.com/01mywJGOo4l00f8YOasdq4nIXXI6vrrIIVTKtMN6PCeQM?autoplay=true&loop=true&muted=true&controls=false";
 
 export default function LandingPage({ user, onJoin }) {
   const navigate = useNavigate();
@@ -59,6 +61,17 @@ export default function LandingPage({ user, onJoin }) {
             {/* Hero Section */}
             <header id="hero" className="relative w-full h-screen overflow-hidden flex flex-col justify-end pb-10 sm:pb-24">
               <div className="absolute inset-0 z-0 bg-zinc-950 overflow-hidden stabilize-motion">
+                {/* Mux embed iframe as primary hero video. If iframe is blocked by CSP or fails, the image fallback will display. */}
+                <iframe
+                  title="Wakkany hero video"
+                  src={MUX_IFRAME_SRC}
+                  allow="autoplay; encrypted-media; fullscreen"
+                  allowFullScreen
+                  frameBorder="0"
+                  className="absolute inset-0 w-full h-full object-cover transition-opacity duration-700"
+                  style={{ pointerEvents: 'none' }}
+                />
+                {/* Secondary HTML5 fallback (kept as backup) */}
                 {!videoError && (
                   <video
                     src={HERO_VIDEO_SRC}
@@ -68,7 +81,7 @@ export default function LandingPage({ user, onJoin }) {
                     playsInline
                     controls={false}
                     preload="auto"
-                    className="video-background absolute inset-0 w-full h-full object-cover transition-opacity duration-700 opacity-100"
+                    className={`video-background absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${videoError ? 'opacity-0' : 'opacity-100'}`}
                     onError={() => setVideoError(true)}
                   />
                 )}
@@ -109,7 +122,7 @@ export default function LandingPage({ user, onJoin }) {
                       <div className="glass-panel flex items-center py-3 px-5 sm:py-4 sm:px-6 rounded-2xl">
                         <div className="flex flex-col">
                           <span className="text-[9px] text-zinc-300 font-black uppercase tracking-widest">Utilisateurs Actifs</span>
-                          <span className="text-white font-heading font-bold italic text-xl">12,450+ </span>
+                          <span className="text-white font-heading font-bold italic text-xl">17,039+ </span>
                         </div>
                       </div>
                     </div>
@@ -130,7 +143,7 @@ export default function LandingPage({ user, onJoin }) {
                 <div className="mt-auto mb-6 sm:mb-12 flex flex-col items-center gap-5 sm:gap-8 w-full">
                   <a href="#lore" onClick={(e) => { e.preventDefault(); document.getElementById('lore')?.scrollIntoView({ behavior: 'smooth' }); }} className="flex flex-col items-center opacity-40 hover:opacity-100 transition-opacity cursor-pointer">
                     <span className="text-[8px] font-black uppercase tracking-[0.5em] mb-2 text-white">Défiler vers l'Aube</span>
-                    <iconify-icon icon="mdi:chevron-down" width="16" className="animate-bounce text-white"></iconify-icon>
+                    <iconify-icon icon="mdi:chevron-down" width="18" className="animate-bounce text-white"></iconify-icon>
                   </a>
                   
                   <button
