@@ -10,13 +10,19 @@ import { AvatarCarousel } from '../routes/lazyComponents';
 import ScrollReveal from '../components/common/ScrollReveal';
 import { ASSET_PATHS } from '../utils/assetPaths';
 
-const HERO_VIDEO_SRC = 'https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
+const HERO_VIDEO_SRC = 'https://storage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4';
 
 export default function LandingPage({ user, onJoin }) {
   const navigate = useNavigate();
   const [landingTab, setLandingTab] = useState(null);
   const [activeChar, setActiveChar] = useState('bledja');
   const [videoError, setVideoError] = useState(false);
+
+  const heroAnimals = [
+    { label: 'Renard', src: ASSET_PATHS.images.heroes.clanFoxWarrior },
+    { label: 'Tigre', src: ASSET_PATHS.images.heroes.clanTigerWarrior },
+    { label: 'Loup', src: ASSET_PATHS.images.heroes.clanWolfWarrior },
+  ];
 
   const handleJoinClick = () => {
     if (user) {
@@ -53,18 +59,19 @@ export default function LandingPage({ user, onJoin }) {
             {/* Hero Section */}
             <header id="hero" className="relative w-full h-screen overflow-hidden flex flex-col justify-end pb-10 sm:pb-24">
               <div className="absolute inset-0 z-0 bg-zinc-950 overflow-hidden stabilize-motion">
-                <video
-                  src={HERO_VIDEO_SRC}
-                  autoPlay
-                  muted
-                  loop
-                  playsInline
-                  controls={false}
-                  preload="auto"
-                  className={`video-background transition-opacity duration-700 ${videoError ? 'opacity-0' : 'opacity-100'}`}
-                  style={{ minHeight: '100%', minWidth: '100%' }}
-                  onError={() => setVideoError(true)}
-                />
+                {!videoError && (
+                  <video
+                    src={HERO_VIDEO_SRC}
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    controls={false}
+                    preload="auto"
+                    className="video-background absolute inset-0 w-full h-full object-cover transition-opacity duration-700 opacity-100"
+                    onError={() => setVideoError(true)}
+                  />
+                )}
                 <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-zinc-950/80"></div>
                 <img
                   src={ASSET_PATHS.images.wakkany.main}
@@ -74,6 +81,17 @@ export default function LandingPage({ user, onJoin }) {
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_0%,_#09090b_70%)] opacity-60"></div>
                 <div className="absolute inset-0 bg-yellow-500/20 mix-blend-overlay"></div>
                 <div className="absolute inset-0 bg-yellow-500/5 pointer-events-none"></div>
+
+                <div className="absolute left-1/2 bottom-10 z-20 -translate-x-1/2 flex items-center gap-4 bg-black/30 border border-white/10 backdrop-blur-xl rounded-full px-4 py-3 shadow-2xl">
+                  {heroAnimals.map((animal) => (
+                    <div key={animal.label} className="flex flex-col items-center gap-2 text-center">
+                      <div className="w-20 h-20 rounded-full overflow-hidden border border-white/10 shadow-lg bg-zinc-900">
+                        <img src={animal.src} alt={animal.label} className="w-full h-full object-cover" />
+                      </div>
+                      <span className="text-xs uppercase tracking-[0.25em] text-white/90">{animal.label}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
 
               <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-8 h-full flex flex-col pt-20 sm:pt-40">
