@@ -19,6 +19,7 @@ export default function LandingPage({ user, onJoin }) {
   const [landingTab, setLandingTab] = useState(null);
   const [activeChar, setActiveChar] = useState('bledja');
   const [videoError, setVideoError] = useState(false);
+  const [localVideoError, setLocalVideoError] = useState(false);
 
   const heroAnimals = [
     { label: 'Renard', src: ASSET_PATHS.images.heroes.clanFoxWarrior },
@@ -61,20 +62,10 @@ export default function LandingPage({ user, onJoin }) {
             {/* Hero Section */}
             <header id="hero" className="relative w-full h-screen overflow-hidden flex flex-col justify-end pb-10 sm:pb-24">
               <div className="absolute inset-0 z-0 bg-zinc-950 overflow-hidden stabilize-motion">
-                {/* Mux embed iframe as primary hero video. If iframe is blocked by CSP or fails, the image fallback will display. */}
-                <iframe
-                  title="Wakkany hero video"
-                  src={MUX_IFRAME_SRC}
-                  allow="autoplay; encrypted-media; fullscreen"
-                  allowFullScreen
-                  frameBorder="0"
-                  className="absolute inset-0 w-full h-full object-cover transition-opacity duration-700"
-                  style={{ pointerEvents: 'none' }}
-                />
-                {/* Secondary HTML5 fallback (kept as backup) */}
-                {!videoError && (
+                {/* Primary: local hero video if present at /assets/hero.mp4 */}
+                {!localVideoError && (
                   <video
-                    src={HERO_VIDEO_SRC}
+                    src="/assets/hero.mp4"
                     autoPlay
                     muted
                     loop
@@ -82,8 +73,36 @@ export default function LandingPage({ user, onJoin }) {
                     controls={false}
                     preload="auto"
                     className={`video-background absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${videoError ? 'opacity-0' : 'opacity-100'}`}
-                    onError={() => setVideoError(true)}
+                    onError={() => setLocalVideoError(true)}
                   />
+                )}
+
+                {/* If local video not available, fall back to Mux iframe then remote sample video */}
+                {localVideoError && (
+                  <>
+                    <iframe
+                      title="Wakkany hero video"
+                      src={MUX_IFRAME_SRC}
+                      allow="autoplay; encrypted-media; fullscreen"
+                      allowFullScreen
+                      frameBorder="0"
+                      className="absolute inset-0 w-full h-full object-cover transition-opacity duration-700"
+                      style={{ pointerEvents: 'none' }}
+                    />
+                    {!videoError && (
+                      <video
+                        src={HERO_VIDEO_SRC}
+                        autoPlay
+                        muted
+                        loop
+                        playsInline
+                        controls={false}
+                        preload="auto"
+                        className={`video-background absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${videoError ? 'opacity-0' : 'opacity-100'}`}
+                        onError={() => setVideoError(true)}
+                      />
+                    )}
+                  </>
                 )}
                 <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-zinc-950/80"></div>
                 <img
