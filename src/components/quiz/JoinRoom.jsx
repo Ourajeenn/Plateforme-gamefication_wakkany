@@ -9,6 +9,7 @@ import { useGameRoom } from '../../hooks/useGameRoom';
 import { isSupabaseConfigured } from '../../utils/isSupabaseConfigured';
 import { useSoundFX } from '../../hooks/useSoundFX';
 import Button from '../common/Button';
+const SUPABASE_UNAVAILABLE_MESSAGE = import.meta.env.VITE_SUPABASE_UNAVAILABLE_MESSAGE || 'Multijoueur indisponible : variables Supabase manquantes en production. Vérifiez VITE_SUPABASE_URL et VITE_SUPABASE_ANON_KEY.';
 
 export default function JoinRoom() {
   const navigate       = useNavigate();
@@ -29,7 +30,7 @@ export default function JoinRoom() {
   const handleJoin = useCallback(async () => {
     if (!code.trim() || !pseudo.trim()) return;
     if (!isConfigured) {
-      setError('Multijoueur indisponible : variables Supabase non configurées.');
+      setError(import.meta.env.VITE_SUPABASE_UNAVAILABLE_MESSAGE || 'Multijoueur indisponible : variables Supabase non configurées.');
       return;
     }
 
@@ -157,7 +158,7 @@ export default function JoinRoom() {
 
           {!isConfigured && (
             <div className="mb-4 p-3 rounded-xl bg-yellow-900/30 border border-yellow-500/30 text-yellow-200 text-sm">
-              Multijoueur indisponible : variables Supabase manquantes en production. Vérifiez VITE_SUPABASE_URL et VITE_SUPABASE_ANON_KEY.
+                  {SUPABASE_UNAVAILABLE_MESSAGE}
             </div>
           )}
 

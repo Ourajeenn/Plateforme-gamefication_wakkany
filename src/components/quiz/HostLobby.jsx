@@ -27,6 +27,7 @@ export default function HostLobby() {
   const { room, players, myPlayer, loading, error, createRoom, startGame, leaveRoom } = useGameRoom();
   const isConfigured = isSupabaseConfigured();
   const { playClick, playCountdownBeep, playCountdownGo, playLevelUp } = useSoundFX();
+  const SUPABASE_UNAVAILABLE_MESSAGE = import.meta.env.VITE_SUPABASE_UNAVAILABLE_MESSAGE || 'Multijoueur indisponible : variables Supabase manquantes en production. Vérifiez VITE_SUPABASE_URL et VITE_SUPABASE_ANON_KEY.';
 
   // Étape : 'setup' | 'lobby'
   const [step, setStep]     = useState('setup');
@@ -44,7 +45,7 @@ export default function HostLobby() {
   const handleCreate = useCallback(async () => {
     if (!pseudo.trim()) return;
     if (!isConfigured) {
-      setError('Multijoueur indisponible : variables Supabase non configurées.');
+      setError(import.meta.env.VITE_SUPABASE_UNAVAILABLE_MESSAGE || 'Multijoueur indisponible : variables Supabase non configurées.');
       return;
     }
 
@@ -203,7 +204,7 @@ export default function HostLobby() {
 
           {!isConfigured && (
             <div className="mb-4 p-3 rounded-xl bg-yellow-900/30 border border-yellow-500/30 text-yellow-200 text-sm">
-              Multijoueur indisponible : variables Supabase manquantes en production. Vérifiez VITE_SUPABASE_URL et VITE_SUPABASE_ANON_KEY.
+                  {SUPABASE_UNAVAILABLE_MESSAGE}
             </div>
           )}
 
