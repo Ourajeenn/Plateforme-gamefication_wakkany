@@ -6,6 +6,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useGameRoom } from '../../hooks/useGameRoom';
+import { isSupabaseConfigured } from '../../utils/isSupabaseConfigured';
 import { useSoundFX } from '../../hooks/useSoundFX';
 import Button from '../common/Button';
 
@@ -13,6 +14,7 @@ export default function JoinRoom() {
   const navigate       = useNavigate();
   const [searchParams] = useSearchParams();
   const { room, players, myPlayer, loading, error, joinRoom, setReady, leaveRoom } = useGameRoom();
+  const isConfigured = isSupabaseConfigured();
   const { playCountdownBeep, playCountdownGo, playLevelUp } = useSoundFX();
 
   const [step, setStep]     = useState('join'); // 'join' | 'lobby'
@@ -26,10 +28,15 @@ export default function JoinRoom() {
   // ── Rejoindre ────────────────────────────────────────────────────────────
   const handleJoin = useCallback(async () => {
     if (!code.trim() || !pseudo.trim()) return;
+    if (!isConfigured) {
+      setError('Multijoueur indisponible : variables Supabase non configurées.');
+      return;
+    }
+
     localStorage.setItem('wakkany_pseudo', pseudo.trim());
     const result = await joinRoom({ code: code.trim(), pseudo: pseudo.trim() });
     if (result) setStep('lobby');
-  }, [code, pseudo, joinRoom]);
+  }, [code, pseudo, joinRoom, isConfigured]);
 
   // ── Marquer prêt ─────────────────────────────────────────────────────────
   const handleReady = useCallback(async () => {
@@ -148,6 +155,12 @@ export default function JoinRoom() {
             />
           </div>
 
+          {!isConfigured && (
+            <div className="mb-4 p-3 rounded-xl bg-yellow-900/30 border border-yellow-500/30 text-yellow-200 text-sm">
+              Multijoueur indisponible : variables Supabase manquantes en production. Vérifiez VITE_SUPABASE_URL et VITE_SUPABASE_ANON_KEY.
+            </div>
+          )}
+
           {error && (
             <div className="mb-4 p-3 rounded-xl bg-red-900/30 border border-red-500/30 text-red-400 text-sm">
               {error}
@@ -156,7 +169,7 @@ export default function JoinRoom() {
 
           <Button
             onClick={handleJoin}
-            disabled={code.length < 6 || !pseudo.trim() || loading}
+            disabled={code.length < 6 || !pseudo.trim() || loading || !isConfigured}
             className="w-full"
           >
             {loading ? 'Connexion…' : 'Rejoindre →'}

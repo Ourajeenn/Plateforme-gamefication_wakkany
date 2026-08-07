@@ -6,6 +6,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGameRoom } from '../../hooks/useGameRoom';
+import { isSupabaseConfigured } from '../../utils/isSupabaseConfigured';
 import { useSoundFX } from '../../hooks/useSoundFX';
 import Button from '../common/Button';
 
@@ -24,6 +25,7 @@ const THEMES = [
 export default function HostLobby() {
   const navigate = useNavigate();
   const { room, players, myPlayer, loading, error, createRoom, startGame, leaveRoom } = useGameRoom();
+  const isConfigured = isSupabaseConfigured();
   const { playClick, playCountdownBeep, playCountdownGo, playLevelUp } = useSoundFX();
 
   // Étape : 'setup' | 'lobby'
@@ -41,10 +43,15 @@ export default function HostLobby() {
   // ── Démarrer la création ────────────────────────────────────────────────
   const handleCreate = useCallback(async () => {
     if (!pseudo.trim()) return;
+    if (!isConfigured) {
+      setError('Multijoueur indisponible : variables Supabase non configurées.');
+      return;
+    }
+
     localStorage.setItem('wakkany_pseudo', pseudo.trim());
     const result = await createRoom({ pseudo: pseudo.trim(), mode, theme });
     if (result) setStep('lobby');
-  }, [pseudo, mode, theme, createRoom]);
+  }, [pseudo, mode, theme, createRoom, isConfigured]);
 
   // ── Copier le code ──────────────────────────────────────────────────────
   const handleCopy = useCallback(() => {
@@ -194,6 +201,12 @@ export default function HostLobby() {
             </div>
           </div>
 
+          {!isConfigured && (
+            <div className="mb-4 p-3 rounded-xl bg-yellow-900/30 border border-yellow-500/30 text-yellow-200 text-sm">
+              Multijoueur indisponible : variables Supabase manquantes en production. Vérifiez VITE_SUPABASE_URL et VITE_SUPABASE_ANON_KEY.
+            </div>
+          )}
+
           {error && (
             <div className="mb-4 p-3 rounded-xl bg-red-900/30 border border-red-500/30 text-red-400 text-sm">
               {error}
@@ -202,7 +215,7 @@ export default function HostLobby() {
 
           <Button
             onClick={handleCreate}
-            disabled={!pseudo.trim() || loading}
+            disabled={!pseudo.trim() || loading || !isConfigured}
             className="w-full"
           >
             {loading ? 'Création…' : 'Créer la salle →'}

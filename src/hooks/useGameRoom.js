@@ -9,6 +9,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '../utils/supabaseClient';
+import { isSupabaseConfigured } from '../utils/isSupabaseConfigured';
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -127,6 +128,14 @@ export function useGameRoom() {
     setLoading(true);
     setError(null);
 
+    if (!isSupabaseConfigured()) {
+      const errorMsg = 'Multijoueur indisponible : configuration Supabase manquante.';
+      console.error(errorMsg);
+      setError(errorMsg);
+      setLoading(false);
+      return null;
+    }
+
     try {
       const code = generateRoomCode();
       const expiresAt = new Date(Date.now() + 3600000).toISOString();
@@ -192,6 +201,14 @@ export function useGameRoom() {
   const joinRoom = useCallback(async ({ code, pseudo }) => {
     setLoading(true);
     setError(null);
+
+    if (!isSupabaseConfigured()) {
+      const errorMsg = 'Multijoueur indisponible : configuration Supabase manquante.';
+      console.error(errorMsg);
+      setError(errorMsg);
+      setLoading(false);
+      return null;
+    }
 
     try {
       // 1. Trouver la salle par code
