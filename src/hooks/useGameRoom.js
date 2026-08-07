@@ -11,6 +11,12 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '../utils/supabaseClient';
 import { isSupabaseConfigured } from '../utils/isSupabaseConfigured';
 
+// ── Local in-memory fallback (used when Supabase envs are missing)
+const LOCAL_STORE = {
+  rooms: new Map(), // roomId -> roomObj
+  players: new Map(), // roomId -> [playerObj]
+};
+
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
 /** Génère un code salle de 6 caractères alphanumériques */
@@ -74,6 +80,14 @@ export function useGameRoom() {
 
   // ── Chargement des joueurs ─────────────────────────────────────────────────
   const fetchPlayers = useCallback(async (roomId) => {
+    if (!isSupabaseConfigured()) {
+      const list = LOCAL_STORE.players.get(roomId) || [];
+      setPlayers(list.slice().sort((a,b) => new Date(a.joined_at) - new Date(b.joined_at)));
+      const me = list.find(p => p.device_id === deviceId.current);
+      if (me) setMyPlayer(me);
+      return;
+    }
+
     const { data, error: err } = await supabase
       .from('game_room_players')
       .select('*')
@@ -89,6 +103,11 @@ export function useGameRoom() {
 
   // ── Souscription Realtime ──────────────────────────────────────────────────
   const subscribeToRoom = useCallback((roomId) => {
+    if (!isSupabaseConfigured()) {
+      // no-op for local fallback (no realtime)
+      return;
+    }
+
     if (channelRef.current) {
       supabase.removeChannel(channelRef.current);
     }
@@ -129,11 +148,49 @@ export function useGameRoom() {
     setError(null);
 
     if (!isSupabaseConfigured()) {
-      const errorMsg = 'Multijoueur indisponible : configuration Supabase manquante.';
-      console.error(errorMsg);
-      setError(errorMsg);
-      setLoading(false);
-      return null;
+      // Local in-memory room creation fallback
+      try {
+        const code = generateRoomCode();
+        const id = generateUUID();
+        const expiresAt = new Date(Date.now() + 3600000).toISOString();
+        const roomData = {
+          id,
+          code,
+          mode,
+          theme,
+          status: 'lobby',
+          game_state: {},
+          host_id: deviceId.current,
+          expires_at: expiresAt
+        };
+        const playerData = {
+          id: generateUUID(),
+          room_id: id,
+          device_id: deviceId.current,
+          pseudo,
+          is_host: true,
+          is_ready: true,
+          joined_at: new Date().toISOString(),
+          score: 0
+        };
+
+        LOCAL_STORE.rooms.set(id, roomData);
+        LOCAL_STORE.players.set(id, [playerData]);
+
+        roomIdRef.current = id;
+        setRoom(roomData);
+        setMyPlayer(playerData);
+        setPlayers([playerData]);
+
+        return { room: roomData, player: playerData };
+      } catch (err) {
+        const errorMsg = err.message || 'Impossible de créer la salle (local).';
+        console.error(errorMsg);
+        setError(errorMsg);
+        return null;
+      } finally {
+        setLoading(false);
+      }
     }
 
     try {
@@ -203,11 +260,47 @@ export function useGameRoom() {
     setError(null);
 
     if (!isSupabaseConfigured()) {
-      const errorMsg = 'Multijoueur indisponible : configuration Supabase manquante.';
-      console.error(errorMsg);
-      setError(errorMsg);
-      setLoading(false);
-      return null;
+      // Local fallback: find room by code
+      try {
+        const roomEntry = Array.from(LOCAL_STORE.rooms.values()).find(r => r.code === code.toUpperCase() && r.status === 'lobby' && new Date(r.expires_at) > new Date());
+        if (!roomEntry) throw new Error('Salle introuvable ou partie déjà commencée.');
+
+        const roomId = roomEntry.id;
+        const playersList = LOCAL_STORE.players.get(roomId) || [];
+
+        // upsert by device_id
+        let player = playersList.find(p => p.device_id === deviceId.current);
+        if (!player) {
+          player = {
+            id: generateUUID(),
+            room_id: roomId,
+            device_id: deviceId.current,
+            pseudo,
+            is_host: false,
+            is_ready: false,
+            joined_at: new Date().toISOString(),
+            score: 0
+          };
+          playersList.push(player);
+          LOCAL_STORE.players.set(roomId, playersList);
+        } else {
+          player.pseudo = pseudo;
+          player.joined_at = new Date().toISOString();
+        }
+
+        roomIdRef.current = roomId;
+        setRoom(roomEntry);
+        setMyPlayer(player);
+        await fetchPlayers(roomId);
+        // no realtime subscribe for local
+
+        return { room: roomEntry, player };
+      } catch (err) {
+        setError(err.message || 'Impossible de rejoindre la salle.');
+        return null;
+      } finally {
+        setLoading(false);
+      }
     }
 
     try {
