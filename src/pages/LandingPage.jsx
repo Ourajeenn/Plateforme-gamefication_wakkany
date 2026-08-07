@@ -1,4 +1,4 @@
-import React, { Suspense, useState } from 'react';
+import React, { Suspense, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import HistoireView from '../components/HistoireView';
 import LandingNav from '../components/layout/LandingNav';
@@ -13,6 +13,8 @@ import { ASSET_PATHS } from '../utils/assetPaths';
 const HERO_VIDEO_SRC = 'https://storage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4';
 // Primary homepage video (Mux player) — provided by user
 const MUX_IFRAME_SRC = "https://player.mux.com/01mywJGOo4l00f8YOasdq4nIXXI6vrrIIVTKtMN6PCeQM?autoplay=true&loop=true&muted=true&controls=false";
+// Mux asset id for image fallback
+const MUX_ASSET_ID = '01mywJGOo4l00f8YOasdq4nIXXI6vrrIIVTKtMN6PCeQM';
 
 export default function LandingPage({ user, onJoin }) {
   const navigate = useNavigate();
@@ -20,6 +22,17 @@ export default function LandingPage({ user, onJoin }) {
   const [activeChar, setActiveChar] = useState('bledja');
   const [videoError, setVideoError] = useState(false);
   const [localVideoError, setLocalVideoError] = useState(false);
+  const [iframeLoaded, setIframeLoaded] = useState(false);
+  const [iframeTimedOut, setIframeTimedOut] = useState(false);
+  const [localVideoLoaded, setLocalVideoLoaded] = useState(false);
+
+  useEffect(() => {
+    // If iframe doesn't fire load within 5s, show fallback video
+    const t = setTimeout(() => {
+      if (!iframeLoaded) setIframeTimedOut(true);
+    }, 5000);
+    return () => clearTimeout(t);
+  }, [iframeLoaded]);
 
   
 
@@ -58,16 +71,43 @@ export default function LandingPage({ user, onJoin }) {
             {/* Hero Section */}
             <header id="hero" className="relative w-full h-screen overflow-hidden flex flex-col justify-end pb-10 sm:pb-24">
               <div className="absolute inset-0 z-0 bg-zinc-950 overflow-hidden stabilize-motion">
-                {/* Embed Mux player iframe for local preview. No Git push will be made without your approval. */}
+                {/* Embed Mux player iframe (primary). If it fails to load within a few seconds we show a local/video fallback. */}
                 <iframe
                   title="Wakkany hero video"
                   src={MUX_IFRAME_SRC}
                   allow="autoplay; encrypted-media; fullscreen"
                   allowFullScreen
                   frameBorder="0"
-                  className="absolute inset-0 w-full h-full object-cover transition-opacity duration-700"
-                  style={{ pointerEvents: 'auto' }}
+                  onLoad={() => setIframeLoaded(true)}
+                  className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${iframeLoaded && !iframeTimedOut ? 'opacity-100' : 'opacity-1'}`}
+                  style={{ pointerEvents: iframeLoaded ? 'auto' : 'none' }}
                 />
+
+                {/* Fallbacks: show Mux thumbnail while waiting, then a local/video fallback if iframe fails. */}
+                {!iframeLoaded && (
+                  <img
+                    src={`https://image.mux.com/${MUX_ASSET_ID}/thumbnail.jpg`}
+                    alt="Hero fallback"
+                    className="absolute inset-0 w-full h-full object-cover"
+                    onError={() => setVideoError(true)}
+                  />
+                )}
+
+                {iframeTimedOut && (
+                  <video
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${localVideoLoaded ? 'opacity-100' : 'opacity-0'}`}
+                    onCanPlay={() => { setLocalVideoLoaded(true); setLocalVideoError(false); }}
+                    onError={() => setLocalVideoError(true)}
+                  >
+                    <source src={HERO_VIDEO_SRC} type="video/mp4" />
+                    {/* last-resort: Mux mp4 (may be blocked by CORS) */}
+                    <source src={`https://image.mux.com/${MUX_ASSET_ID}/animated.gif`} type="image/gif" />
+                  </video>
+                )}
                 <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-zinc-950/80"></div>
                 <img
                   src={ASSET_PATHS.images.wakkany.main}
