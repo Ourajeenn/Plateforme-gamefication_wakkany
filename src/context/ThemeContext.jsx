@@ -1,12 +1,14 @@
 import React, { createContext, useState, useEffect } from 'react';
 
 export const ThemeContext = createContext({
-  theme: 'dark',
-  toggleTheme: () => {}
+  theme: 'default',
+  toggleTheme: () => {},
+  setTheme: (t) => {}
 });
 
 export const ThemeProvider = ({ children }) => {
-  const [theme, setTheme] = useState('dark');
+  // themes: 'default' (current), 'sombre' (dark), 'claire' (blue)
+  const [theme, setTheme] = useState('default');
 
   useEffect(() => {
     const stored = localStorage.getItem('theme');
@@ -18,10 +20,15 @@ export const ThemeProvider = ({ children }) => {
     localStorage.setItem('theme', theme);
   }, [theme]);
 
-  const toggleTheme = () => setTheme(prev => (prev === 'dark' ? 'light' : 'dark'));
+  // Cycle: default -> sombre -> claire -> default
+  const toggleTheme = () => setTheme(prev => {
+    if (prev === 'default') return 'sombre';
+    if (prev === 'sombre') return 'claire';
+    return 'default';
+  });
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+    <ThemeContext.Provider value={{ theme, toggleTheme, setTheme }}>
       {children}
     </ThemeContext.Provider>
   );

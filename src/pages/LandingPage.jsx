@@ -21,11 +21,7 @@ export default function LandingPage({ user, onJoin }) {
   const [videoError, setVideoError] = useState(false);
   const [localVideoError, setLocalVideoError] = useState(false);
 
-  const heroAnimals = [
-    { label: 'Renard', src: ASSET_PATHS.images.heroes.clanFoxWarrior },
-    { label: 'Tigre', src: ASSET_PATHS.images.heroes.clanTigerWarrior },
-    { label: 'Loup', src: ASSET_PATHS.images.heroes.clanWolfWarrior },
-  ];
+  
 
   const handleJoinClick = () => {
     if (user) {
@@ -62,48 +58,16 @@ export default function LandingPage({ user, onJoin }) {
             {/* Hero Section */}
             <header id="hero" className="relative w-full h-screen overflow-hidden flex flex-col justify-end pb-10 sm:pb-24">
               <div className="absolute inset-0 z-0 bg-zinc-950 overflow-hidden stabilize-motion">
-                {/* Primary: local hero video if present at /assets/hero.mp4 */}
-                {!localVideoError && (
-                  <video
-                    src="/assets/hero.mp4"
-                    autoPlay
-                    muted
-                    loop
-                    playsInline
-                    controls={false}
-                    preload="auto"
-                    className={`video-background absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${videoError ? 'opacity-0' : 'opacity-100'}`}
-                    onError={() => setLocalVideoError(true)}
-                  />
-                )}
-
-                {/* If local video not available, fall back to Mux iframe then remote sample video */}
-                {localVideoError && (
-                  <>
-                    <iframe
-                      title="Wakkany hero video"
-                      src={MUX_IFRAME_SRC}
-                      allow="autoplay; encrypted-media; fullscreen"
-                      allowFullScreen
-                      frameBorder="0"
-                      className="absolute inset-0 w-full h-full object-cover transition-opacity duration-700"
-                      style={{ pointerEvents: 'none' }}
-                    />
-                    {!videoError && (
-                      <video
-                        src={HERO_VIDEO_SRC}
-                        autoPlay
-                        muted
-                        loop
-                        playsInline
-                        controls={false}
-                        preload="auto"
-                        className={`video-background absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${videoError ? 'opacity-0' : 'opacity-100'}`}
-                        onError={() => setVideoError(true)}
-                      />
-                    )}
-                  </>
-                )}
+                {/* Embed Mux player iframe for local preview. No Git push will be made without your approval. */}
+                <iframe
+                  title="Wakkany hero video"
+                  src={MUX_IFRAME_SRC}
+                  allow="autoplay; encrypted-media; fullscreen"
+                  allowFullScreen
+                  frameBorder="0"
+                  className="absolute inset-0 w-full h-full object-cover transition-opacity duration-700"
+                  style={{ pointerEvents: 'auto' }}
+                />
                 <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-zinc-950/80"></div>
                 <img
                   src={ASSET_PATHS.images.wakkany.main}
@@ -114,16 +78,7 @@ export default function LandingPage({ user, onJoin }) {
                 <div className="absolute inset-0 bg-yellow-500/20 mix-blend-overlay"></div>
                 <div className="absolute inset-0 bg-yellow-500/5 pointer-events-none"></div>
 
-                <div className="absolute left-1/2 bottom-10 z-20 -translate-x-1/2 flex items-center gap-4 bg-black/30 border border-white/10 backdrop-blur-xl rounded-full px-4 py-3 shadow-2xl">
-                  {heroAnimals.map((animal) => (
-                    <div key={animal.label} className="flex flex-col items-center gap-2 text-center">
-                      <div className="w-20 h-20 rounded-full overflow-hidden border border-white/10 shadow-lg bg-zinc-900">
-                        <img src={animal.src} alt={animal.label} className="w-full h-full object-cover" />
-                      </div>
-                      <span className="text-xs uppercase tracking-[0.25em] text-white/90">{animal.label}</span>
-                    </div>
-                  ))}
-                </div>
+                {/* hero animals removed as requested */}
               </div>
 
               <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-8 h-full flex flex-col pt-20 sm:pt-40">

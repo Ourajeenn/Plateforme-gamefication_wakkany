@@ -17,6 +17,24 @@
     --color-bg-card: rgba(30,30,30,0.8);
     --font-inter: 'Inter', sans-serif;
   }
+
+  /* Claire theme (blue / light-accent) */
+  [data-theme="claire"] {
+    --color-primary: #2b6cb0;
+    --color-primary-dark: #1e4a7a;
+    --color-accent: #60a5fa;
+    --color-bg: #0b1730;
+    --color-bg-card: rgba(15,25,45,0.9);
+  }
+
+  /* Sombre theme uses the default dark variables (keeps current look) */
+  [data-theme="sombre"] {
+    --color-primary: #c28e3a;
+    --color-primary-dark: #9b722e;
+    --color-accent: #38bdf8;
+    --color-bg: #09090b;
+    --color-bg-card: rgba(20,20,20,0.8);
+  }
   *, *::before, *::after { box-sizing: border-box; }
   html {
     -webkit-tap-highlight-color: transparent;

@@ -21,10 +21,12 @@ export default function Header({ title, subtitle, onBack }) {
         )}
         <button
           onClick={toggleTheme}
-          className="text-sm p-1 rounded bg-gray-800 text-white hover:bg-gray-700 transition"
+          className="text-sm p-2 rounded bg-gray-800 text-white hover:bg-gray-700 transition flex items-center gap-2"
           aria-label="Toggle theme"
         >
-          {theme === 'dark' ? '🌞' : '🌙'}
+          {theme === 'default' && '✨ Default'}
+          {theme === 'sombre' && '🌙 Sombre'}
+          {theme === 'claire' && '🔵 Claire'}
         </button>
       </div>
     </div>
