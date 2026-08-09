@@ -16,6 +16,13 @@ const createAudio = (fileName) => {
   try {
     const fullUrl = normalizeAssetPath(fileName);
     const audio = new Audio(fullUrl);
+    // Allow cross-origin fetches for blob fallback and CORS-friendly hosting
+    try {
+      audio.crossOrigin = 'anonymous';
+    } catch (e) {
+      // ignore - some browsers may not allow setting crossOrigin on Audio
+      console.debug('[Audio] crossOrigin assignment not supported', e?.message || e);
+    }
     audio.preload = 'auto';
     audio.fallbackAttempted = false;
 
@@ -35,18 +42,19 @@ const createAudio = (fileName) => {
             const fallbackUrl = `${window.location.origin}/assets/${fileName}`;
             if (fallbackUrl !== fullUrl) {
               console.warn(`[Audio] Tentative de fallback pour ${fileName} via ${fallbackUrl}`);
-              // Try direct fallback first
               audio.src = fallbackUrl;
               audio.load();
             }
             // As a last resort, try fetching the file and using a blob URL (helps with some CORS/autoplay issues)
-            const resp = await fetch(fullUrl, { cache: 'no-cache' });
+            const resp = await fetch(fullUrl, { cache: 'no-cache', mode: 'cors' });
             if (resp.ok) {
               const blob = await resp.blob();
               const blobUrl = URL.createObjectURL(blob);
               console.warn(`[Audio] Loaded ${fileName} via fetch, using blob URL fallback.`);
               audio.src = blobUrl;
               audio.load();
+            } else {
+              console.warn(`[Audio] Fetch fallback failed for ${fileName}, status=${resp.status}`);
             }
           } catch (fetchErr) {
             console.error('[Audio] Fetch fallback failed for', fileName, fetchErr);
