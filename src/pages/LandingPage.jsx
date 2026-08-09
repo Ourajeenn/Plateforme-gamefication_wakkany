@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect, useState } from 'react';
+import React, { Suspense, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import HistoireView from '../components/HistoireView';
 import LandingNav from '../components/layout/LandingNav';
@@ -8,6 +8,7 @@ import AboutPage from './landing/AboutPage';
 import ArchetypesPage from './landing/ArchetypesPage';
 import { AvatarCarousel } from '../routes/lazyComponents';
 import ScrollReveal from '../components/common/ScrollReveal';
+import MediaDiagnostics from '../components/common/MediaDiagnostics';
 import { ASSET_PATHS } from '../utils/assetPaths';
 
 const HERO_VIDEO_SRC = 'https://storage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4';
@@ -25,6 +26,7 @@ export default function LandingPage({ user, onJoin }) {
   const [iframeLoaded, setIframeLoaded] = useState(false);
   const [iframeTimedOut, setIframeTimedOut] = useState(false);
   const [localVideoLoaded, setLocalVideoLoaded] = useState(false);
+  const localVideoRef = useRef(null);
 
   useEffect(() => {
     // If iframe doesn't fire load within 5s, show fallback video
@@ -33,6 +35,29 @@ export default function LandingPage({ user, onJoin }) {
     }, 5000);
     return () => clearTimeout(t);
   }, [iframeLoaded]);
+
+  // Try to recover local video via fetch->blob if the <video> element errors (helps with some CORS/codec edge cases)
+  const attemptFetchVideoFallback = async () => {
+    try {
+      console.warn('[LandingPage] Attempting fetch->blob fallback for HERO_VIDEO_SRC');
+      const resp = await fetch(HERO_VIDEO_SRC, { cache: 'no-cache', mode: 'cors' });
+      if (!resp.ok) {
+        console.error('[LandingPage] Fetch fallback failed, status=', resp.status);
+        return;
+      }
+      const blob = await resp.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const vid = localVideoRef.current;
+      if (vid) {
+        vid.src = blobUrl;
+        vid.load();
+        vid.play().catch((e) => console.warn('[LandingPage] play() after blob fallback blocked:', e));
+        console.warn('[LandingPage] Blob fallback applied to video element');
+      }
+    } catch (e) {
+      console.error('[LandingPage] Exception during fetch fallback for video:', e);
+    }
+  };
 
   
 
@@ -68,6 +93,7 @@ export default function LandingPage({ user, onJoin }) {
         <ArchetypesPage onBack={goHome} onJoin={handleJoinClick} />
       ) : (
         <>
+          <MediaDiagnostics />
             {/* Hero Section */}
             <header id="hero" className="relative w-full h-screen overflow-hidden flex flex-col justify-end pb-10 sm:pb-24">
               <div className="absolute inset-0 z-0 bg-zinc-950 overflow-hidden stabilize-motion">
@@ -95,13 +121,15 @@ export default function LandingPage({ user, onJoin }) {
 
                 {iframeTimedOut && (
                   <video
+                    ref={localVideoRef}
                     autoPlay
                     loop
                     muted
                     playsInline
                     className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${localVideoLoaded ? 'opacity-100' : 'opacity-0'}`}
-                    onCanPlay={() => { setLocalVideoLoaded(true); setLocalVideoError(false); }}
-                    onError={() => setLocalVideoError(true)}
+                    onCanPlay={() => { setLocalVideoLoaded(true); setLocalVideoError(false); console.log('[LandingPage] local video canplay'); }}
+                    onLoadedData={() => { setLocalVideoLoaded(true); setLocalVideoError(false); console.log('[LandingPage] local video loadeddata'); }}
+                    onError={(e) => { console.error('[LandingPage] local video error', e); setLocalVideoError(true); attemptFetchVideoFallback(); }}
                   >
                     <source src={HERO_VIDEO_SRC} type="video/mp4" />
                     {/* last-resort: Mux mp4 (may be blocked by CORS) */}
