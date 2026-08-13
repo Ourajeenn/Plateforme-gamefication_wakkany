@@ -64,25 +64,28 @@ export function useFamilyGame() {
 
   // Start countdown logic (avec sons)
   useEffect(() => {
-    let timer;
-    if (gameState === 'starting' && startCountdown > 0) {
-      stopBgMusic();
-      playCountdownBeep();
-      timer = setInterval(() => {
-        setStartCountdown(prev => {
-          const next = prev - 1;
-          if (next > 0) playCountdownBeep();
-          else playCountdownGo();
-          return next;
-        });
-      }, 1000);
-    } else if (gameState === 'starting' && startCountdown === 0) {
-      setGameState('playing');
-      setIsTimerRunning(true);
-      setQuestionStartTime(Date.now());
-    }
-    return () => clearInterval(timer);
-  }, [gameState, startCountdown, playCountdownBeep, playCountdownGo, stopBgMusic]);
+    if (gameState !== 'starting') return;
+
+    stopBgMusic();
+
+    const countdownInterval = setInterval(() => {
+      setStartCountdown(prev => {
+        if (prev <= 1) {
+          clearInterval(countdownInterval);
+          playCountdownGo();
+          setGameState('playing');
+          setIsTimerRunning(true);
+          setQuestionStartTime(Date.now());
+          return 0;
+        }
+
+        playCountdownBeep();
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(countdownInterval);
+  }, [gameState, playCountdownBeep, playCountdownGo, stopBgMusic]);
 
   const handleAnswer = useCallback((selectedAnswer) => {
     setIsTimerRunning(false);

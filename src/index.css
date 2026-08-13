@@ -13,28 +13,36 @@
     --color-primary: #c28e3a;
     --color-primary-dark: #9b722e;
     --color-accent: #38bdf8;
-    --color-bg: #121212;
-    --color-bg-card: rgba(30,30,30,0.8);
+    --color-bg: #09090b;
+    --color-bg-card: rgba(20,20,20,0.8);
+    --color-text: #f5f5f5;
+    --color-text-soft: rgba(255,255,255,0.7);
+    --color-surface: rgba(24,24,27,0.78);
     --font-inter: 'Inter', sans-serif;
   }
 
-  /* Claire theme (blue / light-accent) */
   [data-theme="claire"] {
-    --color-primary: #2b6cb0;
-    --color-primary-dark: #1e4a7a;
-    --color-accent: #60a5fa;
-    --color-bg: #0b1730;
-    --color-bg-card: rgba(15,25,45,0.9);
+    --color-primary: #d1a24c;
+    --color-primary-dark: #ad7d2a;
+    --color-accent: #3b82f6;
+    --color-bg: #f4efe9;
+    --color-bg-card: rgba(255,255,255,0.78);
+    --color-text: #17181d;
+    --color-text-soft: rgba(23,24,29,0.74);
+    --color-surface: rgba(255,255,255,0.7);
   }
 
-  /* Sombre theme uses the default dark variables (keeps current look) */
   [data-theme="sombre"] {
     --color-primary: #c28e3a;
     --color-primary-dark: #9b722e;
     --color-accent: #38bdf8;
     --color-bg: #09090b;
     --color-bg-card: rgba(20,20,20,0.8);
+    --color-text: #f5f5f5;
+    --color-text-soft: rgba(255,255,255,0.7);
+    --color-surface: rgba(24,24,27,0.78);
   }
+
   *, *::before, *::after { box-sizing: border-box; }
   html {
     -webkit-tap-highlight-color: transparent;
@@ -44,19 +52,36 @@
     width: 100%;
     overflow-x: hidden;
     overflow-y: auto;
+    background: var(--color-bg);
   }
   body {
     font-family: var(--font-inter);
     background-color: var(--color-bg);
-    color: #fff;
+    color: var(--color-text);
     width: 100%;
     min-height: 100vh;
     overflow-y: auto;
     -webkit-overflow-scrolling: auto;
     -webkit-tap-highlight-color: transparent;
     -webkit-touch-callout: none;
+    transition: background-color 0.25s ease, color 0.25s ease;
   }
   h1, h2, h3, h4, h5, h6, .font-heading { font-family: 'Cinzel', serif; }
+
+  .glass-panel {
+    background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
+    border: 1px solid rgba(255,255,255,0.12);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.18), inset 0 1px 0 rgba(255,255,255,0.08);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+
+  [data-theme="claire"] .glass-panel,
+  [data-theme="claire"] .glass-card {
+    background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(255,255,255,0.72));
+    border-color: rgba(15,23,42,0.08);
+    box-shadow: 0 18px 35px rgba(15,23,42,0.08), inset 0 1px 0 rgba(255,255,255,0.6);
+  }
 }
 
 /* Utility layer */

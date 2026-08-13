@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Icon from '../common/Icons.jsx';
+import { ThemeContext } from '../../context/ThemeContext';
 
 export default function LandingNav({ user, landingTab, setLandingTab, onJoin }) {
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { theme, toggleTheme } = useContext(ThemeContext);
 
   const goHome = () => {
     navigate('/');
@@ -35,7 +37,17 @@ export default function LandingNav({ user, landingTab, setLandingTab, onJoin }) 
         <button type="button" onClick={() => setLandingTab('blog')} className={`transition-all hover:text-[#c28e3a] ${landingTab === 'blog' ? 'text-[#c28e3a]' : 'text-zinc-500'}`}>HISTOIRE</button>
       </div>
 
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3 sm:gap-4">
+        <button
+          type="button"
+          onClick={toggleTheme}
+          className="hidden sm:inline-flex items-center justify-center h-10 w-10 rounded-full border border-white/10 bg-white/5 text-white hover:bg-white/10 transition-colors"
+          aria-label={theme === 'sombre' ? 'Passer en mode clair' : 'Passer en mode sombre'}
+          title={theme === 'sombre' ? 'Mode clair' : 'Mode sombre'}
+        >
+          {theme === 'sombre' ? '☀️' : '🌙'}
+        </button>
+
         <button
           type="button"
           onClick={onJoin}

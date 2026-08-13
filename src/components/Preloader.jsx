@@ -5,13 +5,6 @@ export default function Preloader({ onComplete }) {
   const { playPreloaderLightning } = useSoundFX();
   const bgMusic = getBgMusic();
   const [bgImageLoaded, setBgImageLoaded] = useState(false);
-  const [soundEnabled, setSoundEnabled] = useState(() => {
-    try {
-      return !!(bgMusic && !bgMusic.paused);
-    } catch (e) {
-      return false;
-    }
-  });
 
   useEffect(() => {
     // Tente de lancer la musique immédiatement (souvent bloqué par le navigateur)
@@ -53,17 +46,6 @@ export default function Preloader({ onComplete }) {
     // Play lightning sound and finish preloader
     playPreloaderLightning();
     onComplete();
-  };
-
-  const attemptEnableSound = async () => {
-    if (!bgMusic) return;
-    try {
-      await bgMusic.play();
-      setSoundEnabled(true);
-      console.log('[Preloader] Son activé par l\'utilisateur');
-    } catch (e) {
-      console.log('[Preloader] Impossible d\'activer le son :', e);
-    }
   };
 
   return (
@@ -141,15 +123,6 @@ export default function Preloader({ onComplete }) {
       {/* Conteneur de positionnement du bouton */}
 
       <div className="absolute bottom-[15%] left-1/2 -translate-x-1/2 flex flex-col items-center gap-4">
-        {/* Bouton explicite pour activer le son (utile pour autoplay bloqué) */}
-        {!soundEnabled && bgMusic && (
-          <button
-            onClick={attemptEnableSound}
-            className="px-6 py-2 text-sm font-semibold rounded-md bg-zinc-900 text-white/90 border border-white/10 hover:bg-zinc-800 transition"
-          >
-            Activer le son
-          </button>
-        )}
         {/* Bouton START avec animation de respiration (breathe) */}
         <button 
           onClick={handleStart}

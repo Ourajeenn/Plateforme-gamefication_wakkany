@@ -1,31 +1,27 @@
 import React, { createContext, useState, useEffect } from 'react';
 
+const getInitialTheme = () => {
+  const savedTheme = typeof window !== 'undefined' ? localStorage.getItem('theme') : null;
+  return savedTheme === 'claire' || savedTheme === 'sombre' ? savedTheme : 'sombre';
+};
+
 export const ThemeContext = createContext({
-  theme: 'default',
+  theme: 'sombre',
   toggleTheme: () => {},
-  setTheme: (t) => {}
+  setTheme: () => {}
 });
 
 export const ThemeProvider = ({ children }) => {
-  // themes: 'default' (current), 'sombre' (dark), 'claire' (blue)
-  const [theme, setTheme] = useState('default');
-
-  useEffect(() => {
-    const stored = localStorage.getItem('theme');
-    if (stored) setTheme(stored);
-  }, []);
+  const [theme, setTheme] = useState(getInitialTheme);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('theme', theme);
   }, [theme]);
 
-  // Cycle: default -> sombre -> claire -> default
-  const toggleTheme = () => setTheme(prev => {
-    if (prev === 'default') return 'sombre';
-    if (prev === 'sombre') return 'claire';
-    return 'default';
-  });
+  const toggleTheme = () => {
+    setTheme(prev => (prev === 'sombre' ? 'claire' : 'sombre'));
+  };
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme, setTheme }}>

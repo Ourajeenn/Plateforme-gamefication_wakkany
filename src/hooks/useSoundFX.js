@@ -96,8 +96,12 @@ const getThunderAudio = () => getAudioAsset('thunder.mp3');
 export const useSoundFX = () => {
   const playSound = useCallback((freq, type, duration, volume = 0.1) => {
     try {
+      if (typeof window === 'undefined') return;
+      const AudioCtor = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtor) return;
+
       if (!sharedAudioCtx) {
-        sharedAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        sharedAudioCtx = new AudioCtor();
       }
 
       if (sharedAudioCtx.state === 'suspended') {

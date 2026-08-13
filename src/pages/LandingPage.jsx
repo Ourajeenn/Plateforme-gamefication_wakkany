@@ -204,26 +204,19 @@ export default function LandingPage({ user, onJoin }) {
               </div>
             </header>
 
-            {/* Section Appel à l'Action (Steam & Discord) */}
+            {/* Section Appel à l'Action (Discord) */}
             <section className="bg-gradient-to-b from-white to-gray-100 pt-16 pb-20 sm:pt-24 sm:pb-28 text-center border-t border-gray-200 relative z-10">
               <div className="max-w-5xl mx-auto px-4 sm:px-6 relative z-10">
                 <ScrollReveal animation="fade-up" duration={800}>
                   <h2 className="text-zinc-900 text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight font-heading italic uppercase mb-4 text-shadow-sm">LE COVENANT EST EN ATTENTE</h2>
                   <div className="w-12 h-1 bg-[#c28e3a] mx-auto mb-8"></div>
                   <p className="text-zinc-800 text-base sm:text-lg md:text-xl font-monda leading-relaxed mb-10">
-                    Choisissez votre bête, aiguisez votre lame, et entrez dans un monde qui riposte. Wakkany est gratuit sur Steam — pas de barrières, pas de chaînes. Rejoignez la communauté sur Discord pour forger vos alliances.
+                    Choisissez votre bête, aiguisez votre lame, et entrez dans un monde qui riposte. Rejoignez la communauté sur Discord pour forger vos alliances.
                   </p>
                 </ScrollReveal>
                 <ScrollReveal animation="scale-up" delay={200} duration={800}>
-                  <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-                    <a href="https://store.steampowered.com/app/wakkany" target="_blank" rel="noreferrer" className="group flex items-center gap-4 bg-zinc-900 text-white px-8 py-4 rounded-xl transition-all hover:bg-black hover:scale-105 shadow-xl w-full sm:w-auto">
-                      <iconify-icon icon="simple-icons:steam" width="28" height="28" className="text-white group-hover:text-gray-300 block"></iconify-icon>
-                      <div className="text-left border-l border-white/20 pl-4">
-                        <div className="text-xs uppercase tracking-[0.2em] text-gray-400 font-medium mb-1">Liste de souhaits sur</div>
-                        <div className="text-xl font-bold tracking-wider font-heading">STEAM</div>
-                      </div>
-                    </a>
-                    <a href="https://discord.gg/wakkany" target="_blank" rel="noreferrer" className="group flex items-center gap-4 bg-[#5865F2] text-white px-8 py-4 rounded-xl transition-all hover:bg-[#4752C4] hover:scale-105 shadow-xl w-full sm:w-auto">
+                  <div className="flex justify-center">
+                    <a href="https://discord.gg/wakkany" target="_blank" rel="noreferrer" className="group flex items-center justify-center gap-4 bg-[#5865F2] text-white px-8 py-4 rounded-[28px] transition-all hover:bg-[#4752C4] hover:scale-[1.02] shadow-xl w-full sm:w-auto min-w-[280px]">
                       <iconify-icon icon="simple-icons:discord" width="28" height="28" className="text-white block"></iconify-icon>
                       <div className="text-left border-l border-white/20 pl-4">
                         <div className="text-xs uppercase tracking-[0.2em] text-white/80 font-medium mb-1">Rejoignez la Meute</div>
@@ -510,7 +503,7 @@ export default function LandingPage({ user, onJoin }) {
               
               {/* Overlapping Footer Image */}
               <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-[40%] md:-translate-y-[50%] w-full max-w-6xl z-20 pointer-events-none flex justify-center px-4">
-                <img src="https://i.postimg.cc/9MzzCfVb/footer.png" alt="Alignement des Champions" loading="lazy" decoding="async" className="w-full h-auto max-h-[600px] object-contain drop-shadow-2xl" />
+                <img src="https://i.postimg.cc/9MzzCfVb/footer.png" alt="Footer Lineup" loading="lazy" decoding="async" className="w-full h-auto max-h-[600px] object-contain drop-shadow-2xl rounded-[28px]" />
               </div>
 
               <div className="relative z-10 w-full max-w-7xl mx-auto px-6 mt-16 md:mt-24">
