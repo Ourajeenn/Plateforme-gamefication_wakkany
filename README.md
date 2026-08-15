@@ -177,11 +177,20 @@ docker run -p 8080:80 wakkany
 
 ### Vercel (recommandé)
 
-Le projet est configuré pour un déploiement automatique via Vercel :
+Nous utilisons la Git Integration Vercel (push → Vercel) :
+
 - **Branch `main`** → production
 - **Branch `dev`** → preview
 
-La configuration est dans [`vercel.json`](./vercel.json).
+Configuration recommandée :
+
+1. Connecter le repo GitHub à Vercel via le Dashboard (Settings → Git).
+2. Vérifier que la branche `main` est listée en Production Branches.
+3. Ajouter les variables d'environnement (`VITE_*`) dans Vercel (Settings → Environment Variables).
+4. Laisser GitHub Actions exécuter **seulement** le CI (lint, tests, scans, build).
+5. Supprimer tout job `deploy_vercel` et tous les secrets Vercel de GitHub (no VERCEL_TOKEN in Actions).
+
+Vercel lira le code directement depuis GitHub, récupérera les variables d'environnement depuis son tableau de bord, effectuera le build et déploiera automatiquement. Voir [`vercel.json`](./vercel.json) pour la configuration du projet.
 
 ### Docker / Self-hosted
 
