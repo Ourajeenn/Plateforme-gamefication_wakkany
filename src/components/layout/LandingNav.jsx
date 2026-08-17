@@ -22,9 +22,14 @@ export default function LandingNav({ user, landingTab, setLandingTab, onJoin }) 
   return (
     <nav className="fixed top-0 left-0 w-full glass-panel border-b border-white/10 flex items-center justify-between px-4 sm:px-8 py-3 sm:py-4 z-[100] shadow-[0_18px_50px_rgba(0,0,0,0.35)]" style={{ transform: 'translateZ(0)', willChange: 'transform' }}>
       <div className="flex items-center gap-3 group cursor-pointer" onClick={goHome}>
-        <div className="relative">
-          <Icon name="triangleLogo" width={32} height={32} className="text-[#c28e3a] rotate-180" />
-          <div className="absolute inset-0 bg-[#c28e3a] blur-xl opacity-0 group-hover:opacity-40 transition-opacity"></div>
+        <div className="relative w-8 h-8 sm:w-10 sm:h-10">
+          <img
+            src="/assets/scarab-logo.png"
+            alt="Wakkany logo"
+            className="w-full h-full object-contain rounded-md"
+            onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = '/assets/wakkany_1.webp'; }}
+          />
+          <div className="absolute inset-0 bg-[#c28e3a] blur-xl opacity-0 group-hover:opacity-40 transition-opacity rounded-md"></div>
         </div>
         <span className="text-white font-heading font-bold italic tracking-tighter uppercase text-lg sm:text-xl">Wakkany</span>
       </div>
