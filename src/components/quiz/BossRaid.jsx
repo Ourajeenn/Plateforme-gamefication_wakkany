@@ -122,8 +122,8 @@ export default function BossRaid() {
 
   // Trigger visual FX on answer
   useEffect(() => {
-    if (lastAnswerCorrect === true)  { sfx('hit');  setSlashActive(true);  setTimeout(() => setSlashActive(false), 700); }
-    if (lastAnswerCorrect === false) { sfx('dmg');  setShakeScreen(true); setTimeout(() => setShakeScreen(false), 600); }
+    if (lastAnswerCorrect === true)  { sfx('hit');  setSlashActive(true);  setTimeout(() => setSlashActive(false), 600); }
+    if (lastAnswerCorrect === false) { sfx('dmg');  setShakeScreen(true); setTimeout(() => setShakeScreen(false), 500); }
   }, [lastAnswerCorrect]);
 
   useEffect(() => {

@@ -36,7 +36,7 @@ export default function WaitlistPage({ onBack }) {
               <form onSubmit={(e) => {
                 e.preventDefault();
                 setWaitlistStatus('loading');
-                setTimeout(() => setWaitlistStatus('success'), 1500);
+                setTimeout(() => setWaitlistStatus('success'), 1000);
               }} className="space-y-6"
               >
                 <div>

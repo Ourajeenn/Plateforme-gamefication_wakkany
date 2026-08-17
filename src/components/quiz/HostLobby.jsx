@@ -59,7 +59,7 @@ export default function HostLobby() {
     if (!room?.code) return;
     navigator.clipboard.writeText(room.code).catch(() => {});
     setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    setTimeout(() => setCopied(false), 1200);
   }, [room?.code]);
 
   // ── Lancer le décompte puis la partie ──────────────────────────────────

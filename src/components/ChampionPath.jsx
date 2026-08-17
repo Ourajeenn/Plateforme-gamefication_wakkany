@@ -50,7 +50,7 @@ export default function ChampionPath({ userClan }) {
     if (newLevel > level) {
       setLevel(newLevel);
       setJustLeveledUp(true);
-      setTimeout(() => setJustLeveledUp(false), 3000);
+      setTimeout(() => setJustLeveledUp(false), 1500);
     }
   }, [xp, level]);
 

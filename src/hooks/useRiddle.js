@@ -29,7 +29,7 @@ export default function useRiddle() {
     setError(null);
 
     // Artificial delay to simulate AI thinking
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
     try {
       // In a real app, you would fetch from your API here

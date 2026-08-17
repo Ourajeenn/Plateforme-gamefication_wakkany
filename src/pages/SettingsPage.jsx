@@ -63,7 +63,7 @@ export default function SettingsPage() {
     localStorage.setItem('wakkany_language', language);
 
     setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+    setTimeout(() => setSaved(false), 1200);
   };
 
   const handleReset = () => {

@@ -180,11 +180,11 @@ export default function FamilyGame() {
     if (opt === currentQuestion.answer) {
       setActiveSlash(true);
       playQuizSFX('slash');
-      setTimeout(() => setActiveSlash(false), 900);
+      setTimeout(() => setActiveSlash(false), 600);
     } else {
       setActiveHit(true);
       playQuizSFX('hit');
-      setTimeout(() => setActiveHit(false), 900);
+      setTimeout(() => setActiveHit(false), 600);
     }
     handleAnswer(opt);
   };
