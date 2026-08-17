@@ -5,7 +5,6 @@ import { useSoundFX } from './useSoundFX';
 export function useFamilyGame() {
   const { playCountdownBeep, playCountdownGo, stopBgMusic } = useSoundFX();
   const [gameState, setGameState] = useState('home'); // 'home', 'profile', 'setup', 'starting', 'playing', 'results'
-  const [gameConfig, setGameConfig] = useState({ theme: null, mode: 'coop', players: [], difficulty: 'hunter', timerLimit: 8 });
   const [questions, setQuestions] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   
@@ -22,8 +21,9 @@ export function useFamilyGame() {
   const [bossName, setBossName] = useState("Golem de Faille");
 
   // Timer state
-  const [startCountdown, setStartCountdown] = useState(3);
-  const [timeLeft, setTimeLeft] = useState(8);
+  const [gameConfig, setGameConfig] = useState({ theme: null, mode: 'coop', players: [], difficulty: 'hunter', timerLimit: 5 });
+  const [startCountdown, setStartCountdown] = useState(2);
+  const [timeLeft, setTimeLeft] = useState(5);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
 
   // Load questions based on config
@@ -56,9 +56,9 @@ export function useFamilyGame() {
     setAnswersHistory([]);
     setSpeedBonus(0);
     setQuestionStartTime(null);
-    setStartCountdown(3);
+    setStartCountdown(2);
     setGameState('starting');
-    setTimeLeft(config.timerLimit || 8);
+    setTimeLeft(config.timerLimit || 5);
     setIsTimerRunning(false);
   }, []);
 
@@ -189,7 +189,7 @@ export function useFamilyGame() {
         setIsTimerRunning(true);
         setQuestionStartTime(Date.now());
       }
-    }, 2000);
+    }, 1200);
   }, [currentQuestionIndex, questions, streak, score, gameConfig, bossHp, teamHp, questionStartTime]);
 
   const handleAnswerRef = useRef(handleAnswer);
