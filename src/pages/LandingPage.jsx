@@ -502,7 +502,7 @@ export default function LandingPage({ user, onJoin }) {
             <footer className="relative bg-black pt-48 pb-12 flex flex-col items-center border-t border-white/5">
               
               {/* Overlapping Footer Image */}
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-[40%] md:-translate-y-[50%] w-full max-w-6xl z-20 pointer-events-none flex justify-center px-4">
+              <div className="relative w-full flex justify-center -mt-[30%] md:-mt-[35%] z-50 pointer-events-none px-4">
                 {/* Footer image: prefer local optimized asset in /public/assets, fall back to external host if missing. */}
                 <picture>
                   <source srcSet="/assets/footer.webp" type="image/webp" />
