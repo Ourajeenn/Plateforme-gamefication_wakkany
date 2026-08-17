@@ -24,10 +24,10 @@ export default function LandingNav({ user, landingTab, setLandingTab, onJoin }) 
       <div className="flex items-center gap-3 group cursor-pointer" onClick={goHome}>
         <div className="relative w-8 h-8 sm:w-10 sm:h-10">
           <img
-            src="/assets/scarab-logo.png"
+            src="/assets/wakkany_1.webp"
             alt="Wakkany logo"
             className="w-full h-full object-contain rounded-md"
-            onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = '/assets/wakkany_1.webp'; }}
+            onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = '/assets/scarab-logo.png'; }}
           />
           <div className="absolute inset-0 bg-[#c28e3a] blur-xl opacity-0 group-hover:opacity-40 transition-opacity rounded-md"></div>
         </div>
