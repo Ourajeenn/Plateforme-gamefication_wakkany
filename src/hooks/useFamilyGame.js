@@ -22,7 +22,7 @@ export function useFamilyGame() {
 
   // Timer state
   const [gameConfig, setGameConfig] = useState({ theme: null, mode: 'coop', players: [], difficulty: 'hunter', timerLimit: 5 });
-  const [startCountdown, setStartCountdown] = useState(2);
+  const [startCountdown, setStartCountdown] = useState(3);
   const [timeLeft, setTimeLeft] = useState(5);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
 
@@ -56,7 +56,7 @@ export function useFamilyGame() {
     setAnswersHistory([]);
     setSpeedBonus(0);
     setQuestionStartTime(null);
-    setStartCountdown(2);
+    setStartCountdown(3);
     setGameState('starting');
     setTimeLeft(config.timerLimit || 5);
     setIsTimerRunning(false);
