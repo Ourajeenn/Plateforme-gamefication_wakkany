@@ -503,7 +503,21 @@ export default function LandingPage({ user, onJoin }) {
               
               {/* Overlapping Footer Image */}
               <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-[40%] md:-translate-y-[50%] w-full max-w-6xl z-20 pointer-events-none flex justify-center px-4">
-                <img src="https://i.postimg.cc/9MzzCfVb/footer.png" alt="Footer Lineup" loading="lazy" decoding="async" className="w-full h-auto max-h-[600px] object-contain drop-shadow-2xl rounded-[28px]" />
+                {/* Footer image: prefer local optimized asset in /public/assets, fall back to external host if missing. */}
+                <picture>
+                  <source srcSet="/assets/footer.webp" type="image/webp" />
+                  <img
+                    src="/assets/footer.png"
+                    alt="Footer Lineup"
+                    loading="eager"
+                    decoding="async"
+                    fetchPriority="high"
+                    width={2000}
+                    height={600}
+                    onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = 'https://i.postimg.cc/9MzzCfVb/footer.png'; }}
+                    className="w-full h-auto max-h-[600px] object-contain drop-shadow-2xl rounded-[28px]"
+                  />
+                </picture>
               </div>
 
               <div className="relative z-10 w-full max-w-7xl mx-auto px-6 mt-16 md:mt-24">
