@@ -505,7 +505,7 @@ export default function LandingPage({ user, onJoin }) {
               <div className="relative w-full flex justify-center mt-0 z-10 px-4">
                 {/* Footer image: prefer local optimized asset in /public/assets, fall back to external host if missing. */}
                 <picture>
-                  <source srcSet="/assets/footer.webp" type="image/webp" />
+                  <source srcSet="/assets/footer.png" type="image/png" />
                   <img
                     src="/assets/footer.png"
                     alt="Footer Lineup"
