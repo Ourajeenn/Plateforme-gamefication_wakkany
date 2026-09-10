@@ -8,7 +8,6 @@ import AboutPage from './landing/AboutPage';
 import ArchetypesPage from './landing/ArchetypesPage';
 import { AvatarCarousel } from '../routes/lazyComponents';
 import ScrollReveal from '../components/common/ScrollReveal';
-import MediaDiagnostics from '../components/common/MediaDiagnostics';
 import { ASSET_PATHS } from '../utils/assetPaths';
 
 const HERO_VIDEO_SRC = 'https://storage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4';
@@ -93,10 +92,16 @@ export default function LandingPage({ user, onJoin }) {
         <ArchetypesPage onBack={goHome} onJoin={handleJoinClick} />
       ) : (
         <>
-          <MediaDiagnostics />
             {/* Hero Section */}
             <header id="hero" className="relative w-full h-screen overflow-hidden flex flex-col justify-end pb-10 sm:pb-24">
               <div className="absolute inset-0 z-0 bg-zinc-950 overflow-hidden stabilize-motion">
+                {/* Image de fond de base Wakkany (toujours présente sous la vidéo) */}
+                <img
+                  src={ASSET_PATHS.images.wakkany.main}
+                  alt="Fond Wakkany"
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
+
                 {/* Embed Mux player iframe (primary). If it fails to load within a few seconds we show a local/video fallback. */}
                 <iframe
                   title="Wakkany hero video"
@@ -105,7 +110,7 @@ export default function LandingPage({ user, onJoin }) {
                   allowFullScreen
                   frameBorder="0"
                   onLoad={() => setIframeLoaded(true)}
-                  className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${iframeLoaded && !iframeTimedOut ? 'opacity-100' : 'opacity-1'}`}
+                  className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${iframeLoaded && !iframeTimedOut ? 'opacity-100' : 'opacity-0'}`}
                   style={{ pointerEvents: iframeLoaded ? 'auto' : 'none' }}
                 />
 
@@ -114,7 +119,7 @@ export default function LandingPage({ user, onJoin }) {
                   <img
                     src={`https://image.mux.com/${MUX_ASSET_ID}/thumbnail.jpg`}
                     alt="Hero fallback"
-                    className="absolute inset-0 w-full h-full object-cover"
+                    className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500"
                     onError={() => setVideoError(true)}
                   />
                 )}
@@ -137,11 +142,6 @@ export default function LandingPage({ user, onJoin }) {
                   </video>
                 )}
                 <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-zinc-950/80"></div>
-                <img
-                  src={ASSET_PATHS.images.wakkany.main}
-                  alt="Fond Wakkany"
-                  className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${videoError ? 'opacity-100' : 'opacity-0'}`}
-                />
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_0%,_#09090b_70%)] opacity-60"></div>
                 <div className="absolute inset-0 bg-yellow-500/20 mix-blend-overlay"></div>
                 <div className="absolute inset-0 bg-yellow-500/5 pointer-events-none"></div>
@@ -208,7 +208,7 @@ export default function LandingPage({ user, onJoin }) {
             <section className="bg-gradient-to-b from-white to-gray-100 pt-16 pb-20 sm:pt-24 sm:pb-28 text-center border-t border-gray-200 relative z-10">
               <div className="max-w-5xl mx-auto px-4 sm:px-6 relative z-10">
                 <ScrollReveal animation="fade-up" duration={800}>
-                  <h2 className="text-zinc-900 text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight font-heading italic uppercase mb-4 text-shadow-sm">LE COVENANT EST EN ATTENTE</h2>
+                  <h2 className="text-zinc-900 text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight font-heading italic uppercase mb-4 text-shadow-sm">L'AKMÉDA EST EN ATTENTE</h2>
                   <div className="w-12 h-1 bg-[#c28e3a] mx-auto mb-8"></div>
                   <p className="text-zinc-800 text-base sm:text-lg md:text-xl font-monda leading-relaxed mb-10">
                     Choisissez votre bête, aiguisez votre lame, et entrez dans un monde qui riposte. Rejoignez la communauté sur Discord pour forger vos alliances.

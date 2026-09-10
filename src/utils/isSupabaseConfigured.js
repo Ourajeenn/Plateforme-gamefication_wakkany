@@ -4,12 +4,13 @@ export function isSupabaseConfigured() {
 
   return Boolean(
     url &&
+    url.startsWith('https://') &&
     url !== 'https://placeholder.supabase.co' &&
     !url.includes('your-project') &&
     key &&
+    key.trim().length > 10 &&
     key !== 'placeholder-anon-key' &&
-    !key.startsWith('sb_publishable_') &&
-    key.includes('.')
+    !key.startsWith('service_role_')
   );
 }
 

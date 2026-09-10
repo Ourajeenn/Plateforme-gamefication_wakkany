@@ -6,6 +6,11 @@ const ScrollDissolveReveal = lazy(() => import('./ScrollDissolveReveal').then(mo
 
 export default function HistoireView() {
   const [activeTab, setActiveTab] = useState('personnages');
+  const glossary = [
+    { term: 'Akméda', meaning: 'Le héros. Ce nom désigne un héros.', source: 'Légende Wakkany' },
+    { term: 'Morokh', meaning: 'Gardien des âmes, sentinelle de la frontière entre les mondes.', source: 'Archives du Veil' },
+    { term: 'Anya', meaning: 'Rituelle du sang, survivante née de la douleur et de la magie ancienne.', source: 'Archives du Sang' }
+  ];
 
   return (
     <div className="w-full max-w-7xl mx-auto space-y-12 pb-24 animate-fade-in pt-8">
@@ -50,6 +55,16 @@ export default function HistoireView() {
           }`}
         >
           Archives
+        </button>
+        <button
+          onClick={() => setActiveTab('dictionnaire')}
+          className={`px-6 py-3 md:px-8 rounded-xl font-bold uppercase tracking-widest transition-all text-xs md:text-sm ${
+            activeTab === 'dictionnaire'
+              ? 'bg-[#c28e3a] text-black shadow-[0_0_20px_rgba(194,142,58,0.4)]'
+              : 'bg-zinc-900/50 text-zinc-500 hover:text-white hover:bg-zinc-800'
+          }`}
+        >
+          Dictionnaire
         </button>
       </div>
 
@@ -180,6 +195,35 @@ export default function HistoireView() {
             </p>
             <div className="w-full rounded-[2rem] overflow-hidden border border-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.8)] relative group max-w-4xl mx-auto bg-zinc-950">
               <img src={factionsImg} alt="Duelyst Factions" className="w-full h-auto object-contain" />
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'dictionnaire' && (
+          <div className="max-w-4xl mx-auto animate-fade-in">
+            <div className="mb-8 text-center">
+              <h2 className="text-4xl md:text-5xl font-black font-heading uppercase tracking-widest text-white">Dictionnaire des mots</h2>
+              <p className="text-zinc-400 font-monda text-sm mt-3 max-w-2xl mx-auto">
+                Les mots qui portent la mémoire du monde Wakkany.
+              </p>
+            </div>
+
+            <div className="grid gap-4">
+              {glossary.map((entry) => (
+                <article key={entry.term} className="rounded-[2rem] border border-[#c28e3a]/30 bg-zinc-950/70 p-7 shadow-[0_0_30px_rgba(194,142,58,0.08)]">
+                  <div className="flex flex-wrap items-center justify-between gap-4">
+                    <div>
+                      <p className="text-[#c28e3a] font-black uppercase tracking-[0.2em] text-xs">Mot</p>
+                      <h3 className="text-3xl font-black uppercase text-white font-heading mt-2">{entry.term}</h3>
+                    </div>
+                    <span className="text-[10px] font-black uppercase tracking-[0.25em] text-zinc-500">{entry.source}</span>
+                  </div>
+                  <div className="h-px w-full bg-white/10 my-5"></div>
+                  <p className="text-zinc-300 font-monda leading-relaxed text-sm md:text-base">
+                    {entry.meaning}
+                  </p>
+                </article>
+              ))}
             </div>
           </div>
         )}

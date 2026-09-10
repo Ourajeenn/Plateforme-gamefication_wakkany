@@ -315,3 +315,5 @@ export default function usePlayerData() {
         completeQuest,
     };
 }
+
+export { usePlayerData };

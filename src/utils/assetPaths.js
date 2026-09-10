@@ -10,7 +10,7 @@ export const ASSET_PATHS = {
       ascendedChampion: '/assets/ascended_champion.webp',
       clanFoxWarrior: '/assets/clan_fox_warrior.webp',
       clanTigerWarrior: '/assets/clan_tiger_warrior.webp',
-      clanWolfWarrior: '/assets/clan_wolf_warrior.webp',
+      clanWolfWarrior: '/assets/clan_fox_warrior.webp',
     },
     wakkany: {
       main: '/assets/wakkany_1.webp',

@@ -77,48 +77,31 @@ export default function Preloader({ onComplete }) {
         }
       `}</style>
       
-      {/* Conteneur de l'image de fond — charger en lazy si pas encore visible */}
-      {bgImageLoaded && (
-        <img
-          src={`${import.meta.env.BASE_URL}assets/wakkany_1.webp`}
-          width="1376"
-          height="768"
-          decoding="async"
-          loading="lazy"
-          className="absolute inset-0 w-full h-full object-cover"
-          alt="Preloader background"
-        />
-      )}
+      {/* Image de fond principale du Preloader */}
+      <img
+        src={`${import.meta.env.BASE_URL}assets/wakkany_1.webp`}
+        width="1376"
+        height="768"
+        decoding="async"
+        fetchPriority="high"
+        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${bgImageLoaded ? 'opacity-100' : 'opacity-60'}`}
+        alt="Wakkany univers"
+        onLoad={() => setBgImageLoaded(true)}
+        onError={() => setBgImageLoaded(true)}
+      />
       
-      {/* Fallback: spinner minimal si l'image n'a pas encore chargé */}
+      {/* Fallback: spinner discret pendant le premier chargement */}
       {!bgImageLoaded && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black">
+        <div className="absolute inset-0 flex items-center justify-center bg-black/50">
           <div className="preloader-spinner"></div>
         </div>
       )}
       
-      {/* Charger l'image en arrière-plan sans bloquer le rendu */}
-      {!bgImageLoaded && (
-        <img
-          src={`${import.meta.env.BASE_URL}assets/wakkany_1.webp`}
-          width="1376"
-          height="768"
-          decoding="async"
-          className="hidden"
-          alt="Preload"
-          onLoad={() => setBgImageLoaded(true)}
-        />
-      )}
-      
-      {/* Effet d'éclairs (Lightning) — seulement si image chargée */}
-      {bgImageLoaded && (
-        <div ref={lightningRef} className="absolute inset-0 bg-white mix-blend-overlay pointer-events-none animate-lightning"></div>
-      )}
+      {/* Effet d'éclairs (Lightning) */}
+      <div ref={lightningRef} className="absolute inset-0 bg-white mix-blend-overlay pointer-events-none animate-lightning"></div>
       
       {/* Voile sombre pour faire ressortir le bouton sans flouter l'image */}
-      {bgImageLoaded && (
-        <div className="absolute inset-0 bg-black/40"></div>
-      )}
+      <div className="absolute inset-0 bg-black/30"></div>
 
       {/* Conteneur de positionnement du bouton */}
 

@@ -1,18 +1,39 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BOSS_ENCOUNTERS } from '../../data/bossEncounters';
+import OnboardingGuide from '../common/OnboardingGuide';
 
 const STORAGE_KEY = 'wakkany_boss_progress';
+const GUIDE_STORAGE_KEY = 'wakkany_onboarding_guide_closed';
+
 function getBossProgress() {
   try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{"defeated":[]}'); }
   catch { return { defeated: [] }; }
 }
 
+function shouldShowGuide() {
+  try {
+    return localStorage.getItem(GUIDE_STORAGE_KEY) !== '1';
+  } catch {
+    return true;
+  }
+}
+
 export default function QuizHome() {
   const navigate = useNavigate();
+  const [showGuide, setShowGuide] = useState(shouldShowGuide);
+
+  const handleCloseGuide = () => {
+    try {
+      localStorage.setItem(GUIDE_STORAGE_KEY, '1');
+    } catch {
+      // Storage can be unavailable in private or locked browser contexts.
+    }
+    setShowGuide(false);
+  };
 
   return (
-    <div className="min-h-screen bg-black flex flex-col items-center justify-center p-8 relative overflow-hidden font-monda text-white">
+    <div className="min-h-screen bg-black flex flex-col items-center justify-center p-8 relative overflow-visible font-monda text-white">
       {/* Background FX */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_#c28e3a20_0%,_#000_80%)]"></div>
       
@@ -35,9 +56,13 @@ export default function QuizHome() {
       
       <div className="relative z-10 w-full max-w-4xl text-center space-y-12">
         <div className="animate-scale-up">
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[#c28e3a]/60 bg-[#c28e3a]/10 px-4 py-2 text-[11px] font-black uppercase tracking-[0.28em] text-[#f6d38a]">
+            <iconify-icon icon="mdi:compass-rose" width="16"></iconify-icon>
+            Flux du jeu
+          </div>
           <iconify-icon icon="mdi:swords" width="80" className="text-[#c28e3a] mb-6 drop-shadow-[0_0_20px_#c28e3a]"></iconify-icon>
-          <h1 className="text-6xl md:text-8xl font-serif font-black italic tracking-tighter uppercase drop-shadow-[0_10px_20px_rgba(0,0,0,0.8)]">
-            <span className="bg-clip-text text-transparent bg-gradient-to-b from-[#fce5a1] via-[#c28e3a] to-[#785317]">
+          <h1 className="text-6xl md:text-8xl font-serif font-black italic tracking-tighter uppercase drop-shadow-[0_10px_20px_rgba(0,0,0,0.8)] leading-[1.0]">
+            <span className="inline-block min-w-0 overflow-visible align-top bg-clip-text text-transparent bg-gradient-to-b from-[#fce5a1] via-[#c28e3a] to-[#785317]">
               L'Arène du Savoir
             </span>
           </h1>
@@ -106,6 +131,12 @@ export default function QuizHome() {
             </button>
           </div>
         </div>
+
+        {showGuide && (
+          <div className="mt-8 max-w-4xl mx-auto rounded-[2rem] border border-[#c28e3a]/35 bg-zinc-950/80 p-2 shadow-[0_0_30px_rgba(194,142,58,0.08)]">
+            <OnboardingGuide onClose={handleCloseGuide} />
+          </div>
+        )}
       </div>
     </div>
   );
