@@ -172,7 +172,7 @@ export function AvatarRoster() {
               onFocus={() => setSelectedIdx(index)}
               className="flex h-full w-full flex-col items-center gap-1 rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#c28e3a]"
             >
-              <span className="flex h-7 w-full items-end justify-center px-1 text-center font-monda text-[9px] font-bold leading-3 text-zinc-700 sm:text-[10px]">
+              <span className={`flex h-7 w-full items-end justify-center px-1 text-center font-monda text-[11px] font-black leading-[14px] sm:text-xs ${selectedIdx === index ? 'text-[#9a6716]' : 'text-zinc-900'}`}>
                 {item.name}
               </span>
               <SpriteThumbCircle

@@ -68,6 +68,7 @@ test('la rangée des alliés affiche tous les champions fantasy', async ({ page 
 
   await roster.getByRole('button', { name: /Tigre Berserker/ }).hover();
   await expect(page.getByTestId('selected-champion-name')).toHaveText('Tigre Berserker');
+  await expect(roster.getByRole('button', { name: /Tigre Berserker/ }).locator('span')).toHaveCSS('color', 'rgb(154, 103, 22)');
 
   await roster.getByRole('button', { name: /Tigre Berserker/ }).click();
   await expect(roster.getByRole('button', { name: /Tigre Berserker/ })).toHaveAttribute('aria-pressed', 'true');
