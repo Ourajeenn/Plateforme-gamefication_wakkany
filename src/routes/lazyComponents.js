@@ -11,3 +11,4 @@ export const StatsPanel = lazy(() => import('../components/StatsPanel'));
 export const FamilyGame = lazy(() => import('../components/quiz/FamilyGame'));
 export const SkillTree = lazy(() => import('../components/SkillTree'));
 export const AvatarCarousel = lazy(() => import('../components/AvatarCarousel'));
+export const AvatarRoster = lazy(() => import('../components/AvatarCarousel').then((module) => ({ default: module.AvatarRoster })));

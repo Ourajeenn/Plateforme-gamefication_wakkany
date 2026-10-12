@@ -50,3 +50,22 @@ test('le manifeste PWA et ses icônes sont disponibles sur mobile', async ({ pag
     expect(iconResponse.ok()).toBeTruthy();
   }
 });
+
+test('la rangée des alliés affiche tous les champions fantasy', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/');
+  const startButton = page.getByRole('button', { name: 'START' });
+  await expect(startButton).toBeEnabled();
+  await startButton.click();
+
+  const roster = page.getByLabel('Champions de la Covenant');
+  await roster.scrollIntoViewIfNeeded();
+  const champions = roster.getByRole('button', { name: /champion/ });
+  await expect(champions).toHaveCount(16);
+  await expect(roster.getByRole('button', { name: /Panthère Mage/ })).toHaveAttribute('aria-pressed', 'true');
+  await expect(roster.getByText('Singe Stratège')).toBeVisible();
+  await expect(roster.getByText('Guenon du Thé')).toBeVisible();
+
+  await roster.getByRole('button', { name: /Tigre Berserker/ }).click();
+  await expect(roster.getByRole('button', { name: /Tigre Berserker/ })).toHaveAttribute('aria-pressed', 'true');
+});

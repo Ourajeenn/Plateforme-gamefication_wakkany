@@ -6,22 +6,16 @@ import PageLoader from '../components/common/PageLoader';
 import WaitlistPage from './landing/WaitlistPage';
 import AboutPage from './landing/AboutPage';
 import ArchetypesPage from './landing/ArchetypesPage';
-import { AvatarCarousel } from '../routes/lazyComponents';
+import { AvatarCarousel, AvatarRoster } from '../routes/lazyComponents';
 import ScrollReveal from '../components/common/ScrollReveal';
-import { ASSET_PATHS } from '../utils/assetPaths';
 
 const HERO_VIDEO_SRC = 'https://storage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4';
 // Primary homepage video (Mux player) — provided by user
 const MUX_IFRAME_SRC = "https://player.mux.com/01mywJGOo4l00f8YOasdq4nIXXI6vrrIIVTKtMN6PCeQM?autoplay=true&loop=true&muted=true&controls=false";
-// Mux asset id for image fallback
-const MUX_ASSET_ID = '01mywJGOo4l00f8YOasdq4nIXXI6vrrIIVTKtMN6PCeQM';
-
 export default function LandingPage({ user, onJoin }) {
   const navigate = useNavigate();
   const [landingTab, setLandingTab] = useState(null);
-  const [activeChar, setActiveChar] = useState('bledja');
-  const [videoError, setVideoError] = useState(false);
-  const [localVideoError, setLocalVideoError] = useState(false);
+  const activeChar = 'bledja';
   const [iframeLoaded, setIframeLoaded] = useState(false);
   const [iframeTimedOut, setIframeTimedOut] = useState(false);
   const [localVideoLoaded, setLocalVideoLoaded] = useState(false);
@@ -35,26 +29,21 @@ export default function LandingPage({ user, onJoin }) {
     return () => clearTimeout(t);
   }, [iframeLoaded]);
 
-  // Try to recover local video via fetch->blob if the <video> element errors (helps with some CORS/codec edge cases)
+  // Retry the local video through a blob URL for browsers with playback edge cases.
   const attemptFetchVideoFallback = async () => {
     try {
-      console.warn('[LandingPage] Attempting fetch->blob fallback for HERO_VIDEO_SRC');
       const resp = await fetch(HERO_VIDEO_SRC, { cache: 'no-cache', mode: 'cors' });
-      if (!resp.ok) {
-        console.error('[LandingPage] Fetch fallback failed, status=', resp.status);
-        return;
-      }
+      if (!resp.ok) return;
       const blob = await resp.blob();
       const blobUrl = URL.createObjectURL(blob);
       const vid = localVideoRef.current;
       if (vid) {
         vid.src = blobUrl;
         vid.load();
-        vid.play().catch((e) => console.warn('[LandingPage] play() after blob fallback blocked:', e));
-        console.warn('[LandingPage] Blob fallback applied to video element');
+        vid.play().catch(() => {});
       }
-    } catch (e) {
-      console.error('[LandingPage] Exception during fetch fallback for video:', e);
+    } catch {
+      setLocalVideoLoaded(false);
     }
   };
 
@@ -95,14 +84,7 @@ export default function LandingPage({ user, onJoin }) {
             {/* Hero Section */}
             <header id="hero" className="relative w-full h-screen overflow-hidden flex flex-col justify-end pb-10 sm:pb-24">
               <div className="absolute inset-0 z-0 bg-zinc-950 overflow-hidden stabilize-motion">
-                {/* Image de fond de base Wakkany (toujours présente sous la vidéo) */}
-                <img
-                  src={ASSET_PATHS.images.wakkany.main}
-                  alt="Fond Wakkany"
-                  className="absolute inset-0 w-full h-full object-cover"
-                />
-
-                {/* Embed Mux player iframe (primary). If it fails to load within a few seconds we show a local/video fallback. */}
+                {/* Le fond reste sombre jusqu’au démarrage de la vidéo, sans vignette statique. */}
                 <iframe
                   title="Wakkany hero video"
                   src={MUX_IFRAME_SRC}
@@ -114,16 +96,7 @@ export default function LandingPage({ user, onJoin }) {
                   style={{ pointerEvents: iframeLoaded ? 'auto' : 'none' }}
                 />
 
-                {/* Fallbacks: show Mux thumbnail while waiting, then a local/video fallback if iframe fails. */}
-                {!iframeLoaded && (
-                  <img
-                    src={`https://image.mux.com/${MUX_ASSET_ID}/thumbnail.jpg`}
-                    alt="Hero fallback"
-                    className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500"
-                    onError={() => setVideoError(true)}
-                  />
-                )}
-
+                {/* Local video fallback if the hosted player is unavailable. */}
                 {iframeTimedOut && (
                   <video
                     ref={localVideoRef}
@@ -132,13 +105,11 @@ export default function LandingPage({ user, onJoin }) {
                     muted
                     playsInline
                     className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${localVideoLoaded ? 'opacity-100' : 'opacity-0'}`}
-                    onCanPlay={() => { setLocalVideoLoaded(true); setLocalVideoError(false); console.log('[LandingPage] local video canplay'); }}
-                    onLoadedData={() => { setLocalVideoLoaded(true); setLocalVideoError(false); console.log('[LandingPage] local video loadeddata'); }}
-                    onError={(e) => { console.error('[LandingPage] local video error', e); setLocalVideoError(true); attemptFetchVideoFallback(); }}
+                    onCanPlay={() => setLocalVideoLoaded(true)}
+                    onLoadedData={() => setLocalVideoLoaded(true)}
+                    onError={attemptFetchVideoFallback}
                   >
                     <source src={HERO_VIDEO_SRC} type="video/mp4" />
-                    {/* last-resort: Mux mp4 (may be blocked by CORS) */}
-                    <source src={`https://image.mux.com/${MUX_ASSET_ID}/animated.gif`} type="image/gif" />
                   </video>
                 )}
                 <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-zinc-950/80"></div>
@@ -273,32 +244,7 @@ export default function LandingPage({ user, onJoin }) {
               <div className="w-12 h-1 bg-[#c28e3a] mx-auto mb-10 sm:mb-16 md:mb-20"></div>
 
               {/* Avatars Row */}
-              <div className="flex justify-center items-center gap-3 sm:gap-4 md:gap-6 mb-12 sm:mb-16 md:mb-28 overflow-x-auto px-4 sm:px-6 py-4 max-w-6xl mx-auto scrollbar-hide">
-                {[
-                  { id: '03', name: 'Bledja', img: 'https://images.unsplash.com/photo-1534361960057-19889db9621e?auto=format&fit=crop&q=80&w=200', char: 'bledja' },
-                  { id: '04', name: 'Bledja', img: 'https://images.unsplash.com/photo-1598153346810-860daa814c4b?auto=format&fit=crop&q=80&w=200', char: 'bledja' },
-                  { id: '05', name: 'Bledja', img: 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?auto=format&fit=crop&q=80&w=200', char: 'bledja' },
-                  { id: '06', name: 'Bledja', img: 'https://i.postimg.cc/qv918NDq/hippo1.png', char: 'bledja' },
-                  { id: '07', name: 'Timoin', img: 'https://images.unsplash.com/photo-1564349683136-77e08dba1ef7?auto=format&fit=crop&q=80&w=200', char: 'timoin' },
-                  { id: '08', name: 'Akwa', img: 'https://i.postimg.cc/4xrWzY2N/monkey.png', char: 'akwa' },
-                  { id: '09', name: 'Timoin', img: 'https://i.postimg.cc/DwtxqSpw/panda.png', char: 'timoin' },
-                ].map((item, idx) => {
-                  const isActive = activeChar === item.char;
-                  return (
-                    <div 
-                      key={idx}
-                      onClick={() => setActiveChar(item.char)}
-                      className={`rounded-full overflow-hidden shrink-0 transition-all cursor-pointer bg-zinc-900 ${
-                        isActive 
-                          ? 'w-28 h-28 border-[3px] border-[#c28e3a] shadow-2xl scale-110 z-10 ring-4 ring-white/20' 
-                          : 'w-20 h-20 border border-gray-300 filter grayscale hover:grayscale-0'
-                      }`}
-                    >
-                      <img src={item.img} alt={`${item.name} Avatar`} className="w-full h-full object-cover object-top" />
-                    </div>
-                  );
-                })}
-              </div>
+              <Suspense fallback={<PageLoader />}><AvatarRoster /></Suspense>
 
               {/* Character Profiles Grid */}
               <div className="max-w-[1400px] mx-auto px-4 sm:px-6 flex flex-col lg:flex-row items-center justify-center gap-8 relative">
