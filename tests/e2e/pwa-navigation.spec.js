@@ -66,6 +66,9 @@ test('la rangée des alliés affiche tous les champions fantasy', async ({ page 
   await expect(roster.getByText('Singe Stratège')).toBeVisible();
   await expect(roster.getByText('Guenon du Thé')).toBeVisible();
 
+  await roster.getByRole('button', { name: /Tigre Berserker/ }).hover();
+  await expect(page.getByTestId('selected-champion-name')).toHaveText('Tigre Berserker');
+
   await roster.getByRole('button', { name: /Tigre Berserker/ }).click();
   await expect(roster.getByRole('button', { name: /Tigre Berserker/ })).toHaveAttribute('aria-pressed', 'true');
 });

@@ -152,7 +152,7 @@ export function AvatarRoster() {
 
   return (
     <div className="mx-auto mb-12 w-full max-w-6xl px-4 sm:mb-16 md:mb-28">
-      <p className="mb-1 h-4 text-center font-monda text-xs font-black uppercase tracking-[0.3em] text-[#c28e3a]">
+      <p data-testid="selected-champion-name" aria-live="polite" className="mb-1 h-4 text-center font-monda text-xs font-black uppercase tracking-[0.3em] text-[#c28e3a]">
         {avatars[selectedIdx].name}
       </p>
       <div aria-label="Champions de la Covenant" className="flex w-full justify-center overflow-x-auto scrollbar-hide">
@@ -168,6 +168,8 @@ export function AvatarRoster() {
               type="button"
               aria-label={`${item.name}, champion ${item.id}`}
               aria-pressed={selectedIdx === index}
+              onMouseEnter={() => setSelectedIdx(index)}
+              onFocus={() => setSelectedIdx(index)}
               className="flex h-full w-full flex-col items-center gap-1 rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#c28e3a]"
             >
               <span className="flex h-7 w-full items-end justify-center px-1 text-center font-monda text-[9px] font-bold leading-3 text-zinc-700 sm:text-[10px]">
