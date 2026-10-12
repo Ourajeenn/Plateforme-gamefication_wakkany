@@ -19,24 +19,47 @@ export default function LandingNav({ user, landingTab, setLandingTab, onJoin }) 
     const header = headerRef.current;
     if (!header) return undefined;
 
+    const nav = header.querySelector('.landing-nav');
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     let frameId = 0;
     let scrolled = window.scrollY > 40;
-    header.classList.toggle('is-scrolled', scrolled);
+    const updateHeader = () => {
+      const progress = reducedMotion
+        ? (window.scrollY > 40 ? 1 : 0)
+        : Math.min(Math.max(window.scrollY / 120, 0), 1);
+      const viewportWidth = document.documentElement.clientWidth;
+      const navWidth = Math.min(viewportWidth - 32, 1330);
+      const startPadding = viewportWidth * 0.05;
+      const navPadding = startPadding + ((24 - startPadding) * progress);
+
+      header.style.setProperty('--nav-inset', `${16 * progress}px`);
+      nav.style.setProperty('--nav-width', `${viewportWidth + ((navWidth - viewportWidth) * progress)}px`);
+      nav.style.setProperty('--nav-height', `${96 - (24 * progress)}px`);
+      nav.style.setProperty('--nav-padding', `${navPadding}px`);
+      nav.style.setProperty('--nav-radius', `${9999 * progress}px`);
+      nav.style.setProperty('--nav-background-alpha', `${0.92 + (0.05 * progress)}`);
+      nav.style.setProperty('--nav-shadow-alpha', `${0.18 + (0.1 * progress)}`);
+      const nextScrolled = window.scrollY > 40;
+      if (nextScrolled !== scrolled) {
+        scrolled = nextScrolled;
+        header.classList.toggle('is-scrolled', scrolled);
+      }
+    };
+    updateHeader();
 
     const updateScrollState = () => {
       if (frameId) return;
       frameId = window.requestAnimationFrame(() => {
         frameId = 0;
-        const nextScrolled = window.scrollY > 40;
-        if (nextScrolled === scrolled) return;
-        scrolled = nextScrolled;
-        header.classList.toggle('is-scrolled', scrolled);
+        updateHeader();
       });
     };
 
     window.addEventListener('scroll', updateScrollState, { passive: true });
+    window.addEventListener('resize', updateScrollState, { passive: true });
     return () => {
       window.removeEventListener('scroll', updateScrollState);
+      window.removeEventListener('resize', updateScrollState);
       if (frameId) window.cancelAnimationFrame(frameId);
     };
   }, []);

@@ -3,21 +3,30 @@ import { test, expect } from '@playwright/test';
 test.describe.configure({ mode: 'serial' });
 
 test('le préchargement est sans image et la navigation se compacte au scroll', async ({ page }) => {
-  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
   await page.goto('/');
   const startButton = page.getByRole('button', { name: 'START' });
   await expect(startButton).toBeVisible();
   await expect(startButton).toBeEnabled();
   await expect(page.locator('#root img')).toHaveCount(0);
 
-  await startButton.click();
+  await startButton.click({ force: true });
   const navigation = page.getByRole('navigation', { name: 'Navigation principale' });
   await expect(navigation).toBeVisible({ timeout: 20000 });
   const installButton = page.getByRole('button', { name: /Installer l'application/ }).first();
   await expect(installButton).toBeVisible();
 
-  await page.evaluate(() => window.scrollTo(0, 100));
+  await page.evaluate(() => window.scrollTo({ top: 60, behavior: 'instant' }));
+  await expect.poll(() => navigation.evaluate((element) => element.style.getPropertyValue('--nav-height'))).toBe('84px');
+
+  await page.evaluate(() => window.scrollTo({ top: 120, behavior: 'instant' }));
   await expect.poll(() => navigation.evaluate((element) => element.parentElement.classList.contains('is-scrolled'))).toBe(true);
+  await expect.poll(() => navigation.evaluate((element) => element.style.getPropertyValue('--nav-height'))).toBe('72px');
+
+  await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
+  await expect.poll(() => navigation.evaluate((element) => element.style.getPropertyValue('--nav-height'))).toBe('96px');
+  await expect.poll(() => navigation.evaluate((element) => element.parentElement.classList.contains('is-scrolled'))).toBe(false);
+
   await installButton.click();
   await expect(page.getByText('Ouvrez le menu de votre navigateur et choisissez « Installer Wakkany ».')).toBeVisible();
 });
