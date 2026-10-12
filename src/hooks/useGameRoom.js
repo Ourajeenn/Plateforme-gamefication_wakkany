@@ -10,6 +10,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '../utils/supabaseClient';
 import { isSupabaseConfigured } from '../utils/isSupabaseConfigured';
+import { io } from 'socket.io-client';
 
 // ── Local in-memory fallback (used when Supabase envs are missing)
 const LOCAL_STORE = {
@@ -67,16 +68,70 @@ function getDeviceId() {
 
 // ── Hook ─────────────────────────────────────────────────────────────────────
 
-export function useGameRoom() {
+export function useGameRoom({ network = 'online' } = {}) {
   const [room, setRoom]         = useState(null);   // données de la salle (game_rooms)
   const [players, setPlayers]   = useState([]);     // liste game_room_players
   const [myPlayer, setMyPlayer] = useState(null);   // notre propre entrée dans players
   const [loading, setLoading]   = useState(false);
   const [error, setError]       = useState(null);
+  const [transportReady, setTransportReady] = useState(network !== 'local');
 
   const channelRef  = useRef(null);  // canal Supabase Realtime
   const roomIdRef   = useRef(null);  // ID de la salle courante
   const deviceId    = useRef(getDeviceId());
+  const localSocketRef = useRef(null);
+  const isLocalNetwork = network === 'local';
+
+  useEffect(() => {
+    if (!isLocalNetwork) return undefined;
+
+    const socket = io({ path: '/socket.io', timeout: 5000 });
+    localSocketRef.current = socket;
+    socket.on('connect', () => {
+      setTransportReady(true);
+      setError(null);
+    });
+    socket.on('connect_error', () => {
+      setTransportReady(false);
+      setError('Serveur local indisponible. Ouvrez l’adresse réseau affichée au démarrage de l’application.');
+    });
+    socket.on('disconnect', () => setTransportReady(false));
+    socket.on('local:room', (nextRoom) => {
+      if (nextRoom.id === roomIdRef.current) setRoom(nextRoom);
+    });
+    socket.on('local:players', ({ roomId, players: nextPlayers }) => {
+      if (roomId !== roomIdRef.current) return;
+      setPlayers(nextPlayers);
+      setMyPlayer(nextPlayers.find((player) => player.device_id === deviceId.current) || null);
+    });
+    socket.on('local:closed', (closedRoomId) => {
+      if (closedRoomId !== roomIdRef.current) return;
+      roomIdRef.current = null;
+      setRoom(null);
+      setPlayers([]);
+      setMyPlayer(null);
+      setError('Le salon a été fermé par son hôte.');
+    });
+
+    return () => {
+      socket.disconnect();
+      localSocketRef.current = null;
+    };
+  }, [isLocalNetwork]);
+
+  const requestLocal = useCallback((event, payload) => {
+    const socket = localSocketRef.current;
+    if (!socket?.connected) {
+      return Promise.resolve({ error: 'Le serveur du réseau local n’est pas connecté.' });
+    }
+    return new Promise((resolve) => {
+      const acknowledge = (timeoutError, response) => {
+        resolve(timeoutError ? { error: 'Le serveur local ne répond pas.' } : response || {});
+      };
+      if (payload === undefined) socket.timeout(5000).emit(event, acknowledge);
+      else socket.timeout(5000).emit(event, payload, acknowledge);
+    });
+  }, []);
 
   // ── Chargement des joueurs ─────────────────────────────────────────────────
   const fetchPlayers = useCallback(async (roomId) => {
@@ -146,6 +201,23 @@ export function useGameRoom() {
   const createRoom = useCallback(async ({ pseudo, mode = 'bluff_royal', theme = 'rpg' }) => {
     setLoading(true);
     setError(null);
+
+    if (isLocalNetwork) {
+      try {
+        const result = await requestLocal('local:create', { pseudo, mode, theme, deviceId: deviceId.current });
+        if (result.error) throw new Error(result.error);
+        roomIdRef.current = result.room.id;
+        setRoom(result.room);
+        setMyPlayer(result.player);
+        setPlayers(result.players);
+        return { room: result.room, player: result.player };
+      } catch (err) {
+        setError(err.message || 'Impossible de créer le salon local.');
+        return null;
+      } finally {
+        setLoading(false);
+      }
+    }
 
     if (!isSupabaseConfigured()) {
       // Local in-memory room creation fallback
@@ -252,12 +324,29 @@ export function useGameRoom() {
     } finally {
       setLoading(false);
     }
-  }, [subscribeToRoom]);
+  }, [isLocalNetwork, requestLocal, subscribeToRoom]);
 
   // ── Rejoindre une salle ────────────────────────────────────────────────────
   const joinRoom = useCallback(async ({ code, pseudo }) => {
     setLoading(true);
     setError(null);
+
+    if (isLocalNetwork) {
+      try {
+        const result = await requestLocal('local:join', { code, pseudo, deviceId: deviceId.current });
+        if (result.error) throw new Error(result.error);
+        roomIdRef.current = result.room.id;
+        setRoom(result.room);
+        setMyPlayer(result.player);
+        setPlayers(result.players);
+        return { room: result.room, player: result.player };
+      } catch (err) {
+        setError(err.message || 'Impossible de rejoindre le salon local.');
+        return null;
+      } finally {
+        setLoading(false);
+      }
+    }
 
     if (!isSupabaseConfigured()) {
       // Local fallback: find room by code
@@ -348,57 +437,91 @@ export function useGameRoom() {
     } finally {
       setLoading(false);
     }
-  }, [fetchPlayers, subscribeToRoom]);
+  }, [fetchPlayers, isLocalNetwork, requestLocal, subscribeToRoom]);
 
   // ── Marquer prêt / pas prêt ───────────────────────────────────────────────
   const setReady = useCallback(async (ready = true) => {
     if (!myPlayer) return;
+    if (isLocalNetwork) {
+      const result = await requestLocal('local:ready', ready);
+      if (result.error) setError(result.error);
+      return;
+    }
     await supabase
       .from('game_room_players')
       .update({ is_ready: ready })
       .eq('id', myPlayer.id);
-  }, [myPlayer]);
+  }, [isLocalNetwork, myPlayer, requestLocal]);
 
   // ── Lancer la partie (hôte uniquement) ────────────────────────────────────
   const startGame = useCallback(async (gameState = {}) => {
     if (!roomIdRef.current) return;
+    if (isLocalNetwork) {
+      const result = await requestLocal('local:start', gameState);
+      if (result.error) setError(result.error);
+      return;
+    }
     await supabase
       .from('game_rooms')
       .update({ status: 'playing', game_state: gameState })
       .eq('id', roomIdRef.current);
-  }, []);
+  }, [isLocalNetwork, requestLocal]);
 
   // ── Mettre à jour le game_state (hôte) ────────────────────────────────────
   const updateGameState = useCallback(async (patch) => {
     if (!roomIdRef.current) return;
+    if (isLocalNetwork) {
+      const result = await requestLocal('local:game-state', patch);
+      if (result.error) setError(result.error);
+      return;
+    }
     const current = room?.game_state || {};
     await supabase
       .from('game_rooms')
       .update({ game_state: { ...current, ...patch } })
       .eq('id', roomIdRef.current);
-  }, [room]);
+  }, [isLocalNetwork, requestLocal, room]);
 
   // ── Mettre à jour le score d'un joueur ───────────────────────────────────
   const updateScore = useCallback(async (delta) => {
     if (!myPlayer) return;
+    if (isLocalNetwork) {
+      const result = await requestLocal('local:score', delta);
+      if (result.error) setError(result.error);
+      return;
+    }
     await supabase
       .from('game_room_players')
       .update({ score: (myPlayer.score || 0) + delta })
       .eq('id', myPlayer.id);
-  }, [myPlayer]);
+  }, [isLocalNetwork, myPlayer, requestLocal]);
 
   // ── Terminer la partie (hôte) ─────────────────────────────────────────────
   const endGame = useCallback(async () => {
     if (!roomIdRef.current) return;
+    if (isLocalNetwork) {
+      const result = await requestLocal('local:end');
+      if (result.error) setError(result.error);
+      return;
+    }
     await supabase
       .from('game_rooms')
       .update({ status: 'finished' })
       .eq('id', roomIdRef.current);
-  }, []);
+  }, [isLocalNetwork, requestLocal]);
 
   // ── Quitter la salle ──────────────────────────────────────────────────────
   const leaveRoom = useCallback(async () => {
     if (!myPlayer) return;
+
+    if (isLocalNetwork) {
+      await requestLocal('local:leave');
+      roomIdRef.current = null;
+      setRoom(null);
+      setPlayers([]);
+      setMyPlayer(null);
+      return;
+    }
 
     // Si on est l'hôte et la partie n'a pas commencé → supprimer la salle
     if (myPlayer.is_host && room?.status === 'lobby') {
@@ -416,7 +539,7 @@ export function useGameRoom() {
     setPlayers([]);
     setMyPlayer(null);
     roomIdRef.current = null;
-  }, [myPlayer, room]);
+  }, [isLocalNetwork, myPlayer, requestLocal, room]);
 
   // ── Nettoyage au démontage ────────────────────────────────────────────────
   useEffect(() => {
@@ -424,6 +547,7 @@ export function useGameRoom() {
       if (channelRef.current) {
         supabase.removeChannel(channelRef.current);
       }
+      localSocketRef.current?.disconnect();
     };
   }, []);
 
@@ -433,6 +557,7 @@ export function useGameRoom() {
     myPlayer,
     loading,
     error,
+    transportReady,
     deviceId: deviceId.current,
     isHost: myPlayer?.is_host === true,
     createRoom,

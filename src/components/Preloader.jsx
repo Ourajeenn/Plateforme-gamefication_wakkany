@@ -4,7 +4,7 @@ import { useSoundFX, getBgMusic } from '../hooks/useSoundFX';
 export default function Preloader({ onComplete }) {
   const { playPreloaderLightning } = useSoundFX();
   const bgMusic = getBgMusic();
-  const [bgImageLoaded, setBgImageLoaded] = useState(false);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     // Tente de lancer la musique immédiatement (souvent bloqué par le navigateur)
@@ -36,7 +36,7 @@ export default function Preloader({ onComplete }) {
     return () => {
       el.removeEventListener('animationstart', handleAnimationStart);
     };
-  }, []);
+  }, [playPreloaderLightning]);
 
   const handleStart = () => {
     // Jouer la musique de fond s'il y a eu un clic sur START
@@ -48,8 +48,13 @@ export default function Preloader({ onComplete }) {
     onComplete();
   };
 
+  useEffect(() => {
+    const timeout = window.setTimeout(() => setReady(true), 350);
+    return () => window.clearTimeout(timeout);
+  }, []);
+
   return (
-    <div className="fixed inset-0 z-[999] bg-black select-none font-heading">
+    <div className="fixed inset-0 z-[999] overflow-hidden bg-[#111] select-none font-heading">
       {/* CSS d'animation forcé pour garantir son exécution */}
       <style>{`
         @keyframes autoZoom {
@@ -59,56 +64,25 @@ export default function Preloader({ onComplete }) {
         .animate-auto-zoom {
           animation: autoZoom 1.5s ease-in-out infinite;
         }
-        /* Minimal placeholder spinner affichable immédiatement */
-        .preloader-spinner {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          width: 64px;
-          height: 64px;
-          border: 4px solid rgba(255, 255, 255, 0.3);
-          border-top: 4px solid #fff;
-          border-radius: 50%;
-          animation: spin 1s linear infinite;
+        @keyframes preloaderSweep {
+          from { transform: translateX(-110%); }
+          to { transform: translateX(110%); }
         }
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
+        @media (prefers-reduced-motion: reduce) {
+          .animate-auto-zoom { animation: none; }
         }
       `}</style>
-      
-      {/* Image de fond principale du Preloader */}
-      <img
-        src={`${import.meta.env.BASE_URL}assets/wakkany_1.webp`}
-        width="1376"
-        height="768"
-        decoding="async"
-        fetchPriority="high"
-        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${bgImageLoaded ? 'opacity-100' : 'opacity-60'}`}
-        alt="Wakkany univers"
-        onLoad={() => setBgImageLoaded(true)}
-        onError={() => setBgImageLoaded(true)}
-      />
-      
-      {/* Fallback: spinner discret pendant le premier chargement */}
-      {!bgImageLoaded && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black/50">
-          <div className="preloader-spinner"></div>
-        </div>
-      )}
-      
-      {/* Effet d'éclairs (Lightning) */}
-      <div ref={lightningRef} className="absolute inset-0 bg-white mix-blend-overlay pointer-events-none animate-lightning"></div>
-      
-      {/* Voile sombre pour faire ressortir le bouton sans flouter l'image */}
-      <div className="absolute inset-0 bg-black/30"></div>
 
-      {/* Conteneur de positionnement du bouton */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(194,142,58,0.12),_transparent_55%)]" />
+      <div ref={lightningRef} className="pointer-events-none absolute inset-0 bg-white/5 mix-blend-screen animate-lightning" />
+      <div className="absolute left-1/2 top-1/2 h-px w-48 -translate-x-1/2 overflow-hidden bg-white/10">
+        <div className="h-full w-1/2 animate-[preloaderSweep_1.4s_ease-in-out_infinite] bg-[#c28e3a]" />
+      </div>
 
-      <div className="absolute bottom-[15%] left-1/2 -translate-x-1/2 flex flex-col items-center gap-4">
-        {/* Bouton START avec animation de respiration (breathe) */}
+      <div className="absolute bottom-[15%] left-1/2 flex -translate-x-1/2 flex-col items-center gap-4">
         <button 
           onClick={handleStart}
+          disabled={!ready}
           className="group px-20 py-5 text-3xl md:text-4xl font-bold text-black uppercase tracking-[0.2em] bg-gradient-to-b from-[#fde68a] via-[#fcd34d] to-[#d97706] rounded-md hover:scale-110 transition-all duration-300 shadow-[0_10px_30px_rgba(217,119,6,0.4)] overflow-hidden animate-auto-zoom"
         >
           {/* Griffures gauche (SVG) */}

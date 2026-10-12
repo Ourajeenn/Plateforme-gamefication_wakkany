@@ -2,6 +2,7 @@ import { Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import PageLoader from '../components/common/PageLoader';
 import QuizHome from '../components/quiz/QuizHome';
+import QuizModes from '../components/quiz/QuizModes';
 import QuizConfig from '../components/quiz/QuizConfig';
 import PackProfile from '../components/quiz/PackProfile';
 import AcademyView from '../components/AcademyView';
@@ -16,6 +17,7 @@ export default function QuizRoutes() {
     <Suspense fallback={<PageLoader />}>
       <Routes>
         <Route path="/quiz" element={<QuizHome />} />
+        <Route path="/quiz/modes" element={<QuizModes />} />
         <Route path="/quiz/config" element={<QuizConfig />} />
         <Route path="/quiz/profile" element={<PackProfile />} />
         <Route path="/quiz/play" element={<FamilyGame />} />

@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useGameRoom } from '../../hooks/useGameRoom';
 import { isSupabaseConfigured } from '../../utils/isSupabaseConfigured';
 import { useSoundFX } from '../../hooks/useSoundFX';
@@ -24,9 +24,11 @@ const THEMES = [
 
 export default function HostLobby() {
   const navigate = useNavigate();
-  const { room, players, myPlayer, loading, error, createRoom, startGame, leaveRoom } = useGameRoom();
+  const [searchParams] = useSearchParams();
+  const network = searchParams.get('network') === 'local' ? 'local' : 'online';
+  const { room, players, myPlayer, loading, error, transportReady, createRoom, startGame, leaveRoom } = useGameRoom({ network });
   const isConfigured = isSupabaseConfigured();
-  const { playClick, playCountdownBeep, playCountdownGo, playLevelUp } = useSoundFX();
+  const { playCountdownBeep, playCountdownGo, playLevelUp } = useSoundFX();
   const SUPABASE_UNAVAILABLE_MESSAGE = import.meta.env.VITE_SUPABASE_UNAVAILABLE_MESSAGE || 'Le mode multijoueur est indisponible.';
 
   // Étape : 'setup' | 'lobby'
@@ -39,20 +41,14 @@ export default function HostLobby() {
   const [countdown, setCountdown]       = useState(null);  // null | 3 | 2 | 1 | 0
   const [launching, setLaunching]       = useState(false);
 
-  const allReady = players.length >= 2 && players.every(p => p.is_ready);
-
   // ── Démarrer la création ────────────────────────────────────────────────
   const handleCreate = useCallback(async () => {
     if (!pseudo.trim()) return;
-    if (!isConfigured) {
-      setError(SUPABASE_UNAVAILABLE_MESSAGE);
-      return;
-    }
 
     localStorage.setItem('wakkany_pseudo', pseudo.trim());
     const result = await createRoom({ pseudo: pseudo.trim(), mode, theme });
     if (result) setStep('lobby');
-  }, [pseudo, mode, theme, createRoom, isConfigured]);
+  }, [pseudo, mode, theme, createRoom]);
 
   // ── Copier le code ──────────────────────────────────────────────────────
   const handleCopy = useCallback(() => {
@@ -140,7 +136,9 @@ export default function HostLobby() {
           <div className="text-center mb-8">
             <div className="text-5xl mb-3">🎮</div>
             <h1 className="text-3xl font-heading font-black text-[#c28e3a]">Créer une salle</h1>
-            <p className="text-zinc-400 mt-1">Configurez votre partie multijoueur</p>
+            <p className="text-zinc-400 mt-1">
+              {network === 'local' ? 'Salon accessible aux appareils sur le même Wi-Fi' : 'Salon multijoueur en ligne'}
+            </p>
           </div>
 
           {/* Pseudo */}
@@ -202,9 +200,15 @@ export default function HostLobby() {
             </div>
           </div>
 
-          {!isConfigured && (
+          {network === 'local' && !transportReady && !error && (
             <div className="mb-4 p-3 rounded-xl bg-yellow-900/30 border border-yellow-500/30 text-yellow-200 text-sm">
-                  {SUPABASE_UNAVAILABLE_MESSAGE}
+              Connexion au serveur du réseau local…
+            </div>
+          )}
+
+          {network === 'online' && !isConfigured && (
+            <div className="mb-4 p-3 rounded-xl bg-yellow-900/30 border border-yellow-500/30 text-yellow-200 text-sm">
+              {SUPABASE_UNAVAILABLE_MESSAGE} Configurez Supabase pour créer un salon en ligne.
             </div>
           )}
 
@@ -216,7 +220,7 @@ export default function HostLobby() {
 
           <Button
             onClick={handleCreate}
-            disabled={!pseudo.trim() || loading || !isConfigured}
+            disabled={!pseudo.trim() || loading || (network === 'local' && !transportReady) || (network === 'online' && !isConfigured)}
             className="w-full"
           >
             {loading ? 'Création…' : 'Créer la salle →'}
@@ -319,7 +323,7 @@ export default function HostLobby() {
 
         {/* Note */}
         <p className="text-center text-zinc-600 text-xs mt-4">
-          En tant qu'hôte, vous contrôlez le lancement.
+          En tant qu&apos;hôte, vous contrôlez le lancement.
         </p>
       </div>
     </div>

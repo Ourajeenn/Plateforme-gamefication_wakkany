@@ -2,10 +2,12 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 import compression from 'vite-plugin-compression';
+import { localRoomsPlugin } from './scripts/localRoomsPlugin.js';
 
 export default defineConfig({
   plugins: [
     react(),
+    localRoomsPlugin(),
     VitePWA({
       registerType: 'autoUpdate',
       // Inclut tous les assets dans le precache automatique
@@ -118,6 +120,7 @@ export default defineConfig({
   ],
   base: process.env.VITE_BASE_PATH || '/',
   server: {
+    host: '0.0.0.0',
     port: 5179,
     strictPort: false,
     // HTTP/2 support for better multiplexing
@@ -125,6 +128,9 @@ export default defineConfig({
     headers: {
       'Cache-Control': 'no-cache',
     },
+  },
+  preview: {
+    host: '0.0.0.0',
   },
   build: {
     // Aggressive minification

@@ -10,7 +10,7 @@ import { registerSW } from 'virtual:pwa-register';
 
 // Register PWA service worker for offline capability
 try {
-  registerSW({ immediate: false });
+  registerSW({ immediate: true });
 } catch (e) {
   console.warn('PWA registration skipped:', e);
 }

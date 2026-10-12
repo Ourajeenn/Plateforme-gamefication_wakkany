@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { FAMILY_THEMES } from '../../data/familyQuizzes';
 
 export default function QuizConfig() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const isSoloSession = searchParams.get('session') === 'solo';
   const [mode, setMode] = useState('coop'); // 'coop', 'party', 'boss'
   const [players, setPlayers] = useState(['', '']);
   const [theme, setTheme] = useState('general');
@@ -80,13 +82,13 @@ export default function QuizConfig() {
             <iconify-icon icon="mdi:arrow-left"></iconify-icon> Retour
           </button>
           <h1 className="text-3xl font-heading font-black italic uppercase tracking-tighter text-[#c28e3a] drop-shadow-[0_0_10px_rgba(194,142,58,0.2)]">
-            CONFIGURATION DE L'ÉPREUVE
+            {isSoloSession ? 'CONFIGURATION DU DÉFI SOLO' : "CONFIGURATION DE L'ÉPREUVE"}
           </h1>
           <div className="w-20"></div> {/* Spacer */}
         </div>
 
         {/* 1. Mode Selection (3 columns now!) */}
-        <div className="space-y-6">
+        {!isSoloSession && <div className="space-y-6">
           <h2 className="text-xl font-bold uppercase tracking-widest text-center text-purple-400">1. Choisissez votre Mode</h2>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <button 
@@ -129,7 +131,7 @@ export default function QuizConfig() {
               <p className="text-[10px] text-center text-zinc-400 leading-relaxed">Inventez une fausse réponse crédible et piégez la meute au vote !</p>
             </button>
           </div>
-        </div>
+        </div>}
 
         {/* 2. Theme Selection */}
         <div className="space-y-6">

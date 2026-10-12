@@ -14,7 +14,8 @@ const SUPABASE_UNAVAILABLE_MESSAGE = import.meta.env.VITE_SUPABASE_UNAVAILABLE_M
 export default function JoinRoom() {
   const navigate       = useNavigate();
   const [searchParams] = useSearchParams();
-  const { room, players, myPlayer, loading, error, joinRoom, setReady, leaveRoom } = useGameRoom();
+  const network = searchParams.get('network') === 'local' ? 'local' : 'online';
+  const { room, players, myPlayer, loading, error, transportReady, joinRoom, setReady, leaveRoom } = useGameRoom({ network });
   const isConfigured = isSupabaseConfigured();
   const { playCountdownBeep, playCountdownGo, playLevelUp } = useSoundFX();
 
@@ -29,15 +30,12 @@ export default function JoinRoom() {
   // ── Rejoindre ────────────────────────────────────────────────────────────
   const handleJoin = useCallback(async () => {
     if (!code.trim() || !pseudo.trim()) return;
-    if (!isConfigured) {
-      setError(SUPABASE_UNAVAILABLE_MESSAGE);
-      return;
-    }
+    if (network === 'online' && !isConfigured) return;
 
     localStorage.setItem('wakkany_pseudo', pseudo.trim());
     const result = await joinRoom({ code: code.trim(), pseudo: pseudo.trim() });
     if (result) setStep('lobby');
-  }, [code, pseudo, joinRoom, isConfigured]);
+  }, [code, pseudo, joinRoom, isConfigured, network]);
 
   // ── Marquer prêt ─────────────────────────────────────────────────────────
   const handleReady = useCallback(async () => {
@@ -127,7 +125,7 @@ export default function JoinRoom() {
           <div className="text-center mb-8">
             <div className="text-5xl mb-3">🔗</div>
             <h1 className="text-3xl font-heading font-black text-[#c28e3a]">Rejoindre</h1>
-            <p className="text-zinc-400 mt-1">Entrez le code fourni par l'hôte</p>
+            <p className="text-zinc-400 mt-1">Entrez le code fourni par l&apos;hôte</p>
           </div>
 
           {/* Code */}
@@ -156,9 +154,15 @@ export default function JoinRoom() {
             />
           </div>
 
-          {!isConfigured && (
+          {network === 'local' && !transportReady && !error && (
             <div className="mb-4 p-3 rounded-xl bg-yellow-900/30 border border-yellow-500/30 text-yellow-200 text-sm">
-                  {SUPABASE_UNAVAILABLE_MESSAGE}
+              Connexion au serveur du réseau local…
+            </div>
+          )}
+
+          {network === 'online' && !isConfigured && (
+            <div className="mb-4 p-3 rounded-xl bg-yellow-900/30 border border-yellow-500/30 text-yellow-200 text-sm">
+              {SUPABASE_UNAVAILABLE_MESSAGE} Configurez Supabase pour rejoindre un salon en ligne.
             </div>
           )}
 
@@ -170,7 +174,7 @@ export default function JoinRoom() {
 
           <Button
             onClick={handleJoin}
-            disabled={code.length < 6 || !pseudo.trim() || loading || !isConfigured}
+            disabled={code.length < 6 || !pseudo.trim() || loading || (network === 'local' && !transportReady) || (network === 'online' && !isConfigured)}
             className="w-full"
           >
             {loading ? 'Connexion…' : 'Rejoindre →'}
@@ -201,7 +205,7 @@ export default function JoinRoom() {
           </p>
           <div className="mt-2 inline-flex items-center gap-2 text-zinc-500 text-xs bg-zinc-900 px-3 py-1.5 rounded-full border border-zinc-800">
             <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-            En attente du lancement par l'hôte…
+            En attente du lancement par l&apos;hôte…
           </div>
         </div>
 
