@@ -1,41 +1,22 @@
-# Dependencies
-node_modules/
-.pnpm-store/
-
-# Build outputs
-/dist/
-dist/
-dist-ssr/
-.vite/
-
-# Logs and reports
-logs/
+# Logs
+logs
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
-playwright-report/
-playwright-report.*
-test-results/
-coverage/
-semgrep_*.log
-semgrep_*.json
-semgrep_results*.json
-audit-warnings.txt
-build-warnings.txt
 
-# Environment files
+node_modules
+dist
+dist-ssr
+# env files
 .env
-.env.*
 .env.local
 .env.*.local
 .env.development
 .env.production
 *.local
-supabase/.env.local
-supabase/.temp/
 
 # Editor directories and files
 .vscode/*
@@ -47,9 +28,3 @@ supabase/.temp/
 *.njsproj
 *.sln
 *.sw?
-
-# OS / temp files
-Thumbs.db
-*.tmp
-*.bak
-*.orig
