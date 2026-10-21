@@ -78,9 +78,39 @@
 
   [data-theme="claire"] .glass-panel,
   [data-theme="claire"] .glass-card {
-    background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(255,255,255,0.72));
-    border-color: rgba(15,23,42,0.08);
-    box-shadow: 0 18px 35px rgba(15,23,42,0.08), inset 0 1px 0 rgba(255,255,255,0.6);
+    background: linear-gradient(180deg, rgba(255,255,255,0.92), rgba(255,255,255,0.85));
+    border-color: rgba(194, 142, 58, 0.25);
+    box-shadow: 0 18px 35px rgba(15,23,42,0.08), inset 0 1px 0 rgba(255,255,255,0.8);
+    color: #17181d;
+  }
+
+  [data-theme="claire"] .landing-header .landing-nav {
+    background-color: rgba(255, 255, 255, 0.95);
+    border-color: rgba(194, 142, 58, 0.3);
+    color: #17181d;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  }
+
+  [data-theme="claire"] .landing-nav button:not(.landing-nav-theme),
+  [data-theme="claire"] .landing-nav span {
+    color: #17181d;
+  }
+
+  [data-theme="claire"] .landing-nav button:hover {
+    color: #c28e3a;
+  }
+
+  [data-theme="claire"] h1,
+  [data-theme="claire"] h2,
+  [data-theme="claire"] h3,
+  [data-theme="claire"] h4,
+  [data-theme="claire"] h5,
+  [data-theme="claire"] h6 {
+    color: #17181d;
+  }
+
+  [data-theme="claire"] p {
+    color: #374151;
   }
 }
 

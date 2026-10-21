@@ -6,6 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../utils/supabaseClient';
+import AssistantModeControl from '../components/admin/AssistantModeControl';
 
 export default function AdminPage() {
   const navigate = useNavigate();
@@ -61,6 +62,7 @@ export default function AdminPage() {
             { id: 'questions', label: 'Questions', icon: 'mdi:help-circle' },
             { id: 'users', label: 'Utilisateurs', icon: 'mdi:account-group' },
             { id: 'moderation', label: 'Modération', icon: 'mdi:shield-alert' },
+            { id: 'assistant', label: 'Assistant IA', icon: 'mdi:robot' },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -97,6 +99,9 @@ export default function AdminPage() {
 
             {/* MODERATION */}
             {activeTab === 'moderation' && <ModerationTab />}
+
+            {/* ASSISTANT IA */}
+            {activeTab === 'assistant' && <AssistantModeControl />}
           </>
         )}
       </div>

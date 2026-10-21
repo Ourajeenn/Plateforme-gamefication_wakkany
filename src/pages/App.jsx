@@ -80,9 +80,9 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOnline, wasOffline]);
 
-  const addNotification = useCallback((type, message) => {
-    const id = Date.now();
-    setToasts((prev) => [...prev, { id, type, message }]);
+  const addNotification = useCallback((type, message, duration = 4500) => {
+    const id = `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+    setToasts((prev) => [...prev, { id, type, message, duration }]);
     addLocalNotification(type, message);
   }, [addLocalNotification]);
 
@@ -247,7 +247,7 @@ export default function App() {
           <SettingsPage />
         </Suspense>
       ) : (
-        <div className="antialiased text-white min-h-screen bg-zinc-950 animate-fade-in overflow-y-auto">
+        <div className="antialiased min-h-screen transition-colors duration-300 animate-fade-in overflow-y-auto">
           {isDashboard ? <DashboardNav user={user} onLogout={handleLogout} /> : null}
 
           {isDashboard ? (

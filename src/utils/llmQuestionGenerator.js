@@ -192,7 +192,7 @@ function parseQuestionResponse(response) {
 /**
  * Fallback question generator (when LLM is unavailable)
  */
-function generateFallbackQuestion(context = {}) {
+export function generateFallbackQuestion(context = {}) {
   const { round = 0, category = 'general' } = context;
 
   const fallbackQuestions = {

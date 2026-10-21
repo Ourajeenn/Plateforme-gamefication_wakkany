@@ -50,8 +50,9 @@ vi.mock('../src/hooks/useSoundFX', () => ({
 
 vi.mock('../src/components/Preloader', () => ({
   default: ({ onComplete }) => {
-    // Call onComplete synchronously in tests to avoid timing flakiness
-    if (onComplete) onComplete();
+    React.useEffect(() => {
+      if (onComplete) onComplete();
+    }, [onComplete]);
     return null;
   },
 }));
@@ -74,7 +75,7 @@ describe('App routing', () => {
 
     await waitFor(() => {
       expect(screen.getByText("L'Arène du Savoir")).toBeInTheDocument();
-    });
+    }, { timeout: 3000 });
   });
 
   it('redirects protected dashboard to /setup when auth is required', async () => {

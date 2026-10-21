@@ -43,7 +43,9 @@ export default function DashboardNav({ user, onLogout }) {
     <nav className="fixed top-0 left-0 w-full glass-panel border-b border-white/10 flex items-center justify-between px-4 sm:px-8 py-3 sm:py-4 z-[60] shadow-[0_18px_50px_rgba(0,0,0,0.35)]">
       <div className="flex items-center gap-3 sm:gap-8 min-w-0">
         <div className="flex items-center gap-3 sm:gap-4 cursor-pointer group shrink-0" onClick={() => navigate('/')}>
-          <Icon name="triangleLogo" width={24} height={24} className="text-[#c28e3a] rotate-180 group-hover:rotate-0 transition-transform duration-500" />
+          <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-md overflow-hidden relative">
+            <img src="/icon.webp" alt="Wakkany logo" className="w-full h-full object-contain" />
+          </div>
           <span className="text-white font-heading font-bold tracking-widest text-base sm:text-lg italic uppercase">Wakkany</span>
         </div>
         <LiveFeed />

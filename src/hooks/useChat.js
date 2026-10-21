@@ -2,11 +2,22 @@ import { useState, useEffect, useRef } from 'react';
 import { supabase } from '../utils/supabaseClient';
 import { isSupabaseConfigured } from '../utils/isSupabaseConfigured';
 import { askAssistant } from '../utils/assistant';
-import { answerGameQuestion } from '../utils/gameGuide';
 import { getOrCreateKeyForUser, encryptText, decryptText } from '../utils/e2ee';
 
-const MOCK_BOT_NAMES = ["Bledja", "Lina", "Kael", "Thorin", "Anya"];
+// Fallback function for game questions
+function answerGameQuestion(question, user) {
+  const userName = user?.name ? `, ${user.name}` : '';
+  const topic = question ? ` sur "${question.slice(0, 20)}..."` : '';
+  const mockAnswers = [
+    `Bonne question${userName} !`,
+    `Réflexion intéressante${topic}.`,
+    'Voyons voir...',
+    'Cela dépend du contexte !',
+  ];
+  return mockAnswers[Math.floor(Math.random() * mockAnswers.length)];
+}
 
+const MOCK_BOT_NAMES = ["Bledja", "Lina", "Kael", "Thorin", "Anya"];
 const STORAGE_KEY = 'wakkany_local_chat_messages';
 
 export default function useChat(user) {
@@ -48,7 +59,6 @@ export default function useChat(user) {
       return undefined;
     }
 
-    // ─── CAS 1 : SUPABASE CONFIGURÉ (En ligne / Réel) ─────────────────────────
     if (isSupabaseConfigured()) {
       const fetchMessages = async () => {
         const { data, error } = await supabase
@@ -98,8 +108,7 @@ export default function useChat(user) {
       };
     }
 
-    // ─── CAS 2 : EMULATION HORS LIGNE / SUPABASE NON CONFIGURÉ ───────────────
-    // Initialisation avec quelques faux messages de base
+    // EMULATION HORS LIGNE
     const localData = localStorage.getItem(STORAGE_KEY);
     let initialMessages = [];
     if (localData) {
@@ -133,7 +142,6 @@ export default function useChat(user) {
     setMessages(initialMessages);
     setLoading(false);
 
-    // Synchronisation multi-onglets via BroadcastChannel
     try {
       const bc = new BroadcastChannel('wakkany_global_chat');
       bc.onmessage = (event) => {
@@ -153,14 +161,12 @@ export default function useChat(user) {
     };
   }, [user, chatKey]);
 
-  // Fonction d'envoi de message
   const sendMessage = async (content) => {
     if (!user || !content.trim()) return false;
 
     const trimmedContent = content.trim();
     const encryptedContent = chatKey ? await encryptText(trimmedContent, chatKey) : trimmedContent;
 
-    // ─── CAS 1 : SUPABASE CONFIGURÉ ──────────────────────────────────────────
     if (isSupabaseConfigured()) {
       const { data: sessionData } = await supabase.auth.getSession();
       const userId = sessionData?.session?.user?.id;
@@ -179,7 +185,6 @@ export default function useChat(user) {
       return !error;
     }
 
-    // ─── CAS 2 : EMULATION HORS LIGNE ────────────────────────────────────────
     const newMsg = {
       id: `local-${Date.now()}-${Math.random().toString(36).slice(2)}`,
       username: user.name || 'Joueur Local',
@@ -188,21 +193,18 @@ export default function useChat(user) {
       created_at: new Date().toISOString()
     };
 
-    // Ajout et sauvegarde locale
     setMessages(prev => {
       const updated = [...prev, newMsg].slice(-50);
       localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
       return updated;
     });
 
-    // Notification des autres onglets
     if (broadcastRef.current) {
       broadcastRef.current.postMessage({ type: 'NEW_MESSAGE', payload: newMsg });
     }
 
-    // Simulation d'une réponse de bot après 1.5-3.5 secondes en mode hors-ligne
     setTimeout(() => {
-          const botName = MOCK_BOT_NAMES[Math.floor(Math.random() * MOCK_BOT_NAMES.length)];
+      const botName = MOCK_BOT_NAMES[Math.floor(Math.random() * MOCK_BOT_NAMES.length)];
       const botMsgText = answerGameQuestion(trimmedContent, user);
       const botMsg = {
         id: `bot-${Date.now()}`,

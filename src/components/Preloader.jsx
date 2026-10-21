@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useSoundFX, getBgMusic } from '../hooks/useSoundFX';
+import { ASSET_PATHS } from '../utils/assetPaths';
 
 export default function Preloader({ onComplete }) {
   const { playPreloaderLightning } = useSoundFX();
   const bgMusic = getBgMusic();
   const [ready, setReady] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageSrc, setImageSrc] = useState(ASSET_PATHS.images.wakkany.main);
 
   useEffect(() => {
     // Tente de lancer la musique immédiatement (souvent bloqué par le navigateur)
@@ -53,8 +56,22 @@ export default function Preloader({ onComplete }) {
     return () => window.clearTimeout(timeout);
   }, []);
 
+  const handleImageLoad = () => {
+    setImageLoaded(true);
+  };
+
+  const handleImageError = () => {
+    console.warn(`Failed to load image: ${imageSrc}`);
+    if (imageSrc === ASSET_PATHS.images.wakkany.main) {
+      setImageSrc(ASSET_PATHS.images.wakkany.heroes);
+    } else {
+      // Fallback: afficher le preloader sans image
+      setImageLoaded(true);
+    }
+  };
+
   return (
-    <div className="fixed inset-0 z-[999] overflow-hidden bg-[#111] select-none font-heading">
+    <div className="fixed inset-0 z-[999] overflow-hidden bg-gradient-to-b from-black via-zinc-950 to-[#111] select-none font-heading">
       {/* CSS d'animation forcé pour garantir son exécution */}
       <style>{`
         @keyframes autoZoom {
@@ -64,26 +81,48 @@ export default function Preloader({ onComplete }) {
         .animate-auto-zoom {
           animation: autoZoom 1.5s ease-in-out infinite;
         }
-        @keyframes preloaderSweep {
-          from { transform: translateX(-110%); }
-          to { transform: translateX(110%); }
-        }
         @media (prefers-reduced-motion: reduce) {
           .animate-auto-zoom { animation: none; }
         }
       `}</style>
 
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(194,142,58,0.12),_transparent_55%)]" />
-      <div ref={lightningRef} className="pointer-events-none absolute inset-0 bg-white/5 mix-blend-screen animate-lightning" />
-      <div className="absolute left-1/2 top-1/2 h-px w-48 -translate-x-1/2 overflow-hidden bg-white/10">
-        <div className="h-full w-1/2 animate-[preloaderSweep_1.4s_ease-in-out_infinite] bg-[#c28e3a]" />
+      {/* Fullscreen Background Image */}
+      <div className="absolute inset-0 w-full h-full overflow-hidden">
+        <img 
+          src={imageSrc}
+          alt="Wakkany Background"
+          decoding="async"
+          fetchpriority="high"
+          onLoad={handleImageLoad}
+          onError={handleImageError}
+          className={`w-full h-full object-cover object-center transition-opacity duration-700 ${
+            imageLoaded ? 'opacity-100' : 'opacity-0'
+          }`}
+        />
+        
+        {/* Voile très léger uniquement au bas de l'écran pour détacher le bouton START */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
+        
+        {/* Loading spinner overlay si pas encore chargé */}
+        {!imageLoaded && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/60 z-10">
+            <div className="w-16 h-16 border-4 border-[#c28e3a]/30 border-t-[#c28e3a] rounded-full animate-spin" />
+          </div>
+        )}
       </div>
 
-      <div className="absolute bottom-[15%] left-1/2 flex -translate-x-1/2 flex-col items-center gap-4">
+      {/* Lightning effect overlay */}
+      <div ref={lightningRef} className="pointer-events-none absolute inset-0 bg-white/5 mix-blend-screen animate-lightning" />
+
+      {/* START Button at bottom */}
+      <div className="absolute bottom-[15%] left-1/2 flex -translate-x-1/2 flex-col items-center z-20">
         <button 
           onClick={handleStart}
           disabled={!ready}
-          className="group px-20 py-5 text-3xl md:text-4xl font-bold text-black uppercase tracking-[0.2em] bg-gradient-to-b from-[#fde68a] via-[#fcd34d] to-[#d97706] rounded-md hover:scale-110 transition-all duration-300 shadow-[0_10px_30px_rgba(217,119,6,0.4)] overflow-hidden animate-auto-zoom"
+          className={`group relative px-20 py-5 text-3xl md:text-4xl font-bold text-black uppercase tracking-[0.2em] bg-gradient-to-b from-[#fde68a] via-[#fcd34d] to-[#d97706] rounded-md transition-all duration-300 shadow-[0_10px_30px_rgba(217,119,6,0.4)] overflow-hidden ${
+            ready ? 'animate-auto-zoom hover:scale-110 cursor-pointer' : 'opacity-50 cursor-not-allowed'
+          }`}
+          title={ready ? 'Cliquez pour commencer' : 'Préparation du jeu...'}
         >
           {/* Griffures gauche (SVG) */}
           <svg className="absolute left-0 bottom-0 h-[120%] w-24 text-[#1c1917] -translate-y-[10%] pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="none">
@@ -105,4 +144,3 @@ export default function Preloader({ onComplete }) {
     </div>
   );
 }
-

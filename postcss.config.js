@@ -1,6 +1,6 @@
 export default {
   plugins: {
     tailwindcss: {},
-    autoprefixer: {},
+    // autoprefixer: {}, // Disabled due to caniuse-lite issue - using inline prefixes instead
   },
 }

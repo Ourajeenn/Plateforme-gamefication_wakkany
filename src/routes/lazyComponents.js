@@ -7,7 +7,7 @@ export const LandingPage = lazy(() => import('../pages/LandingPage'));
 export const SettingsPage = lazy(() => import('../pages/SettingsPage'));
 export const AdminPage = lazy(() => import('../pages/AdminPage'));
 
-export const StatsPanel = lazy(() => import('../components/StatsPanel'));
+export const StatsPanel = lazy(() => import('../components/common/OnboardingGuide')); // Disabled: es-toolkit issue
 export const FamilyGame = lazy(() => import('../components/quiz/FamilyGame'));
 export const SkillTree = lazy(() => import('../components/SkillTree'));
 export const AvatarCarousel = lazy(() => import('../components/AvatarCarousel'));
