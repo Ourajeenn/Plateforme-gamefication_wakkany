@@ -1,6 +1,6 @@
 import React, { Suspense, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AvatarCarousel, AvatarRoster, HistoireView, WaitlistPage, AboutPage, ArchetypesPage } from '../routes/lazyComponents';
+import { AvatarCarousel, AvatarRoster, HistoireView, WaitlistPage, AboutPage, ArchetypesPage, MentionsLegales, PolitiqueConfidentialite } from '../routes/lazyComponents';
 import LandingNav from '../components/layout/LandingNav';
 import PageLoader from '../components/common/PageLoader';
 
@@ -80,6 +80,10 @@ export default function LandingPage({ user, onJoin }) {
           <div className="pt-24"><HistoireView /></div>
         ) : landingTab === 'archetypes' ? (
           <ArchetypesPage onBack={goHome} onJoin={handleJoinClick} />
+        ) : landingTab === 'legal' ? (
+          <MentionsLegales onBack={goHome} />
+        ) : landingTab === 'privacy' ? (
+          <PolitiqueConfidentialite onBack={goHome} />
         ) : (
           <>
             {/* Hero Section */}
@@ -492,15 +496,15 @@ export default function LandingPage({ user, onJoin }) {
                   <div className="md:col-span-3 flex flex-col gap-4">
                     <h5 className="text-white text-lg font-medium uppercase tracking-widest mb-2 tracking-tight">WAKKANY</h5>
                     <a href="#" className="hover:text-[#c28e3a] transition-colors w-max">Carrières</a>
-                    <a href="#" className="hover:text-[#c28e3a] transition-colors w-max">Mentions Légales</a>
-                    <a href="#" className="hover:text-[#c28e3a] transition-colors w-max">Confidentialité</a>
+                    <button type="button" onClick={() => { setLandingTab('legal'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-[#c28e3a] transition-colors w-max text-left cursor-pointer">Mentions Légales</button>
+                    <button type="button" onClick={() => { setLandingTab('privacy'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-[#c28e3a] transition-colors w-max text-left cursor-pointer">Confidentialité</button>
                   </div>
 
                   {/* Links 2 */}
                   <div className="md:col-span-3 flex flex-col gap-4">
                     <h5 className="text-white text-lg font-medium uppercase tracking-widest mb-2 tracking-tight">COMMUNAUTÉ</h5>
-                    <a href="#" className="hover:text-[#c28e3a] transition-colors w-max">Blog</a>
-                    <a href="#" className="hover:text-[#c28e3a] transition-colors w-max">Newsletter</a>
+                    <button type="button" onClick={() => { setLandingTab('blog'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-[#c28e3a] transition-colors w-max text-left cursor-pointer">Blog (Histoire)</button>
+                    <button type="button" onClick={() => { setLandingTab('waitlist'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-[#c28e3a] transition-colors w-max text-left cursor-pointer">Newsletter</button>
                   </div>
 
                   {/* Lang Select */}

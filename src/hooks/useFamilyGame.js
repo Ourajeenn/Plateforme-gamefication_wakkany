@@ -56,11 +56,20 @@ export function useFamilyGame() {
     setAnswersHistory([]);
     setSpeedBonus(0);
     setQuestionStartTime(null);
-    setStartCountdown(3);
+    setStartCountdown(2);
     setGameState('starting');
     setTimeLeft(config.timerLimit || 5);
     setIsTimerRunning(false);
   }, []);
+
+  const skipCountdown = useCallback(() => {
+    stopBgMusic();
+    playCountdownGo();
+    setGameState('playing');
+    setIsTimerRunning(true);
+    setQuestionStartTime(Date.now());
+    setStartCountdown(0);
+  }, [playCountdownGo, stopBgMusic]);
 
   // Start countdown logic (avec sons)
   useEffect(() => {
@@ -82,7 +91,7 @@ export function useFamilyGame() {
         playCountdownBeep();
         return prev - 1;
       });
-    }, 1000);
+    }, 900);
 
     return () => clearInterval(countdownInterval);
   }, [gameState, playCountdownBeep, playCountdownGo, stopBgMusic]);
@@ -226,6 +235,7 @@ export function useFamilyGame() {
     streak,
     playerScores,
     startCountdown,
+    skipCountdown,
     timeLeft,
     startGame,
     handleAnswer,

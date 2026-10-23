@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useFamilyGame } from '../../hooks/useFamilyGame';
 
@@ -17,6 +18,7 @@ export default function FamilyGame() {
     streak,
     playerScores,
     startCountdown,
+    skipCountdown,
     timeLeft,
     startGame,
     handleAnswer,
@@ -112,7 +114,7 @@ export default function FamilyGame() {
         osc.start();
         osc.stop(now + 0.4);
       }
-    } catch(e) {}
+    } catch (e) { /* ignore audio error */ }
   };
 
   // Continuous synthesized heartbeat soundtrack
@@ -156,7 +158,7 @@ export default function FamilyGame() {
         osc2.start(now + 0.15);
         osc2.stop(now + 0.15 + 0.15);
 
-      } catch (e) {}
+      } catch (e) { /* ignore audio error */ }
     };
 
     playHeartbeat();
@@ -225,7 +227,7 @@ export default function FamilyGame() {
               unlocked.push('family_assist');
               localStorage.setItem('wakkany_achievements', JSON.stringify(unlocked));
             }
-          } catch(e) {}
+          } catch (e) { /* ignore audio error */ }
 
           return 0;
         }
@@ -235,13 +237,53 @@ export default function FamilyGame() {
     }, 1000);
   };
 
+  useEffect(() => {
+    if (gameState !== 'starting') return;
+    const handleKeyDown = (e) => {
+      if (e.code === 'Space' || e.code === 'Enter') {
+        e.preventDefault();
+        skipCountdown();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [gameState, skipCountdown]);
+
   if (gameState === 'starting') {
     return (
-      <div className="min-h-screen bg-zinc-950 flex flex-col items-center justify-center font-monda text-white">
-        <h2 className="text-3xl font-bold uppercase tracking-widest text-[#c28e3a] mb-8 animate-pulse">Préparez-vous</h2>
-        <div className="text-[150px] font-heading font-black italic text-white drop-shadow-[0_0_5px_rgba(194,142,58,0.8)] animate-scale-up">
+      <div
+        onClick={skipCountdown}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') skipCountdown(); }}
+        className="min-h-screen bg-zinc-950 flex flex-col items-center justify-center font-monda text-white cursor-pointer select-none relative overflow-hidden"
+      >
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_#c28e3a25_0%,_transparent_70%)] pointer-events-none" />
+        <h2 className="text-2xl sm:text-3xl font-bold uppercase tracking-[0.3em] text-[#c28e3a] mb-6 animate-pulse">
+          Préparez-vous
+        </h2>
+        <motion.div
+          key={startCountdown}
+          initial={{ scale: 0.6, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 1.4, opacity: 0 }}
+          transition={{ duration: 0.25 }}
+          className="text-[120px] sm:text-[160px] font-heading font-black italic text-white drop-shadow-[0_0_30px_rgba(194,142,58,0.9)]"
+        >
           {startCountdown}
-        </div>
+        </motion.div>
+        
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); skipCountdown(); }}
+          className="mt-8 px-8 py-3.5 rounded-2xl bg-gradient-to-r from-[#d97706] to-[#f59e0b] text-black font-black uppercase tracking-widest text-xs hover:scale-105 active:scale-95 transition-all shadow-[0_0_25px_rgba(217,119,6,0.5)] flex items-center gap-2 cursor-pointer border border-[#fcd34d]/60"
+        >
+          <iconify-icon icon="mdi:lightning-bolt" width="18" />
+          <span>Commencer immédiatement</span>
+        </button>
+        <p className="mt-4 text-[11px] text-zinc-500 uppercase tracking-widest">
+          Cliquez n&apos;importe où ou appuyez sur Espace pour lancer
+        </p>
       </div>
     );
   }
@@ -382,7 +424,7 @@ export default function FamilyGame() {
                  <span className="text-[10px] font-black uppercase tracking-widest text-emerald-400">RÉVÉLATION DE LA MEUTE !</span>
                </div>
                <p className="text-zinc-300 text-sm mt-2 font-bold font-monda">
-                 🔑 <span className="text-emerald-400 font-black">{helpSender}</span> : "C'est la réponse en <span className="text-emerald-400 font-black font-heading italic text-lg">{currentQuestion.answer}</span>, j'en suis absolument certain !"
+                 🔑 <span className="text-emerald-400 font-black">{helpSender}</span> : &quot;C&apos;est la réponse en <span className="text-emerald-400 font-black font-heading italic text-lg">{currentQuestion.answer}</span>, j&apos;en suis absolument certain !&quot;
                </p>
              </div>
            )}
@@ -509,7 +551,7 @@ export default function FamilyGame() {
               <span className="text-xl text-[#c28e3a]/50 font-bold">pts</span>
             </div>
             <p className="text-[11px] text-zinc-500">
-              {correctCount} bonne{correctCount !== 1 ? 's' : ''} réponse{correctCount !== 1 ? 's' : ''} sur {totalCount} · Temps moyen : {avgTime}s
+              {correctCount} bonne{correctCount !== 1 ? 's' : ''} réponse{correctCount !== 1 ? 's' : ''} sur {totalCount} · Temps moyen : {avgTime}s
             </p>
             {/* Progress bar */}
             <div className="w-full h-1.5 bg-zinc-800 rounded-full overflow-hidden mt-1">
@@ -598,12 +640,12 @@ export default function FamilyGame() {
                     </div>
                     <div className="ml-6 flex flex-col gap-0.5">
                       <p className="text-[11px] text-zinc-500 font-monda">
-                        Ta réponse : <span className={item.correct ? 'text-[#c28e3a]' : 'text-red-400'}>
+                        Ta réponse : <span className={item.correct ? 'text-[#c28e3a]' : 'text-red-400'}>
                           {item.userAnswer || 'Sans réponse'}
                         </span>
                         {!item.correct && (
                           <>
-                            {' · '}Bonne réponse : <span className="text-[#c28e3a]">{item.correctAnswer}</span>
+                            {' · '}Bonne réponse : <span className="text-[#c28e3a]">{item.correctAnswer}</span>
                           </>
                         )}
                       </p>

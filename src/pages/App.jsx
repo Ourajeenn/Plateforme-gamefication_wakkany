@@ -23,7 +23,7 @@ import useNotifications from '../hooks/useNotifications';
 import { flushOfflineQueue, getOfflineQueueLength } from '../utils/offlineQueue';
 import { supabase } from '../utils/supabaseClient';
 import { isSupabaseConfigured } from '../utils/isSupabaseConfigured';
-import { DashboardPage, QuizRoutes, GamesPage, LandingPage, SettingsPage, ProfileSetup, ChatWidget } from '../routes/lazyComponents';
+import { DashboardPage, QuizRoutes, GamesPage, LandingPage, SettingsPage, ProfileSetup, ChatWidget, MentionsLegales, PolitiqueConfidentialite } from '../routes/lazyComponents';
 
 const pageVariants = {
   initial: { opacity: 0, y: 12 },
@@ -263,6 +263,18 @@ export default function App() {
             <motion.div key="settings" variants={pageVariants} initial="initial" animate="animate" exit="exit">
               <Suspense fallback={<PageLoader />}>
                 <SettingsPage />
+              </Suspense>
+            </motion.div>
+          ) : location.pathname === '/mentions-legales' ? (
+            <motion.div key="legal" variants={pageVariants} initial="initial" animate="animate" exit="exit">
+              <Suspense fallback={<PageLoader />}>
+                <MentionsLegales onBack={() => navigate('/')} />
+              </Suspense>
+            </motion.div>
+          ) : location.pathname === '/confidentialite' ? (
+            <motion.div key="privacy" variants={pageVariants} initial="initial" animate="animate" exit="exit">
+              <Suspense fallback={<PageLoader />}>
+                <PolitiqueConfidentialite onBack={() => navigate('/')} />
               </Suspense>
             </motion.div>
           ) : (
