@@ -1,4 +1,5 @@
 import React, { useContext } from 'react';
+import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { isSupabaseConfigured } from '../../utils/isSupabaseConfigured';
 import { ThemeContext } from '../../context/ThemeContext';
@@ -56,10 +57,12 @@ export default function QuizModes() {
       <div className="relative z-10 mx-auto max-w-6xl">
         {/* Navigation bar: Retour au quiz + Toggle Mode Clair/Sombre */}
         <div className="mb-10 flex items-center justify-between">
-          <button
+          <motion.button
             type="button"
             onClick={() => navigate('/quiz')}
-            className={`inline-flex items-center gap-2 text-sm font-bold transition-all hover:scale-105 active:scale-95 ${
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className={`inline-flex items-center gap-2 text-sm font-bold transition-all ${
               isLight 
                 ? 'text-zinc-700 hover:text-black bg-white/70 px-4 py-2 rounded-full border border-zinc-300 shadow-sm' 
                 : 'text-zinc-300 hover:text-white bg-zinc-900/80 px-4 py-2 rounded-full border border-white/10'
@@ -67,12 +70,14 @@ export default function QuizModes() {
           >
             <iconify-icon icon="mdi:arrow-left" width="18" />
             <span>Retour au quiz</span>
-          </button>
+          </motion.button>
 
-          <button
+          <motion.button
             type="button"
             onClick={toggleTheme}
-            className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-black uppercase tracking-wider transition-all hover:scale-105 shadow-md ${
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-black uppercase tracking-wider transition-all shadow-md ${
               isLight
                 ? 'border-zinc-300 bg-white text-zinc-800 hover:border-[#c28e3a]'
                 : 'border-white/10 bg-zinc-900/90 text-white hover:border-[#c28e3a]'
@@ -80,11 +85,11 @@ export default function QuizModes() {
             title={isLight ? 'Basculer en mode sombre' : 'Basculer en mode clair'}
           >
             <span>{isLight ? '☀️ Mode Clair' : '🌙 Mode Sombre'}</span>
-          </button>
+          </motion.button>
         </div>
 
         {/* Header */}
-        <header className="mb-12 max-w-2xl animate-fade-in">
+        <motion.header initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }} className="mb-12 max-w-2xl">
           <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#c28e3a]/60 bg-[#c28e3a]/15 px-3 py-1 text-[11px] font-black uppercase tracking-[0.24em] text-[#d97706] dark:text-[#fcd34d]">
             <iconify-icon icon="mdi:shield-crown" width="14" />
             <span>L’Arène du Savoir</span>
@@ -99,17 +104,21 @@ export default function QuizModes() {
           }`}>
             Sélectionnez votre format de jeu pour démarrer la session de quiz.
           </p>
-        </header>
+        </motion.header>
 
         {/* Mode cards with golden neon glow & border radius */}
         <section aria-label="Modes de jeu" className="grid gap-6 md:grid-cols-3">
           {MODES.map((mode, idx) => {
             const isOnlineUnavailable = mode.id === 'online' && !onlineAvailable;
             return (
-              <article
+              <motion.article
                 key={mode.id}
-                style={{ animationDelay: `${idx * 100}ms` }}
-                className={`group relative flex min-h-[360px] flex-col rounded-3xl p-7 transition-all duration-300 hover:-translate-y-2 hover:scale-[1.02] border-2 backdrop-blur-xl ${
+                initial={{ opacity: 0, y: 25 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: idx * 0.12, ease: 'easeOut' }}
+                whileHover={{ y: -8, scale: 1.02 }}
+                whileTap={{ scale: 0.99 }}
+                className={`group relative flex min-h-[360px] flex-col rounded-3xl p-7 transition-all duration-300 border-2 backdrop-blur-xl ${
                   isLight
                     ? 'bg-white/95 border-[#c28e3a] shadow-[0_10px_25px_rgba(194,142,58,0.22)] hover:shadow-[0_15px_40px_rgba(194,142,58,0.45)] hover:border-[#d97706]'
                     : 'bg-zinc-900/90 border-[#c28e3a]/80 shadow-[0_0_25px_rgba(194,142,58,0.35)] hover:shadow-[0_0_45px_rgba(194,142,58,0.7)] hover:border-[#fcd34d]'
@@ -151,11 +160,13 @@ export default function QuizModes() {
                   {mode.actions.map((action, index) => {
                     const isPrimary = index === 0 && mode.id !== 'solo';
                     return (
-                      <button
+                      <motion.button
                         key={action.path}
                         type="button"
                         disabled={isOnlineUnavailable}
                         onClick={() => navigate(action.path)}
+                        whileHover={isOnlineUnavailable ? undefined : { scale: 1.02 }}
+                        whileTap={isOnlineUnavailable ? undefined : { scale: 0.97 }}
                         className={`flex min-h-[48px] items-center justify-between px-5 text-sm font-black uppercase tracking-wider rounded-2xl transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-40 ${
                           isPrimary
                             ? 'bg-gradient-to-r from-[#d97706] via-[#f59e0b] to-[#fbbf24] text-zinc-950 shadow-[0_4px_18px_rgba(217,119,6,0.45)] hover:shadow-[0_6px_25px_rgba(217,119,6,0.65)] hover:scale-[1.02] active:scale-95'
@@ -166,11 +177,11 @@ export default function QuizModes() {
                       >
                         <span>{action.label}</span>
                         <iconify-icon icon="mdi:arrow-top-right" width="18" />
-                      </button>
+                      </motion.button>
                     );
                   })}
                 </div>
-              </article>
+              </motion.article>
             );
           })}
         </section>

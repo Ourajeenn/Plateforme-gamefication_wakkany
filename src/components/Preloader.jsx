@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
 import { useSoundFX, getBgMusic } from '../hooks/useSoundFX';
 import { ASSET_PATHS } from '../utils/assetPaths';
 
@@ -92,7 +93,7 @@ export default function Preloader({ onComplete }) {
           src={imageSrc}
           alt="Wakkany Background"
           decoding="async"
-          fetchpriority="high"
+          fetchPriority="high"
           onLoad={handleImageLoad}
           onError={handleImageError}
           className={`w-full h-full object-cover object-center transition-opacity duration-700 ${
@@ -116,11 +117,22 @@ export default function Preloader({ onComplete }) {
 
       {/* START Button at bottom */}
       <div className="absolute bottom-[15%] left-1/2 flex -translate-x-1/2 flex-col items-center z-20">
-        <button 
+        <motion.button 
           onClick={handleStart}
           disabled={!ready}
-          className={`group relative px-20 py-5 text-3xl md:text-4xl font-bold text-black uppercase tracking-[0.2em] bg-gradient-to-b from-[#fde68a] via-[#fcd34d] to-[#d97706] rounded-md transition-all duration-300 shadow-[0_10px_30px_rgba(217,119,6,0.4)] overflow-hidden ${
-            ready ? 'animate-auto-zoom hover:scale-110 cursor-pointer' : 'opacity-50 cursor-not-allowed'
+          initial={{ scale: 0.85, opacity: 0 }}
+          animate={{
+            scale: ready ? [1, 1.05, 1] : 0.9,
+            opacity: ready ? 1 : 0.5,
+          }}
+          whileHover={ready ? { scale: 1.1 } : undefined}
+          whileTap={ready ? { scale: 0.95 } : undefined}
+          transition={{
+            scale: { repeat: Infinity, duration: 1.6, ease: 'easeInOut' },
+            opacity: { duration: 0.4 },
+          }}
+          className={`group relative px-20 py-5 text-3xl md:text-4xl font-bold text-black uppercase tracking-[0.2em] bg-gradient-to-b from-[#fde68a] via-[#fcd34d] to-[#d97706] rounded-md shadow-[0_10px_30px_rgba(217,119,6,0.4)] overflow-hidden ${
+            ready ? 'cursor-pointer' : 'opacity-50 cursor-not-allowed'
           }`}
           title={ready ? 'Cliquez pour commencer' : 'Préparation du jeu...'}
         >
@@ -139,7 +151,7 @@ export default function Preloader({ onComplete }) {
           </svg>
 
           <span className="relative z-10 font-monda">START</span>
-        </button>
+        </motion.button>
       </div>
     </div>
   );

@@ -1,18 +1,20 @@
-import React, { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function NotificationToast({ notifications, removeNotification }) {
     return (
         <div className="fixed top-24 right-8 z-[150] flex flex-col gap-3 pointer-events-none max-w-sm w-full">
-            {notifications.map((notif) => (
-                <Toast key={notif.id} notif={notif} onRemove={() => removeNotification(notif.id)} />
-            ))}
+            <AnimatePresence>
+                {notifications.map((notif) => (
+                    <Toast key={notif.id} notif={notif} onRemove={() => removeNotification(notif.id)} />
+                ))}
+            </AnimatePresence>
         </div>
     );
 }
 
 function Toast({ notif, onRemove }) {
     const duration = notif.duration || 4500;
-    const [isVisible, setIsVisible] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
     const remainingRef = useRef(duration);
     const startTimeRef = useRef(null);
@@ -24,22 +26,16 @@ function Toast({ notif, onRemove }) {
     }, [onRemove]);
 
     const closeToast = () => {
-        setIsVisible(false);
-        setTimeout(() => {
-            if (onRemoveRef.current) onRemoveRef.current();
-        }, 350);
+        if (onRemoveRef.current) onRemoveRef.current();
     };
 
     useEffect(() => {
-        const enterFrame = requestAnimationFrame(() => setIsVisible(true));
-
         startTimeRef.current = Date.now();
         timerRef.current = setTimeout(() => {
             closeToast();
         }, remainingRef.current);
 
         return () => {
-            cancelAnimationFrame(enterFrame);
             if (timerRef.current) clearTimeout(timerRef.current);
         };
     }, []);
@@ -94,14 +90,15 @@ function Toast({ notif, onRemove }) {
     const color = getColor();
 
     return (
-        <div 
+        <motion.div
+            layout
+            initial={{ opacity: 0, x: 80, scale: 0.95 }}
+            animate={{ opacity: 1, x: 0, scale: 1 }}
+            exit={{ opacity: 0, x: 80, scale: 0.9, transition: { duration: 0.2 } }}
+            transition={{ type: 'spring', stiffness: 450, damping: 30 }}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
-            className={`
-                relative overflow-hidden flex items-center gap-4 bg-zinc-950/95 backdrop-blur-2xl border border-white/10 p-4 rounded-2xl shadow-2xl
-                transition-all duration-300 transform pointer-events-auto min-w-[300px] hover:border-white/20 hover:scale-[1.02]
-                ${isVisible ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0 pointer-events-none'}
-            `}
+            className="relative overflow-hidden flex items-center gap-4 bg-zinc-950/95 backdrop-blur-2xl border border-white/10 p-4 rounded-2xl shadow-2xl pointer-events-auto min-w-[300px] hover:border-white/20 hover:scale-[1.02] transition-all duration-200"
         >
             <div 
                 className="w-11 h-11 rounded-xl flex items-center justify-center bg-zinc-900/90 border border-white/5 shrink-0"
@@ -156,7 +153,6 @@ function Toast({ notif, onRemove }) {
                     to { transform: scaleX(0); }
                 }
             `}</style>
-        </div>
+        </motion.div>
     );
 }
-

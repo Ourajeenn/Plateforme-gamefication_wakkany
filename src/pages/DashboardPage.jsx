@@ -1,4 +1,5 @@
 import { Suspense } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import ProfileView from '../components/ProfileView';
 import Avatar from '../components/Avatar';
@@ -6,7 +7,6 @@ import LevelEvolutionMap from '../components/LevelEvolutionMap';
 import QuestPanel from '../components/quests/QuestPanel';
 import ClanManagement from '../components/ClanManagement';
 import Leaderboard from '../components/Leaderboard';
-import ActivityList from '../components/dashboard/ActivityList';
 import PageLoader from '../components/common/PageLoader';
 import { DASHBOARD_TABS } from '../constants/dashboardTabs';
 import { getDominantBranch } from '../utils/xpHelpers';
@@ -54,39 +54,59 @@ export default function DashboardPage({
 
           {/* Navigation tabs — desktop : grille flexible */}
           <div className="hidden md:flex flex-wrap justify-center gap-1.5 bg-black/50 border border-white/10 backdrop-blur-sm rounded-2xl p-2">
-            {DASHBOARD_TABS.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => navigate(`/dashboard/${tab.id}`)}
-                className={`flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-[10px] font-bold uppercase tracking-[0.1em] transition-all duration-200 ${
-                  dashboardTab === tab.id
-                    ? 'bg-[#c28e3a] text-black shadow-md'
-                    : 'text-zinc-400 hover:text-white hover:bg-white/5'
-                }`}
-              >
-                <iconify-icon icon={tab.icon} width="14"></iconify-icon>
-                <span>{tab.label}</span>
-              </button>
-            ))}
+            {DASHBOARD_TABS.map((tab) => {
+              const isActive = dashboardTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => navigate(`/dashboard/${tab.id}`)}
+                  className={`relative flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-[10px] font-bold uppercase tracking-[0.1em] transition-colors duration-200 ${
+                    isActive
+                      ? 'text-black'
+                      : 'text-zinc-400 hover:text-white hover:bg-white/5'
+                  }`}
+                >
+                  {isActive && (
+                    <motion.div
+                      layoutId="dashboardActiveTabDesktop"
+                      className="absolute inset-0 bg-[#c28e3a] rounded-xl shadow-md"
+                      transition={{ type: 'spring', stiffness: 450, damping: 32 }}
+                    />
+                  )}
+                  <iconify-icon icon={tab.icon} width="14" className="relative z-10" />
+                  <span className="relative z-10">{tab.label}</span>
+                </button>
+              );
+            })}
           </div>
 
           {/* Navigation tabs — mobile : scroll horizontal */}
           <div className="md:hidden w-full overflow-x-auto scrollbar-hide">
             <div className="flex gap-2 min-w-max mx-auto bg-black/50 border border-white/10 rounded-2xl p-2.5">
-              {DASHBOARD_TABS.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => navigate(`/dashboard/${tab.id}`)}
-                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all duration-200 ${
-                    dashboardTab === tab.id
-                      ? 'bg-[#c28e3a] text-black shadow-md'
-                      : 'text-zinc-400 hover:text-white'
-                  }`}
-                >
-                  <iconify-icon icon={tab.icon} width="14"></iconify-icon>
-                  <span>{tab.label}</span>
-                </button>
-              ))}
+              {DASHBOARD_TABS.map((tab) => {
+                const isActive = dashboardTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => navigate(`/dashboard/${tab.id}`)}
+                    className={`relative flex items-center gap-2 px-4 py-2.5 rounded-xl text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-colors duration-200 ${
+                      isActive
+                        ? 'text-black'
+                        : 'text-zinc-400 hover:text-white'
+                    }`}
+                  >
+                    {isActive && (
+                      <motion.div
+                        layoutId="dashboardActiveTabMobile"
+                        className="absolute inset-0 bg-[#c28e3a] rounded-xl shadow-md"
+                        transition={{ type: 'spring', stiffness: 450, damping: 32 }}
+                      />
+                    )}
+                    <iconify-icon icon={tab.icon} width="14" className="relative z-10" />
+                    <span className="relative z-10">{tab.label}</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
@@ -95,6 +115,14 @@ export default function DashboardPage({
 
 
         <div className="py-8 max-w-7xl mx-auto px-4 sm:px-6">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={dashboardTab}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.22, ease: 'easeOut' }}
+          >
           {dashboardTab === 'profile' && (
             <ProfileView
               user={user}
@@ -177,6 +205,8 @@ export default function DashboardPage({
             }}
             />
           )}
+          </motion.div>
+        </AnimatePresence>
       </div>
     </div>
   );
