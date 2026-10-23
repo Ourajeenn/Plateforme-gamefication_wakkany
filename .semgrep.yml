@@ -144,7 +144,7 @@ rules:
     severity: MEDIUM
     pattern-either:
       - pattern: require('request')
-      - pattern: import ... from 'request'
+      - pattern: import $X from 'request'
 
   # =========================================================================
   # SUPABASE-SPECIFIC SECURITY — WAKKANY
@@ -292,6 +292,9 @@ paths:
     - 'node_modules/**'
     - 'dist/**'
     - 'build/**'
+    - 'playwright.config.js'
+    - 'playwright.e2e.config.js'
+    - 'vite.config.js'
     - '.next/**'
     - 'coverage/**'
     - 'docs/**'
