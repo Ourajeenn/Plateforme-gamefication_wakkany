@@ -158,16 +158,12 @@ export default function App() {
   }, [xp, unlockedSkills, completedQuests, user, unlockedAchievements, setUnlockedAchievements, addNotification]);
 
   const handleJoinClick = useCallback(() => {
-    if (authRequired && !isAuthenticated) {
-      navigate('/setup');
-      return;
-    }
     if (user) {
       navigate('/dashboard/profile');
       return;
     }
     navigate('/setup');
-  }, [authRequired, isAuthenticated, user, navigate]);
+  }, [user, navigate]);
 
   const handleLogout = useCallback(async () => {
     try {
@@ -231,7 +227,7 @@ export default function App() {
     playLevelUp();
   }, [setUser, addNotification, playLevelUp]);
 
-  if (isDashboard && authRequired && (!isAuthenticated || !user)) {
+  if (isDashboard && authRequired && !isAuthenticated && !user) {
     return <Navigate to="/setup" replace />;
   }
 

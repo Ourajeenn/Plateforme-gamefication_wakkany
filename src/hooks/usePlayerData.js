@@ -46,17 +46,34 @@ export default function usePlayerData() {
         async function loadSession() {
             if (isSupabaseConfigured()) {
                 const { data: { session } } = await supabase.auth.getSession();
-                if (!session?.user) {
+                if (session?.user) {
+                    setAuthUserId(session.user.id);
+                    const playerData = await storage.getItem('player:current', { shared: false });
+                    const loaded = applyPlayerData(playerData, {
+                        setUser, setXp, setUnlockedSkills, setCompletedQuests,
+                        setUnlockedAchievements, setXpHistory, setSpellingScore,
+                    });
+                    if (!loaded) {
+                        const emailName = session.user.email ? session.user.email.split('@')[0] : 'Chasseur';
+                        const fallbackUser = {
+                            name: session.user.user_metadata?.username || session.user.user_metadata?.name || emailName,
+                            academy: session.user.user_metadata?.academy || 'Nomade',
+                            clan: { id: 'heroes', name: 'Légion Héroïque', icon: 'mdi:shield-flash', desc: 'Justice & Pouvoirs Cosmiques' },
+                        };
+                        setUser(fallbackUser);
+                    }
                     setIsLoaded(true);
                     return;
                 }
 
-                setAuthUserId(session.user.id);
-                const playerData = await storage.getItem('player:current', { shared: false });
-                applyPlayerData(playerData, {
-                    setUser, setXp, setUnlockedSkills, setCompletedQuests,
-                    setUnlockedAchievements, setXpHistory, setSpellingScore,
-                });
+                // Invité / Hors-ligne : charger les données locales sauvegardées
+                const localData = await storage.getItem('player:current', { shared: false });
+                if (localData) {
+                    applyPlayerData(localData, {
+                        setUser, setXp, setUnlockedSkills, setCompletedQuests,
+                        setUnlockedAchievements, setXpHistory, setSpellingScore,
+                    });
+                }
                 setIsLoaded(true);
                 return;
             }
@@ -98,16 +115,32 @@ export default function usePlayerData() {
         const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
             if (!session?.user) {
                 setAuthUserId(null);
-                setUser(null);
+                const localData = await storage.getItem('player:current', { shared: false });
+                if (localData?.user) {
+                    applyPlayerData(localData, {
+                        setUser, setXp, setUnlockedSkills, setCompletedQuests,
+                        setUnlockedAchievements, setXpHistory, setSpellingScore,
+                    });
+                } else {
+                    setUser(null);
+                }
                 return;
             }
 
             setAuthUserId(session.user.id);
             const playerData = await storage.getItem('player:current', { shared: false });
-            applyPlayerData(playerData, {
+            const loaded = applyPlayerData(playerData, {
                 setUser, setXp, setUnlockedSkills, setCompletedQuests,
                 setUnlockedAchievements, setXpHistory, setSpellingScore,
             });
+            if (!loaded) {
+                const emailName = session.user.email ? session.user.email.split('@')[0] : 'Chasseur';
+                setUser({
+                    name: session.user.user_metadata?.username || session.user.user_metadata?.name || emailName,
+                    academy: session.user.user_metadata?.academy || 'Nomade',
+                    clan: { id: 'heroes', name: 'Légion Héroïque', icon: 'mdi:shield-flash', desc: 'Justice & Pouvoirs Cosmiques' },
+                });
+            }
         });
 
         return () => subscription.unsubscribe();

@@ -42,9 +42,11 @@ export default function AuthForm({ onAuthenticated, defaultMode = 'signup' }) {
         await signIn(safeEmail, safePassword);
         onAuthenticated?.();
       } else {
-        const { session } = await signUp(safeEmail, safePassword);
+        const { session } = await signUp(safeEmail, safePassword, {
+          emailRedirectTo: typeof window !== 'undefined' ? window.location.origin : undefined,
+        });
         if (!session) {
-          setSuccessMessage('Compte créé ! Vérifiez votre boîte email pour valider votre compte.');
+          setSuccessMessage('Compte créé ! Vérifiez votre boîte email (et votre dossier Spam/Courrier indésirable) pour valider votre compte.');
           // Auto-continue to setup after a short delay so user is not blocked
           setTimeout(() => {
             onAuthenticated?.();
@@ -129,21 +131,19 @@ export default function AuthForm({ onAuthenticated, defaultMode = 'signup' }) {
           <label className="block text-zinc-400 text-[10px] font-black uppercase tracking-widest mb-2">
             Adresse Email
           </label>
-          <div className="relative">
+          <div className="relative flex items-center">
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="votre@email.com"
-              className="w-full bg-black/50 border border-white/10 rounded-2xl px-5 py-3.5 text-white placeholder-zinc-600 focus:border-[#c28e3a] focus:ring-1 focus:ring-[#c28e3a] outline-none transition-all text-sm"
+              className="w-full bg-black/50 border border-white/10 rounded-2xl px-5 py-3.5 pr-12 text-white placeholder-zinc-600 focus:border-[#c28e3a] focus:ring-1 focus:ring-[#c28e3a] outline-none transition-all text-sm"
               required
               autoComplete="email"
             />
-            <iconify-icon
-              icon="mdi:email-outline"
-              width="18"
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none"
-            />
+            <div className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none flex items-center justify-center">
+              <iconify-icon icon="mdi:email-outline" width="18" />
+            </div>
           </div>
         </div>
 
@@ -172,7 +172,7 @@ export default function AuthForm({ onAuthenticated, defaultMode = 'signup' }) {
               type="button"
               onClick={() => setShowPassword(!showPassword)}
               aria-label={showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-white transition-colors"
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-white transition-colors flex items-center justify-center cursor-pointer"
             >
               <iconify-icon
                 icon={showPassword ? 'mdi:eye-off-outline' : 'mdi:eye-outline'}
@@ -250,7 +250,7 @@ export default function AuthForm({ onAuthenticated, defaultMode = 'signup' }) {
             </>
           ) : (
             <>
-              <iconify-icon icon={mode === 'signup' ? 'mdi:account-plus' : 'mdi:login'} width="18" />
+              <iconify-icon icon={mode === 'signup' ? 'mdi:paw' : 'mdi:login'} width="18" />
               <span>{mode === 'signup' ? 'Créer mon compte' : 'Se connecter'}</span>
             </>
           )}

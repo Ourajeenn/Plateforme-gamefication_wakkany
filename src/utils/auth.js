@@ -1,11 +1,15 @@
 import { supabase } from './supabaseClient';
 import { isSupabaseConfigured } from './isSupabaseConfigured';
 
-export async function signUp(email, password) {
+export async function signUp(email, password, options = {}) {
   if (!isSupabaseConfigured()) {
     throw new Error('Supabase non configuré');
   }
-  const { data, error } = await supabase.auth.signUp({ email, password });
+  const payload = { email, password };
+  if (options && Object.keys(options).length > 0) {
+    payload.options = options;
+  }
+  const { data, error } = await supabase.auth.signUp(payload);
   if (error) throw error;
   return data;
 }
