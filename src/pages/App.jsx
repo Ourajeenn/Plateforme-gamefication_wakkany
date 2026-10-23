@@ -1,12 +1,13 @@
 // Full App component moved from src/App.jsx
 import { Suspense, useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation, Navigate } from 'react-router-dom';
-import ProfileSetup from '../components/ProfileSetup';
+import { AnimatePresence, motion } from 'framer-motion';
+
 import Preloader from '../components/Preloader';
 import NotificationToast from '../components/NotificationToast';
 import DashboardNav from '../components/layout/DashboardNav';
 import PageLoader from '../components/common/PageLoader';
-import ChatWidget from '../components/common/ChatWidget';
+
 import AudioController from '../components/common/AudioController';
 import OfflineBanner from '../components/common/OfflineBanner';
 import usePlayerData from '../hooks/usePlayerData';
@@ -22,7 +23,13 @@ import useNotifications from '../hooks/useNotifications';
 import { flushOfflineQueue, getOfflineQueueLength } from '../utils/offlineQueue';
 import { supabase } from '../utils/supabaseClient';
 import { isSupabaseConfigured } from '../utils/isSupabaseConfigured';
-import { DashboardPage, QuizRoutes, GamesPage, LandingPage, SettingsPage } from '../routes/lazyComponents';
+import { DashboardPage, QuizRoutes, GamesPage, LandingPage, SettingsPage, ProfileSetup, ChatWidget } from '../routes/lazyComponents';
+
+const pageVariants = {
+  initial: { opacity: 0, y: 12 },
+  animate: { opacity: 1, y: 0, transition: { duration: 0.25, ease: 'easeOut' } },
+  exit: { opacity: 0, y: -8, transition: { duration: 0.18, ease: 'easeIn' } },
+};
 
 export default function App() {
   const navigate = useNavigate();
@@ -36,7 +43,7 @@ export default function App() {
 
   const {
     user, setUser, xp, setXp, unlockedSkills, setUnlockedSkills,
-    completedQuests, setCompletedQuests, xpHistory,
+    completedQuests, xpHistory,
     unlockedAchievements, setUnlockedAchievements, isLoaded,
     unlockSkill, completeQuest,
   } = usePlayerData();
@@ -232,51 +239,65 @@ export default function App() {
     <>
       {isLoading || authLoading || !isLoaded ? (
         <Preloader onComplete={handlePreloaderComplete} />
-      ) : isSetup ? (
-        <ProfileSetup onComplete={handleProfileComplete} isAuthenticated={isAuthenticated} />
-      ) : isGames ? (
-        <Suspense fallback={<PageLoader />}>
-          <GamesPage />
-        </Suspense>
-      ) : isQuiz ? (
-        <Suspense fallback={<PageLoader />}>
-          <QuizRoutes />
-        </Suspense>
-      ) : location.pathname === '/settings' ? (
-        <Suspense fallback={<PageLoader />}>
-          <SettingsPage />
-        </Suspense>
       ) : (
-        <div className="antialiased min-h-screen transition-colors duration-300 animate-fade-in overflow-y-auto">
-          {isDashboard ? <DashboardNav user={user} onLogout={handleLogout} /> : null}
-
-          {isDashboard ? (
-            <Suspense fallback={<PageLoader />}>
-              <DashboardPage
-                user={user}
-                dashboardTab={dashboardTab}
-                cumulativeXp={cumulativeXp}
-                xp={xp}
-                unlockedSkills={unlockedSkills}
-                unlockedAchievements={unlockedAchievements}
-                completedQuests={completedQuests}
-                xpHistory={xpHistory}
-                flashQuests={flashQuests}
-                setXp={setXp}
-                setUnlockedAchievements={setUnlockedAchievements}
-                onCompleteQuest={handleCompleteQuest}
-                onUnlockSkill={handleUnlockSkill}
-                onResetSkills={handleResetSkills}
-                onUpdateClan={handleUpdateClan}
-                playUnlock={playUnlock}
-              />
-            </Suspense>
+        <AnimatePresence mode="wait">
+          {isSetup ? (
+            <motion.div key="setup" variants={pageVariants} initial="initial" animate="animate" exit="exit">
+              <Suspense fallback={<PageLoader />}>
+                <ProfileSetup onComplete={handleProfileComplete} isAuthenticated={isAuthenticated} />
+              </Suspense>
+            </motion.div>
+          ) : isGames ? (
+            <motion.div key="games" variants={pageVariants} initial="initial" animate="animate" exit="exit">
+              <Suspense fallback={<PageLoader />}>
+                <GamesPage />
+              </Suspense>
+            </motion.div>
+          ) : isQuiz ? (
+            <motion.div key="quiz" variants={pageVariants} initial="initial" animate="animate" exit="exit">
+              <Suspense fallback={<PageLoader />}>
+                <QuizRoutes />
+              </Suspense>
+            </motion.div>
+          ) : location.pathname === '/settings' ? (
+            <motion.div key="settings" variants={pageVariants} initial="initial" animate="animate" exit="exit">
+              <Suspense fallback={<PageLoader />}>
+                <SettingsPage />
+              </Suspense>
+            </motion.div>
           ) : (
-            <Suspense fallback={<PageLoader />}>
-              <LandingPage user={user} onJoin={handleJoinClick} />
-            </Suspense>
+            <motion.div key={isDashboard ? 'dashboard' : 'landing'} variants={pageVariants} initial="initial" animate="animate" exit="exit" className="antialiased min-h-screen transition-colors duration-300 overflow-y-auto">
+              {isDashboard ? <DashboardNav user={user} onLogout={handleLogout} /> : null}
+
+              {isDashboard ? (
+                <Suspense fallback={<PageLoader />}>
+                  <DashboardPage
+                    user={user}
+                    dashboardTab={dashboardTab}
+                    cumulativeXp={cumulativeXp}
+                    xp={xp}
+                    unlockedSkills={unlockedSkills}
+                    unlockedAchievements={unlockedAchievements}
+                    completedQuests={completedQuests}
+                    xpHistory={xpHistory}
+                    flashQuests={flashQuests}
+                    setXp={setXp}
+                    setUnlockedAchievements={setUnlockedAchievements}
+                    onCompleteQuest={handleCompleteQuest}
+                    onUnlockSkill={handleUnlockSkill}
+                    onResetSkills={handleResetSkills}
+                    onUpdateClan={handleUpdateClan}
+                    playUnlock={playUnlock}
+                  />
+                </Suspense>
+              ) : (
+                <Suspense fallback={<PageLoader />}>
+                  <LandingPage user={user} onJoin={handleJoinClick} />
+                </Suspense>
+              )}
+            </motion.div>
           )}
-        </div>
+        </AnimatePresence>
       )}
 
       {/* Global Elements */}
@@ -293,7 +314,9 @@ export default function App() {
         <iconify-icon icon="mdi:arrow-up" width="24" className="relative z-10" />
       </button>
 
-      {user && <ChatWidget user={user} />}
+      <Suspense fallback={null}>
+        {user && <ChatWidget user={user} />}
+      </Suspense>
     </>
   );
 }

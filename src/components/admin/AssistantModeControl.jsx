@@ -10,6 +10,7 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { motion } from 'framer-motion';
 import { supabase } from '../../utils/supabaseClient';
 
 const MODES = [
@@ -273,6 +274,7 @@ export default function AssistantModeControl() {
   const activeModeConfig = MODES.find((m) => m.value === mode);
 
   return (
+    <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: 'easeOut' }}>
     <div className="space-y-8">
       {/* En-tête */}
       <div className="flex items-center gap-3">
@@ -366,5 +368,6 @@ export default function AssistantModeControl() {
         </div>
       )}
     </div>
+    </motion.div>
   );
 }

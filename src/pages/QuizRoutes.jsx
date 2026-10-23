@@ -1,15 +1,18 @@
-import { Suspense } from 'react';
+import { lazy, Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import PageLoader from '../components/common/PageLoader';
-import QuizHome from '../components/quiz/QuizHome';
-import QuizModes from '../components/quiz/QuizModes';
-import QuizConfig from '../components/quiz/QuizConfig';
-import PackProfile from '../components/quiz/PackProfile';
-import AcademyView from '../components/AcademyView';
-import AdminQuestionsReview from '../components/admin/AdminQuestionsReview';
-import BluffRoyal from '../components/quiz/BluffRoyal';
-import HostLobby from '../components/quiz/HostLobby';
-import JoinRoom from '../components/quiz/JoinRoom';
+
+// Lazy-loaded quiz components to lighten initial route bundle
+const QuizHome = lazy(() => import('../components/quiz/QuizHome'));
+const QuizModes = lazy(() => import('../components/quiz/QuizModes'));
+const QuizConfig = lazy(() => import('../components/quiz/QuizConfig'));
+const PackProfile = lazy(() => import('../components/quiz/PackProfile'));
+const AcademyView = lazy(() => import('../components/AcademyView'));
+const AdminQuestionsReview = lazy(() => import('../components/admin/AdminQuestionsReview'));
+const BluffRoyal = lazy(() => import('../components/quiz/BluffRoyal'));
+const HostLobby = lazy(() => import('../components/quiz/HostLobby'));
+const JoinRoom = lazy(() => import('../components/quiz/JoinRoom'));
+
 import { FamilyGame, GamesPage } from '../routes/lazyComponents';
 
 export default function QuizRoutes() {
@@ -32,4 +35,3 @@ export default function QuizRoutes() {
     </Suspense>
   );
 }
-

@@ -1,12 +1,12 @@
 import React, { Suspense, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import HistoireView from '../components/HistoireView';
+import { AvatarCarousel, AvatarRoster, HistoireView, WaitlistPage, AboutPage, ArchetypesPage } from '../routes/lazyComponents';
 import LandingNav from '../components/layout/LandingNav';
 import PageLoader from '../components/common/PageLoader';
-import WaitlistPage from './landing/WaitlistPage';
-import AboutPage from './landing/AboutPage';
-import ArchetypesPage from './landing/ArchetypesPage';
-import { AvatarCarousel, AvatarRoster } from '../routes/lazyComponents';
+
+
+
+
 import ScrollReveal from '../components/common/ScrollReveal';
 
 const HERO_VIDEO_SRC = 'https://storage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4';
@@ -71,16 +71,17 @@ export default function LandingPage({ user, onJoin }) {
         onJoin={handleJoinClick}
       />
 
-      {landingTab === 'waitlist' ? (
-        <WaitlistPage onBack={goHome} />
-      ) : landingTab === 'about' ? (
-        <AboutPage onBack={goHome} />
-      ) : landingTab === 'blog' ? (
-        <div className="pt-24"><HistoireView /></div>
-      ) : landingTab === 'archetypes' ? (
-        <ArchetypesPage onBack={goHome} onJoin={handleJoinClick} />
-      ) : (
-        <>
+      <Suspense fallback={<PageLoader />}>
+        {landingTab === 'waitlist' ? (
+          <WaitlistPage onBack={goHome} />
+        ) : landingTab === 'about' ? (
+          <AboutPage onBack={goHome} />
+        ) : landingTab === 'blog' ? (
+          <div className="pt-24"><HistoireView /></div>
+        ) : landingTab === 'archetypes' ? (
+          <ArchetypesPage onBack={goHome} onJoin={handleJoinClick} />
+        ) : (
+          <>
             {/* Hero Section */}
             <header id="hero" className="relative w-full h-screen overflow-hidden flex flex-col justify-end pb-10 sm:pb-24">
               <div className="absolute inset-0 z-0 bg-zinc-950 overflow-hidden stabilize-motion">
@@ -458,7 +459,7 @@ export default function LandingPage({ user, onJoin }) {
                     alt="Footer Lineup"
                     loading="eager"
                     decoding="async"
-                    fetchpriority="high"
+                    fetchPriority="high"
                     width={2000}
                     height={600}
                     onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = 'https://i.postimg.cc/9MzzCfVb/footer.png'; }}
@@ -514,7 +515,8 @@ export default function LandingPage({ user, onJoin }) {
               </div>
             </footer>
           </>
-      )}
+        )}
+      </Suspense>
     </>
   );
 }
