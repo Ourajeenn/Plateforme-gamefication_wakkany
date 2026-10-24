@@ -70,7 +70,6 @@ export default function TriviaQuiz({ setXp, xpPerCorrect = 10, userId, deviceId 
   };
 
   const claimReward = async () => {
-    const earnedXp = score * xpPerCorrect;
     const duration = startTime ? Math.round((Date.now() - startTime) / 1000) : 0;
 
     // Déterminer si c'est parfait (10/10)
@@ -87,10 +86,8 @@ export default function TriviaQuiz({ setXp, xpPerCorrect = 10, userId, deviceId 
       duration
     });
 
-    // Fallback : aussi appeler setXp
-    if (setXp) {
-      setXp(prev => prev + earnedXp);
-    }
+    // L'XP est créditée côté serveur par completeGame. Aucune attribution locale :
+    // une seconde écriture créerait un décalage entre l'affichage et la base.
 
     // Reset
     setCurrentIdx(0);
@@ -167,7 +164,7 @@ export default function TriviaQuiz({ setXp, xpPerCorrect = 10, userId, deviceId 
   const q = questions[currentIdx];
   return (
     <div className="max-w-2xl mx-auto p-6 bg-zinc-900/60 border border-[#c28e3a]/20 rounded-2xl shadow-xl">
-      <h3 className="text-xl font-heading font-bold text-white mb-4" dangerouslySetInnerHTML={{ __html: q.question }} />
+      <h3 className="text-xl font-heading font-bold text-white mb-4">{q.question}</h3>
       <ul className="space-y-3">
         {q.options.map((opt, i) => (
           <li key={i}>

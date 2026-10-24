@@ -28,3 +28,12 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Fichiers générés par les outils d audit (ne pas versionner)
+semgrep_*.json
+semgrep_*.txt
+audit-warnings.txt
+build-warnings.txt
+tmp*.yml
+playwright-report/
+test-results/

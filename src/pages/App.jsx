@@ -45,7 +45,7 @@ export default function App() {
     user, setUser, xp, setXp, unlockedSkills, setUnlockedSkills,
     completedQuests, xpHistory,
     unlockedAchievements, setUnlockedAchievements, isLoaded,
-    unlockSkill, completeQuest,
+    unlockSkill, completeQuest, grantXp,
   } = usePlayerData();
   const { isAuthenticated, authRequired, loading: authLoading } = useAuth();
 
@@ -290,6 +290,7 @@ export default function App() {
                     xpHistory={xpHistory}
                     flashQuests={flashQuests}
                     setXp={setXp}
+                    grantXp={grantXp}
                     setUnlockedAchievements={setUnlockedAchievements}
                     onCompleteQuest={handleCompleteQuest}
                     onUnlockSkill={handleUnlockSkill}

@@ -8,7 +8,7 @@ import { getLevel } from '../data/levels';
 import { getDominantBranch } from '../utils/xpHelpers';
 import { BRANCHES } from '../data/branches';
 
-export default function ProfileView({ user, xp, unlockedSkills, unlockedAchievements, setXp, setUnlockedAchievements }) {
+export default function ProfileView({ user, xp, unlockedSkills, unlockedAchievements, setXp, grantXp, setUnlockedAchievements }) {
   const navigate = useNavigate();
   const [scanning, setScanning] = useState(false);
   const [scanApproved, setScanApproved] = useState(false);
@@ -123,9 +123,9 @@ export default function ProfileView({ user, xp, unlockedSkills, unlockedAchievem
       }
     } catch(e) {}
 
-    // Award XP
-    if (setXp) {
-      setXp(prev => prev + xpReward);
+    // XP crédité via la RPC sécurisée (grantXp) : persistée, pas seulement locale
+    if (grantXp) {
+      grantXp(xpReward);
     }
   };
 

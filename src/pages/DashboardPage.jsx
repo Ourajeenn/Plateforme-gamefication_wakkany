@@ -24,6 +24,7 @@ export default function DashboardPage({
   xpHistory,
   flashQuests,
   setXp,
+  grantXp,
   setUnlockedAchievements,
   onCompleteQuest,
   onUnlockSkill,
@@ -130,6 +131,7 @@ export default function DashboardPage({
               unlockedSkills={unlockedSkills}
               unlockedAchievements={unlockedAchievements}
               setXp={setXp}
+              grantXp={grantXp}
               setUnlockedAchievements={setUnlockedAchievements}
             />
           )}

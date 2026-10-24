@@ -47,8 +47,8 @@ export function useGameCompletion({ userId, onSkillUnlocked }) {
         }
 
         // 3. Ajouter XP
+        // Paramètres = signature SQL réelle : increment_xp(amount INTEGER)
         const { data: xpData, error: xpErr } = await supabase.rpc('increment_xp', {
-          user_id: userId,
           amount: xpGain
         });
 
@@ -61,9 +61,9 @@ export function useGameCompletion({ userId, onSkillUnlocked }) {
 
         // 4. Débloquer chaque compétence
         for (const skillId of skills) {
+          // Paramètres = signature SQL réelle : unlock_skill_secure(p_skill_id TEXT)
           const { error: unlockErr } = await supabase.rpc('unlock_skill_secure', {
-            user_id: userId,
-            skill_id: skillId
+            p_skill_id: skillId
           });
 
           if (unlockErr) {

@@ -1,23 +1,25 @@
 /**
- * Supabase Edge Function — LLM Assistant & Question Generator
+ * Supabase Edge Function — Assistant RAG & générateur de questions
  * Deploy: supabase/functions/assistant/index.ts
  *
- * Implémentation du plan RAG + Modes de contrôle admin (v1) :
- *   - P0-a : Authentification obligatoire (JWT Supabase)
- *   - P0-b : Rate limiting (10 req/min par utilisateur)
- *   - Étape 4 : getAssistantMode (fail closed -> 'off')
- *   - Étape 5 : retrieveKnowledge (match_approved_questions)
- *   - Étape 6 : buildRagPrompt (sources numérotées, anti-injection)
- *   - Étape 7 : Routage (off / supervised / auto)
- *   - Étape 8 : File d'attente assistant_pending
- *   - Mode generate_question : génération de questions de quiz (inchangé)
+ * Ordre des contrôles (identique pour TOUS les modes) :
+ *   1. Corps JSON valide, prompt présent et de longueur raisonnable
+ *   2. Authentification obligatoire (JWT Supabase)
+ *   3. Débit par utilisateur, stocké en base (fonction assistant_hit)
+ *   4. Routage par mode :
+ *        - generate_question : génération de questions de quiz
+ *        - chat : RAG selon assistant_mode (off | supervised | auto)
+ *
+ * Variables d'environnement requises :
+ *   OPENAI_API_KEY, SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY
+ *   ALLOWED_ORIGIN : origine du site en production (ex. https://wakkany.vercel.app)
  */
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 // ──────────────────────────────────────────────
-// Configuration & Secrets
+// Configuration
 // ──────────────────────────────────────────────
 const OPENAI_API_KEY   = Deno.env.get("OPENAI_API_KEY")!;
 const SUPABASE_URL     = Deno.env.get("SUPABASE_URL")!;
@@ -25,18 +27,17 @@ const SUPABASE_ANON    = Deno.env.get("SUPABASE_ANON_KEY")!;
 const SUPABASE_SERVICE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const MODEL            = "gpt-4-turbo-preview";
 
-// Paramètres RAG (Étapes 5 & 6)
-const K_PASSAGES = 4;
-const MIN_RANK    = 0.01;
-
-// Rate limiter en mémoire (P0-b)
-const rateLimitMap = new Map<string, { count: number; windowStart: number }>();
-const RATE_LIMIT_MAX    = 10;
-const RATE_LIMIT_WINDOW = 60_000;
+// Paramètres RAG
+const K_PASSAGES        = 4;
+const MIN_RANK          = 0.01;   // à calibrer (voir rapport, section 5)
+const MAX_PROMPT_LENGTH = 500;
+const RATE_LIMIT_MAX    = 10;     // requêtes par minute et par utilisateur
 
 // ──────────────────────────────────────────────
 // Types
 // ──────────────────────────────────────────────
+type AssistantMode = "off" | "auto" | "supervised";
+
 interface RequestBody {
   prompt: string;
   mode?: "chat" | "generate_question" | "generate_scenario";
@@ -69,10 +70,10 @@ interface KnowledgeEntry {
 }
 
 // ──────────────────────────────────────────────
-// Helpers : CORS
+// CORS : origine explicite, jamais "*"
 // ──────────────────────────────────────────────
 const corsHeaders = {
-  "Access-Control-Allow-Origin": Deno.env.get("ALLOWED_ORIGIN") ?? "*",
+  "Access-Control-Allow-Origin": Deno.env.get("ALLOWED_ORIGIN") ?? "null",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type, Authorization",
 };
@@ -89,59 +90,48 @@ function errorResponse(message: string, status: number) {
 }
 
 // ──────────────────────────────────────────────
-// P0-b : Rate limiting
+// Débit : compteur en base, atomique
 // ──────────────────────────────────────────────
-function checkRateLimit(userId: string): boolean {
-  const now   = Date.now();
-  const entry = rateLimitMap.get(userId);
-
-  if (!entry || now - entry.windowStart > RATE_LIMIT_WINDOW) {
-    rateLimitMap.set(userId, { count: 1, windowStart: now });
-    return true;
+// deno-lint-ignore no-explicit-any
+async function checkRateLimit(supabaseUser: any): Promise<"ok" | "limited" | "unavailable"> {
+  const { data, error } = await supabaseUser.rpc("assistant_hit", { p_limit: RATE_LIMIT_MAX });
+  if (error) {
+    console.error("assistant_hit error:", error);
+    return "unavailable";   // fail closed
   }
-
-  if (entry.count >= RATE_LIMIT_MAX) {
-    return false;
-  }
-
-  entry.count += 1;
-  return true;
+  return data === true ? "ok" : "limited";
 }
 
 // ──────────────────────────────────────────────
-// Étape 4 : Lire le mode dans app_settings (fail closed)
+// Mode : lu à chaque requête, fail closed -> off
 // ──────────────────────────────────────────────
 // deno-lint-ignore no-explicit-any
-async function getAssistantMode(supabase: any): Promise<"off" | "auto" | "supervised"> {
+async function getAssistantMode(supabase: any): Promise<AssistantMode> {
   try {
-    // RLS enabled on app_settings
     const { data, error } = await supabase
       .from("app_settings")
       .select("value")
       .eq("key", "assistant_mode")
       .single();
 
-    if (error || !data) return "supervised";
-
-    const value = data.value;
-    if (value === "auto" || value === "supervised" || value === "off") return value;
-    return "supervised";
+    if (error || !data) return "off";
+    if (data.value === "auto" || data.value === "supervised") return data.value;
+    return "off";
   } catch (err) {
-    console.warn("Could not read assistant_mode, defaulting to supervised:", err);
-    return "supervised";
+    console.warn("assistant_mode illisible, mode off :", err);
+    return "off";
   }
 }
 
 // ──────────────────────────────────────────────
-// Étape 5 : Récupérer la connaissance pertinente
+// Récupération des connaissances validées
 // ──────────────────────────────────────────────
 // deno-lint-ignore no-explicit-any
 async function retrieveKnowledge(supabase: any, question: string): Promise<KnowledgeEntry[]> {
-  // Normalisation : minuscules, suppression des accents et des mots courts
   const terms = question
     .toLowerCase()
     .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[̀-ͯ]/g, "")
     .replace(/[?!.,;:]/g, " ")
     .split(/\s+/)
     .filter((w) => w.length > 2)
@@ -163,7 +153,7 @@ async function retrieveKnowledge(supabase: any, question: string): Promise<Knowl
 }
 
 // ──────────────────────────────────────────────
-// Étape 6 : Construire le prompt RAG
+// Prompt RAG : sources numérotées, données et non instructions
 // ──────────────────────────────────────────────
 function buildRagPrompt(
   question: string,
@@ -195,30 +185,32 @@ ${context}`;
 }
 
 // ──────────────────────────────────────────────
-// OpenAI Caller
+// Appel OpenAI
 // ──────────────────────────────────────────────
-async function callOpenAIWithMessages(
+async function callOpenAI(
   messages: Array<{ role: string; content: string }>,
-  temperature = 0.2,
-  max_tokens = 400
+  options: { temperature?: number; max_tokens?: number; json?: boolean } = {}
 ): Promise<string> {
+  const body: Record<string, unknown> = {
+    model: MODEL,
+    messages,
+    temperature: options.temperature ?? 0.2,
+    max_tokens: options.max_tokens ?? 400,
+  };
+  if (options.json) body.response_format = { type: "json_object" };
+
   const response = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${OPENAI_API_KEY}`,
     },
-    body: JSON.stringify({
-      model: MODEL,
-      messages,
-      temperature,
-      max_tokens,
-    }),
+    body: JSON.stringify(body),
   });
 
   if (!response.ok) {
-    const err = await response.json();
-    throw new Error(`OpenAI API error: ${JSON.stringify(err)}`);
+    const text = await response.text();
+    throw new Error(`OpenAI API error ${response.status}: ${text.slice(0, 300)}`);
   }
 
   const data = await response.json();
@@ -226,7 +218,7 @@ async function callOpenAIWithMessages(
 }
 
 // ──────────────────────────────────────────────
-// Mode generate_question (inchangé)
+// Mode generate_question (inchangé fonctionnellement)
 // ──────────────────────────────────────────────
 async function generateQuestion(
   prompt: string,
@@ -237,31 +229,13 @@ Tu génères des questions de quiz intéressantes avec des conséquences qui aff
 Réponds TOUJOURS en JSON valide avec exactement 4 réponses (dont au moins 1 correcte).
 Chaque question doit avoir une narration engageante et des conséquences significatives.`;
 
-  const response = await fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${OPENAI_API_KEY}`,
-    },
-    body: JSON.stringify({
-      model: MODEL,
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: prompt },
-      ],
-      temperature: 0.8,
-      max_tokens: 1500,
-      response_format: { type: "json_object" },
-    }),
-  });
-
-  if (!response.ok) {
-    const err = await response.json();
-    throw new Error(`OpenAI API error: ${JSON.stringify(err)}`);
-  }
-
-  const data = await response.json();
-  const raw = data.choices[0].message.content;
+  const raw = await callOpenAI(
+    [
+      { role: "system", content: systemPrompt },
+      { role: "user", content: prompt },
+    ],
+    { temperature: 0.8, max_tokens: 1500, json: true }
+  );
 
   const parsed = JSON.parse(raw);
   if (!parsed.question || !Array.isArray(parsed.answers) || parsed.answers.length !== 4) {
@@ -297,11 +271,15 @@ Chaque question doit avoir une narration engageante et des conséquences signifi
 // Handler principal
 // ──────────────────────────────────────────────
 serve(async (req: Request) => {
-  // Preflight CORS
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
+  if (req.method !== "POST") {
+    return errorResponse("Méthode non autorisée", 405);
+  }
+
+  // 1. Corps et prompt
   let body: RequestBody;
   try {
     body = (await req.json()) as RequestBody;
@@ -311,22 +289,14 @@ serve(async (req: Request) => {
 
   const { prompt, mode = "chat", context } = body;
 
-  if (!prompt) {
+  if (typeof prompt !== "string" || prompt.trim() === "") {
     return errorResponse("Missing prompt", 400);
   }
-
-  // Chemin quiz generator (inchangé)
-  if (mode === "generate_question") {
-    try {
-      const result = await generateQuestion(prompt, context);
-      return jsonResponse(result);
-    } catch (err) {
-      console.error("generate_question error:", err);
-      return errorResponse(err instanceof Error ? err.message : "Unknown error", 500);
-    }
+  if (prompt.length > MAX_PROMPT_LENGTH) {
+    return errorResponse(`Question trop longue (${MAX_PROMPT_LENGTH} caractères maximum)`, 400);
   }
 
-  // ── Étape 1 : Prérequis P0-a (Authentification obligatoire) ──
+  // 2. Authentification pour TOUS les modes
   const authHeader = req.headers.get("Authorization") ?? "";
   if (!authHeader) {
     return errorResponse("Non authentifié", 401);
@@ -341,70 +311,90 @@ serve(async (req: Request) => {
     return errorResponse("Non authentifié", 401);
   }
 
-  // ── Étape 1 : Prérequis P0-b (Débit limité) ──
-  if (!checkRateLimit(user.id)) {
-    return errorResponse(
-      "Trop de requêtes. Patiente une minute avant de réessayer.",
-      429
-    );
+  // 3. Débit pour TOUS les modes
+  const rate = await checkRateLimit(supabaseUser);
+  if (rate === "unavailable") {
+    return errorResponse("Service temporairement indisponible", 503);
+  }
+  if (rate === "limited") {
+    return errorResponse("Trop de requêtes. Patiente une minute avant de réessayer.", 429);
   }
 
-  // Client admin service_role pour app_settings et insertion assistant_pending
+  // 4a. Génération de questions de quiz
+  if (mode === "generate_question") {
+    try {
+      const result = await generateQuestion(prompt, context);
+      return jsonResponse(result);
+    } catch (err) {
+      console.error("generate_question error:", err);
+      return errorResponse("Génération impossible", 500);
+    }
+  }
+
+  // 4b. Chat RAG
   const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE);
 
-  // ── Étape 4 : Lecture du mode (fail closed) ──
   const assistantMode = await getAssistantMode(supabaseUser);
 
-  // ── Étape 7 : Routage selon le mode ──
   if (assistantMode === "off") {
     return jsonResponse({
       answer: "L'assistant est temporairement désactivé.",
+      sources: [],
       mode: "off",
     });
   }
 
-  // ── Étape 5 : Récupération des connaissances RAG ──
   const passages = await retrieveKnowledge(supabaseUser, prompt);
 
+  // Aucune connaissance validée pertinente
   if (passages.length === 0) {
-    // Mode auto ou supervised : pas de réponse inventée, 0 appel modèle (économie)
+    if (assistantMode === "supervised") {
+      // La question est mise en file : l'admin rédige la réponse, qui devient
+      // ensuite une connaissance validée et sera trouvée par le RAG.
+      const { data: existing } = await supabaseAdmin
+        .from("assistant_pending")
+        .select("id")
+        .eq("question", prompt)
+        .eq("status", "pending")
+        .limit(1);
+
+      if (!existing || existing.length === 0) {
+        const { error: insertError } = await supabaseAdmin
+          .from("assistant_pending")
+          .insert({
+            question: prompt,
+            proposed_answer: "",
+            source_ids: [],
+            status: "pending",
+          });
+        if (insertError) console.error("assistant_pending insert error:", insertError);
+      }
+
+      return jsonResponse({
+        answer: "Votre question a été transmise à un administrateur pour validation.",
+        sources: [],
+        mode: "supervised",
+      });
+    }
+
+    // auto : pas de réponse inventée, aucun appel au modèle
     return jsonResponse({
       answer: "Je n'ai pas de réponse validée à cette question pour le moment.",
       sources: [],
-      mode: assistantMode,
+      mode: "auto",
     });
   }
 
-  // ── Étape 6 : Construction du prompt et appel du modèle ──
-  const messages = buildRagPrompt(prompt, passages);
-  const answer = await callOpenAIWithMessages(messages);
-
-  // ── Étape 8 : En mode supervised, mise en attente pour validation admin ──
-  if (assistantMode === "supervised") {
-    const { error: insertError } = await supabaseAdmin
-      .from("assistant_pending")
-      .insert({
-        question: prompt,
-        proposed_answer: answer,
-        source_ids: passages.map((p) => p.id),
-        status: "pending",
-      });
-
-    if (insertError) {
-      console.error("assistant_pending insert error:", insertError);
-    }
-
+  // Connaissance validée trouvée : réponse directe, dans les deux modes
+  try {
+    const answer = await callOpenAI(buildRagPrompt(prompt, passages));
     return jsonResponse({
-      answer: "Votre question a été transmise à un administrateur pour validation.",
+      answer,
       sources: passages.map((p) => p.id),
       mode: assistantMode,
     });
+  } catch (err) {
+    console.error("RAG generation error:", err);
+    return errorResponse("Réponse impossible pour le moment", 500);
   }
-
-  // ── Mode auto : retour direct avec sources ──
-  return jsonResponse({
-    answer,
-    sources: passages.map((p) => p.id),
-    mode: "auto",
-  });
 });

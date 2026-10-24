@@ -54,6 +54,7 @@ function PendingQueue() {
   const [loading, setLoading]           = useState(true);
   const [edits, setEdits]               = useState({});
   const [actionLoading, setActionLoading] = useState({});
+  const [queueError, setQueueError]     = useState(null);
 
   const loadPending = useCallback(async () => {
     setLoading(true);
@@ -77,12 +78,43 @@ function PendingQueue() {
 
   // Approuver la réponse (boucle d'apprentissage : ajout optionnel dans ai_questions)
   const handleApprove = async (item) => {
-    setActionLoading((prev) => ({ ...prev, [item.id]: 'approving' }));
-    const { data: { user } } = await supabase.auth.getUser();
-    const finalAnswer = edits[item.id] !== undefined ? edits[item.id] : item.proposed_answer;
+    const finalAnswer = (edits[item.id] !== undefined ? edits[item.id] : item.proposed_answer ?? '').trim();
 
-    // 1. Mettre à jour assistant_pending
-    // RLS enabled on assistant_pending
+    // Une réponse vide ne peut pas devenir une connaissance validée
+    if (finalAnswer === '') {
+      setQueueError('Rédige la réponse avant de valider.');
+      return;
+    }
+
+    setActionLoading((prev) => ({ ...prev, [item.id]: 'approving' }));
+    setQueueError(null);
+    const { data: { user } } = await supabase.auth.getUser();
+
+    // 1. Connaissance validée : type 'knowledge', réservé au RAG.
+    //    Les jeux ne lisent jamais ce type (Bluff : 'bluff', Quiz : OpenTDB).
+    const { error: insertError } = await supabase.from('ai_questions').insert({
+      theme: 'general',
+      mode: 'knowledge',
+      difficulty: 'rookie',
+      type: 'knowledge',
+      question: item.question,
+      options: [],
+      answer: finalAnswer,
+      explanation: `Validé par l'administrateur le ${new Date().toLocaleDateString('fr-FR')}`,
+      status: 'approved',
+      created_by: user?.id,
+      reviewed_by: user?.id,
+      reviewed_at: new Date().toISOString(),
+    });
+
+    if (insertError) {
+      // Si l'insertion échoue, la question reste en file : rien n'est perdu
+      setQueueError("Intégration impossible dans la base de connaissances. La question reste en attente.");
+      setActionLoading((prev) => ({ ...prev, [item.id]: null }));
+      return;
+    }
+
+    // 2. Marquer la question de la file comme traitée
     const { error: updateError } = await supabase
       .from('assistant_pending')
       .update({
@@ -93,27 +125,9 @@ function PendingQueue() {
       })
       .eq('id', item.id);
 
-    if (!updateError) {
-      // 2. Boucle d'apprentissage : insérer la paire validée dans ai_questions
-      try {
-        // RLS enabled on ai_questions
-        await supabase.from('ai_questions').insert({
-          theme: 'general',
-          mode: 'coop_meute',
-          difficulty: 'rookie',
-          type: 'mcq',
-          question: item.question,
-          answer: finalAnswer,
-          explanation: `Validé par l'administrateur le ${new Date().toLocaleDateString('fr-FR')}`,
-          status: 'approved',
-          created_by: user?.id,
-          reviewed_by: user?.id,
-          reviewed_at: new Date().toISOString(),
-        });
-      } catch (err) {
-        console.warn('Apprentissage auto ai_questions note:', err);
-      }
-
+    if (updateError) {
+      setQueueError('Connaissance enregistrée, mais la file n\'a pas pu être mise à jour. Rafraîchis la page.');
+    } else {
       setPendingItems((prev) => prev.filter((p) => p.id !== item.id));
     }
     setActionLoading((prev) => ({ ...prev, [item.id]: null }));
@@ -160,6 +174,11 @@ function PendingQueue() {
 
   return (
     <div className="space-y-4">
+      {queueError && (
+        <p role="alert" className="text-sm text-red-300 bg-red-950/40 border border-red-800/40 rounded-xl p-3">
+          {queueError}
+        </p>
+      )}
       {pendingItems.map((item) => (
         <div
           key={item.id}
@@ -180,7 +199,7 @@ function PendingQueue() {
           {/* Réponse proposée (éditable) */}
           <div>
             <div className="text-xs uppercase tracking-wider text-amber-400 font-bold mb-1 flex items-center justify-between">
-              <span>Réponse proposée par le RAG</span>
+              <span>{item.proposed_answer ? 'Réponse proposée' : 'Réponse à rédiger (aucune connaissance trouvée)'}</span>
               <span className="text-[11px] text-zinc-500 normal-case">Modifiable avant validation</span>
             </div>
             <textarea
@@ -234,7 +253,8 @@ export default function AssistantModeControl() {
         if (!fetchErr && data) {
           setMode(data.value);
         } else {
-          setMode('supervised');
+          // Même repli que la fonction edge : fail closed
+          setMode('off');
         }
       });
   }, []);
