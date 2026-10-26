@@ -21,7 +21,10 @@ function shuffle(array) {
 export default function BluffRoyal() {
   const location = useLocation();
   const navigate = useNavigate();
-  const config = location?.state?.config || { players: ['Chasseur 1', 'Chasseur 2'], theme: 'rpg' };
+  // Deux sources possibles : configurateur solo (state.config) ou salon multijoueur
+  // (state.players / state.theme à plat, cf. HostLobby et JoinRoom).
+  const navState = location?.state || {};
+  const config = navState.config || { players: navState.players, theme: navState.theme || 'rpg' };
   const playersInit = config.players?.length >= 2 ? config.players : ['Chasseur 1', 'Chasseur 2'];
 
   const [questions, setQuestions] = useState([]);
@@ -62,12 +65,11 @@ export default function BluffRoyal() {
           .eq('theme', currentTheme)
           .limit(ROUNDS_PER_GAME * 2);
 
-        if (fetchError || !data || data.length === 0) {
-          const localSet = BLUFF_QUESTIONS[currentTheme] || BLUFF_QUESTIONS['rpg'];
-          setQuestions(shuffle(localSet).slice(0, ROUNDS_PER_GAME));
-        } else {
-          setQuestions(shuffle(data).slice(0, ROUNDS_PER_GAME));
-        }
+        // Questions validées en base d'abord, complétées par les questions locales
+        // si l'admin n'en a pas validé assez (sinon la partie aurait moins de manches).
+        const localSet = shuffle(BLUFF_QUESTIONS[currentTheme] || BLUFF_QUESTIONS['rpg']);
+        const dbSet = fetchError || !data ? [] : shuffle(data);
+        setQuestions([...dbSet, ...localSet].slice(0, ROUNDS_PER_GAME));
       } catch (err) {
         console.warn("Erreur fetch, bascule sur les questions locales :", err);
         const localSet = BLUFF_QUESTIONS[currentTheme] || BLUFF_QUESTIONS['rpg'];
