@@ -6,11 +6,13 @@ export default function PackProfile() {
   const [stats, setStats] = useState({ xp: 0, games: 0, wins: 0 });
 
   useEffect(() => {
-    // Simuler le chargement depuis le local storage (plus tard Supabase)
     const xp = parseInt(localStorage.getItem('wakkany_family_xp') || '0', 10);
     const games = parseInt(localStorage.getItem('wakkany_family_games') || '0', 10);
     const wins = parseInt(localStorage.getItem('wakkany_family_wins') || '0', 10);
-    setStats({ xp, games, wins });
+    const bluffGames = parseInt(localStorage.getItem('wakkany_bluff_games') || '0', 10);
+    const bluffWins = parseInt(localStorage.getItem('wakkany_bluff_wins') || '0', 10);
+    const bluffBest = parseInt(localStorage.getItem('wakkany_bluff_best_score') || '0', 10);
+    setStats({ xp, games, wins, bluffGames, bluffWins, bluffBest });
   }, []);
 
   const familyLevel = Math.floor(stats.xp / 500) + 1;
@@ -53,24 +55,44 @@ export default function PackProfile() {
         </div>
 
         {/* Statistics Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-zinc-900 border border-white/5 rounded-3xl p-8 flex items-center gap-6">
-             <div className="w-16 h-16 rounded-2xl bg-blue-500/10 flex items-center justify-center text-blue-500">
-               <iconify-icon icon="mdi:gamepad-2" width="32"></iconify-icon>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="bg-zinc-900 border border-white/5 rounded-3xl p-6 flex items-center gap-5">
+             <div className="w-14 h-14 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 shrink-0">
+               <iconify-icon icon="mdi:gamepad-2" width="28"></iconify-icon>
              </div>
              <div>
-               <p className="text-4xl font-heading font-black italic">{stats.games}</p>
-               <p className="text-xs text-zinc-500 uppercase tracking-widest font-bold">Parties Jouées</p>
+               <p className="text-3xl font-heading font-black italic">{stats.games || 0}</p>
+               <p className="text-[10px] text-zinc-400 uppercase tracking-wider font-bold">Parties Globales</p>
              </div>
           </div>
           
-          <div className="bg-zinc-900 border border-white/5 rounded-3xl p-8 flex items-center gap-6">
-             <div className="w-16 h-16 rounded-2xl bg-green-500/10 flex items-center justify-center text-green-500">
-               <iconify-icon icon="mdi:trophy" width="32"></iconify-icon>
+          <div className="bg-zinc-900 border border-white/5 rounded-3xl p-6 flex items-center gap-5">
+             <div className="w-14 h-14 rounded-2xl bg-green-500/10 border border-green-500/20 flex items-center justify-center text-green-400 shrink-0">
+               <iconify-icon icon="mdi:trophy" width="28"></iconify-icon>
              </div>
              <div>
-               <p className="text-4xl font-heading font-black italic">{stats.wins}</p>
-               <p className="text-xs text-zinc-500 uppercase tracking-widest font-bold">Victoires Parfaites</p>
+               <p className="text-3xl font-heading font-black italic">{stats.wins || 0}</p>
+               <p className="text-[10px] text-zinc-400 uppercase tracking-wider font-bold">Victoires Quiz</p>
+             </div>
+          </div>
+
+          <div className="bg-zinc-900 border border-white/5 rounded-3xl p-6 flex items-center gap-5">
+             <div className="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-[#c28e3a] shrink-0">
+               <iconify-icon icon="mdi:theater" width="28"></iconify-icon>
+             </div>
+             <div>
+               <p className="text-3xl font-heading font-black italic">{stats.bluffGames || 0}</p>
+               <p className="text-[10px] text-zinc-400 uppercase tracking-wider font-bold">Parties Bluff</p>
+             </div>
+          </div>
+
+          <div className="bg-zinc-900 border border-white/5 rounded-3xl p-6 flex items-center gap-5">
+             <div className="w-14 h-14 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 shrink-0">
+               <iconify-icon icon="mdi:crown" width="28"></iconify-icon>
+             </div>
+             <div>
+               <p className="text-3xl font-heading font-black italic">{stats.bluffBest || 0}</p>
+               <p className="text-[10px] text-zinc-400 uppercase tracking-wider font-bold">Record Bluff (Pts)</p>
              </div>
           </div>
         </div>

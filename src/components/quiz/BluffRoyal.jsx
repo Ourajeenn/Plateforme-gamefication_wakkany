@@ -130,11 +130,50 @@ export default function BluffRoyal() {
 
   const handleGameEnd = async () => {
     const sortedByScore = Object.entries(scores).sort((a, b) => b[1] - a[1]);
-    const topScore = sortedByScore[0]?.[1];
+    const topScore = sortedByScore[0]?.[1] || 0;
     const isSweep = topScore >= ROUNDS_PER_GAME * 1000;
 
     const mode = isSweep ? 'bluff-royal:sweep' : 'bluff-royal';
     const duration = Math.round((Date.now() - startTime) / 1000);
+
+    // Enregistrement des statistiques de parties Bluff dans le profil utilisateur
+    try {
+      const prevBluffGames = parseInt(localStorage.getItem('wakkany_bluff_games') || '0', 10);
+      const prevBluffWins = parseInt(localStorage.getItem('wakkany_bluff_wins') || '0', 10);
+      const prevBluffSweeps = parseInt(localStorage.getItem('wakkany_bluff_sweeps') || '0', 10);
+      const prevBestScore = parseInt(localStorage.getItem('wakkany_bluff_best_score') || '0', 10);
+      const prevTotalScore = parseInt(localStorage.getItem('wakkany_bluff_total_score') || '0', 10);
+      const prevFamilyGames = parseInt(localStorage.getItem('wakkany_family_games') || '0', 10);
+      const prevFamilyXp = parseInt(localStorage.getItem('wakkany_family_xp') || '0', 10);
+
+      const xpReward = isSweep ? 200 : 100;
+
+      localStorage.setItem('wakkany_bluff_games', (prevBluffGames + 1).toString());
+      if (topScore > 0) {
+        localStorage.setItem('wakkany_bluff_wins', (prevBluffWins + 1).toString());
+      }
+      if (isSweep) {
+        localStorage.setItem('wakkany_bluff_sweeps', (prevBluffSweeps + 1).toString());
+      }
+      localStorage.setItem('wakkany_bluff_best_score', Math.max(prevBestScore, topScore).toString());
+      localStorage.setItem('wakkany_bluff_total_score', (prevTotalScore + topScore).toString());
+      localStorage.setItem('wakkany_family_games', (prevFamilyGames + 1).toString());
+      localStorage.setItem('wakkany_family_xp', (prevFamilyXp + xpReward).toString());
+
+      // Sauvegarde des stats structurées pour le profil et StatsPanel
+      const bluffStatsPayload = {
+        gamesPlayed: prevBluffGames + 1,
+        wins: topScore > 0 ? prevBluffWins + 1 : prevBluffWins,
+        sweeps: isSweep ? prevBluffSweeps + 1 : prevBluffSweeps,
+        bestScore: Math.max(prevBestScore, topScore),
+        totalScore: prevTotalScore + topScore,
+        lastPlayed: new Date().toISOString(),
+        playerCount: playersInit.length,
+      };
+      localStorage.setItem('wakkany_bluff_stats', JSON.stringify(bluffStatsPayload));
+    } catch (err) {
+      console.warn('[BluffRoyal] Erreur enregistrement stats locales:', err);
+    }
 
     await completeGame({
       mode,

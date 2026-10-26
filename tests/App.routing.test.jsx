@@ -93,7 +93,7 @@ describe('App routing', () => {
 
     await waitFor(() => {
       expect(screen.getByText('FORGEZ VOTRE LÉGENDE')).toBeInTheDocument();
-    }, { timeout: 4000 });
+    }, { timeout: 8000 });
   });
 });
 

@@ -17,7 +17,7 @@ export const MentionsLegales = lazy(() => import('../pages/legal/MentionsLegales
 export const PolitiqueConfidentialite = lazy(() => import('../pages/legal/PolitiqueConfidentialite'));
 
 // Dashboard & common features
-export const StatsPanel = lazy(() => import('../components/common/OnboardingGuide'));
+export const StatsPanel = lazy(() => import('../components/StatsPanel'));
 export const FamilyGame = lazy(() => import('../components/quiz/FamilyGame'));
 export const SkillTree = lazy(() => import('../components/SkillTree'));
 export const AvatarCarousel = lazy(() => import('../components/AvatarCarousel'));
