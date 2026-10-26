@@ -10,7 +10,6 @@ export default defineConfig({
     }),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['**/*'],
       workbox: {
         clientsClaim: true,
         skipWaiting: true,
