@@ -1,3 +1,13 @@
+// Auto-récupération en cas d'erreur de préchargement de chunk après un nouveau déploiement
+window.addEventListener('vite:preloadError', (event) => {
+  console.warn('[Vite] Chunk obsolète détecté lors de la navigation, actualisation...', event);
+  const reloaded = sessionStorage.getItem('vite_preload_reloaded');
+  if (!reloaded) {
+    sessionStorage.setItem('vite_preload_reloaded', 'true');
+    window.location.reload();
+  }
+});
+
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
