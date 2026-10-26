@@ -87,8 +87,8 @@ export default function TriviaQuiz({ setXp, xpPerCorrect = 10, userId, deviceId 
       duration
     });
 
-    // Fallback : aussi appeler setXp
-    if (setXp) {
+    // Fallback pour mode invité uniquement (l'utilisateur authentifié est crédité via completeGame)
+    if (!userId && setXp) {
       setXp(prev => prev + earnedXp);
     }
 
@@ -167,7 +167,7 @@ export default function TriviaQuiz({ setXp, xpPerCorrect = 10, userId, deviceId 
   const q = questions[currentIdx];
   return (
     <div className="max-w-2xl mx-auto p-6 bg-zinc-900/60 border border-[#c28e3a]/20 rounded-2xl shadow-xl">
-      <h3 className="text-xl font-heading font-bold text-white mb-4" dangerouslySetInnerHTML={{ __html: q.question }} />
+      <h3 className="text-xl font-heading font-bold text-white mb-4">{q.question}</h3>
       <ul className="space-y-3">
         {q.options.map((opt, i) => (
           <li key={i}>

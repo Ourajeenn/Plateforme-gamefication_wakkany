@@ -98,13 +98,14 @@ function PendingQueue() {
       try {
         // RLS enabled on ai_questions
         await supabase.from('ai_questions').insert({
-          theme: 'general',
-          mode: 'coop_meute',
+          theme: item.theme ?? 'general',
+          mode: 'knowledge',
           difficulty: 'rookie',
-          type: 'mcq',
+          type: 'knowledge',
+          options: [],
           question: item.question,
           answer: finalAnswer,
-          explanation: `Validé par l'administrateur le ${new Date().toLocaleDateString('fr-FR')}`,
+          explanation: item.explanation ?? `Validé par l'administrateur le ${new Date().toLocaleDateString('fr-FR')}`,
           status: 'approved',
           created_by: user?.id,
           reviewed_by: user?.id,
@@ -281,7 +282,7 @@ export default function AssistantModeControl() {
         <iconify-icon icon="mdi:robot" width="28" className="text-[#c28e3a]" />
         <div>
           <h2 className="text-xl font-heading font-black uppercase text-white">
-            Mode de l'Assistant Wakkany
+            Mode de l&apos;Assistant Wakkany
           </h2>
           <p className="text-xs text-zinc-500 mt-0.5">
             Régule les réponses apportées aux joueurs à partir des connaissances validées (RAG).
@@ -350,7 +351,7 @@ export default function AssistantModeControl() {
           <div className="flex items-center gap-2">
             <iconify-icon icon="mdi:inbox-multiple" width="22" className="text-amber-400" />
             <h3 className="font-bold uppercase text-sm text-amber-400 tracking-wider">
-              File d'attente — Réponses en attente de validation
+              File d&apos;attente — Réponses en attente de validation
             </h3>
           </div>
           <p className="text-xs text-zinc-400">
@@ -364,7 +365,7 @@ export default function AssistantModeControl() {
       {mode === 'auto' && (
         <div className="bg-emerald-900/20 border border-emerald-500/30 rounded-2xl p-5 text-sm text-emerald-300 leading-relaxed">
           <iconify-icon icon="mdi:information-outline" width="18" className="inline mr-2 align-middle" />
-          <strong>Mode Automatique actif :</strong> L'assistant répond directement en consultant la base de questions approuvées. S'il ne trouve aucune correspondance, il prévient le joueur qu'il n'a pas de réponse validée, évitant ainsi toute hallucination.
+          <strong>Mode Automatique actif :</strong> L&apos;assistant répond directement en consultant la base de questions approuvées. S&apos;il ne trouve aucune correspondance, il prévient le joueur qu&apos;il n&apos;a pas de réponse validée, évitant ainsi toute hallucination.
         </div>
       )}
     </div>

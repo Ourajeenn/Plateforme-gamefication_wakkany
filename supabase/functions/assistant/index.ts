@@ -2,15 +2,16 @@
  * Supabase Edge Function — LLM Assistant & Question Generator
  * Deploy: supabase/functions/assistant/index.ts
  *
- * Implémentation du plan RAG + Modes de contrôle admin (v1) :
- *   - P0-a : Authentification obligatoire (JWT Supabase)
- *   - P0-b : Rate limiting (10 req/min par utilisateur)
- *   - Étape 4 : getAssistantMode (fail closed -> 'off')
+ * Implémentation durcie du plan RAG + Modes de contrôle admin :
+ *   - C1 : Authentification obligatoire pour TOUS les modes (JWT Supabase)
+ *   - P0-b / R4 : Rate limiting (10 req/min par utilisateur via RPC ou mémoire)
+ *   - R3 : getAssistantMode (fail closed -> 'off')
+ *   - R5 : En-têtes CORS stricts
+ *   - R6 : Limite de longueur de prompt (max 500 caractères)
  *   - Étape 5 : retrieveKnowledge (match_approved_questions)
  *   - Étape 6 : buildRagPrompt (sources numérotées, anti-injection)
- *   - Étape 7 : Routage (off / supervised / auto)
- *   - Étape 8 : File d'attente assistant_pending
- *   - Mode generate_question : génération de questions de quiz (inchangé)
+ *   - R2 : Routage optimisé (les connaissances approuvées sont retournées directement)
+ *   - Étape 8 : File d'attente assistant_pending pour les questions sans source
  */
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
@@ -25,11 +26,11 @@ const SUPABASE_ANON    = Deno.env.get("SUPABASE_ANON_KEY")!;
 const SUPABASE_SERVICE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const MODEL            = "gpt-4-turbo-preview";
 
-// Paramètres RAG (Étapes 5 & 6)
+// Paramètres RAG
 const K_PASSAGES = 4;
-const MIN_RANK    = 0.01;
+const MIN_RANK   = 0.01;
 
-// Rate limiter en mémoire (P0-b)
+// Rate limiter en mémoire (repli si la RPC assistant_hit n'est pas encore migrée)
 const rateLimitMap = new Map<string, { count: number; windowStart: number }>();
 const RATE_LIMIT_MAX    = 10;
 const RATE_LIMIT_WINDOW = 60_000;
@@ -71,27 +72,35 @@ interface KnowledgeEntry {
 // ──────────────────────────────────────────────
 // Helpers : CORS
 // ──────────────────────────────────────────────
-const corsHeaders = {
-  "Access-Control-Allow-Origin": Deno.env.get("ALLOWED_ORIGIN") ?? "*",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization",
-};
+function getCorsHeaders(req: Request) {
+  const origin = req.headers.get("Origin") ?? "";
+  const allowed = Deno.env.get("ALLOWED_ORIGIN");
+  let allowOrigin = allowed ?? "https://plateforme-gamefication-wakkany.vercel.app";
+  if (!allowed && (origin.includes("localhost") || origin.includes("127.0.0.1") || origin.includes("vercel.app") || origin.includes("github.io"))) {
+    allowOrigin = origin;
+  }
+  return {
+    "Access-Control-Allow-Origin": allowOrigin,
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization",
+  };
+}
 
-function jsonResponse(body: unknown, status = 200) {
+function jsonResponse(req: Request, body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { ...corsHeaders, "Content-Type": "application/json" },
+    headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
   });
 }
 
-function errorResponse(message: string, status: number) {
-  return jsonResponse({ error: message }, status);
+function errorResponse(req: Request, message: string, status: number) {
+  return jsonResponse(req, { error: message }, status);
 }
 
 // ──────────────────────────────────────────────
-// P0-b : Rate limiting
+// Rate limiting (R4: base de données avec repli mémoire)
 // ──────────────────────────────────────────────
-function checkRateLimit(userId: string): boolean {
+function checkRateLimitMemory(userId: string): boolean {
   const now   = Date.now();
   const entry = rateLimitMap.get(userId);
 
@@ -108,27 +117,39 @@ function checkRateLimit(userId: string): boolean {
   return true;
 }
 
+// deno-lint-ignore no-explicit-any
+async function checkRateLimit(supabaseUser: any, userId: string): Promise<boolean> {
+  try {
+    const { data, error } = await supabaseUser.rpc("assistant_hit", { p_limit: RATE_LIMIT_MAX });
+    if (!error && typeof data === "boolean") {
+      return data;
+    }
+  } catch {
+    // repli mémoire
+  }
+  return checkRateLimitMemory(userId);
+}
+
 // ──────────────────────────────────────────────
-// Étape 4 : Lire le mode dans app_settings (fail closed)
+// Étape 4 : Lire le mode dans app_settings (R3: fail closed -> 'off')
 // ──────────────────────────────────────────────
 // deno-lint-ignore no-explicit-any
 async function getAssistantMode(supabase: any): Promise<"off" | "auto" | "supervised"> {
   try {
-    // RLS enabled on app_settings
     const { data, error } = await supabase
       .from("app_settings")
       .select("value")
       .eq("key", "assistant_mode")
       .single();
 
-    if (error || !data) return "supervised";
+    if (error || !data) return "off";
 
     const value = data.value;
     if (value === "auto" || value === "supervised" || value === "off") return value;
-    return "supervised";
+    return "off";
   } catch (err) {
-    console.warn("Could not read assistant_mode, defaulting to supervised:", err);
-    return "supervised";
+    console.warn("Could not read assistant_mode, defaulting to off:", err);
+    return "off";
   }
 }
 
@@ -137,7 +158,6 @@ async function getAssistantMode(supabase: any): Promise<"off" | "auto" | "superv
 // ──────────────────────────────────────────────
 // deno-lint-ignore no-explicit-any
 async function retrieveKnowledge(supabase: any, question: string): Promise<KnowledgeEntry[]> {
-  // Normalisation : minuscules, suppression des accents et des mots courts
   const terms = question
     .toLowerCase()
     .normalize("NFD")
@@ -226,7 +246,7 @@ async function callOpenAIWithMessages(
 }
 
 // ──────────────────────────────────────────────
-// Mode generate_question (inchangé)
+// Mode generate_question
 // ──────────────────────────────────────────────
 async function generateQuestion(
   prompt: string,
@@ -299,37 +319,13 @@ Chaque question doit avoir une narration engageante et des conséquences signifi
 serve(async (req: Request) => {
   // Preflight CORS
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+    return new Response(null, { headers: getCorsHeaders(req) });
   }
 
-  let body: RequestBody;
-  try {
-    body = (await req.json()) as RequestBody;
-  } catch {
-    return errorResponse("Corps JSON invalide", 400);
-  }
-
-  const { prompt, mode = "chat", context } = body;
-
-  if (!prompt) {
-    return errorResponse("Missing prompt", 400);
-  }
-
-  // Chemin quiz generator (inchangé)
-  if (mode === "generate_question") {
-    try {
-      const result = await generateQuestion(prompt, context);
-      return jsonResponse(result);
-    } catch (err) {
-      console.error("generate_question error:", err);
-      return errorResponse(err instanceof Error ? err.message : "Unknown error", 500);
-    }
-  }
-
-  // ── Étape 1 : Prérequis P0-a (Authentification obligatoire) ──
+  // ── C1 : Authentification obligatoire pour TOUS les modes ──
   const authHeader = req.headers.get("Authorization") ?? "";
   if (!authHeader) {
-    return errorResponse("Non authentifié", 401);
+    return errorResponse(req, "Non authentifié", 401);
   }
 
   const supabaseUser = createClient(SUPABASE_URL, SUPABASE_ANON, {
@@ -338,26 +334,58 @@ serve(async (req: Request) => {
 
   const { data: { user }, error: authError } = await supabaseUser.auth.getUser();
   if (authError || !user) {
-    return errorResponse("Non authentifié", 401);
+    return errorResponse(req, "Non authentifié", 401);
   }
 
-  // ── Étape 1 : Prérequis P0-b (Débit limité) ──
-  if (!checkRateLimit(user.id)) {
+  // ── P0-b / R4 : Débit limité pour TOUS les modes ──
+  const isAllowed = await checkRateLimit(supabaseUser, user.id);
+  if (!isAllowed) {
     return errorResponse(
+      req,
       "Trop de requêtes. Patiente une minute avant de réessayer.",
       429
     );
   }
 
+  // ── Validation du corps JSON ──
+  let body: RequestBody;
+  try {
+    body = (await req.json()) as RequestBody;
+  } catch {
+    return errorResponse(req, "Corps JSON invalide", 400);
+  }
+
+  const { prompt, mode = "chat", context } = body;
+
+  if (!prompt || typeof prompt !== "string") {
+    return errorResponse(req, "Missing prompt", 400);
+  }
+
+  // ── R6 : Longueur du prompt limitée (max 500 caractères) ──
+  if (prompt.length > 500) {
+    return errorResponse(req, "Question trop longue (500 caractères maximum)", 400);
+  }
+
+  // ── Mode generate_question (authentifié et protégé contre les abus) ──
+  if (mode === "generate_question") {
+    try {
+      const result = await generateQuestion(prompt, context);
+      return jsonResponse(req, result);
+    } catch (err) {
+      console.error("generate_question error:", err);
+      return errorResponse(req, err instanceof Error ? err.message : "Unknown error", 500);
+    }
+  }
+
   // Client admin service_role pour app_settings et insertion assistant_pending
   const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE);
 
-  // ── Étape 4 : Lecture du mode (fail closed) ──
+  // ── Étape 4 / R3 : Lecture du mode (fail closed -> 'off') ──
   const assistantMode = await getAssistantMode(supabaseUser);
 
   // ── Étape 7 : Routage selon le mode ──
   if (assistantMode === "off") {
-    return jsonResponse({
+    return jsonResponse(req, {
       answer: "L'assistant est temporairement désactivé.",
       mode: "off",
     });
@@ -366,45 +394,58 @@ serve(async (req: Request) => {
   // ── Étape 5 : Récupération des connaissances RAG ──
   const passages = await retrieveKnowledge(supabaseUser, prompt);
 
+  // ── R2 : Routage et boucle d'apprentissage ──
   if (passages.length === 0) {
-    // Mode auto ou supervised : pas de réponse inventée, 0 appel modèle (économie)
-    return jsonResponse({
+    // En mode supervised, si aucune connaissance n'existe, on génère une proposition pour l'admin
+    if (assistantMode === "supervised") {
+      try {
+        const proposedAnswer = await callOpenAIWithMessages([
+          {
+            role: "system",
+            content: "Tu es l'assistant du jeu Wakkany. Réponds à la question de manière claire et concise en français.",
+          },
+          { role: "user", content: prompt },
+        ]);
+
+        const { error: insertError } = await supabaseAdmin
+          .from("assistant_pending")
+          .insert({
+            question: prompt,
+            proposed_answer: proposedAnswer,
+            source_ids: [],
+            status: "pending",
+          });
+
+        if (insertError) {
+          console.error("assistant_pending insert error:", insertError);
+        }
+      } catch (genErr) {
+        console.warn("Could not generate candidate answer for moderation queue:", genErr);
+      }
+
+      return jsonResponse(req, {
+        answer: "Votre question a été transmise à un administrateur pour validation.",
+        sources: [],
+        mode: "supervised",
+      });
+    }
+
+    // En mode auto : pas de réponse inventée, 0 appel modèle (économie)
+    return jsonResponse(req, {
       answer: "Je n'ai pas de réponse validée à cette question pour le moment.",
       sources: [],
       mode: assistantMode,
     });
   }
 
-  // ── Étape 6 : Construction du prompt et appel du modèle ──
+  // Connaissances trouvées : synthèse fidèle à partir des sources validées
   const messages = buildRagPrompt(prompt, passages);
   const answer = await callOpenAIWithMessages(messages);
 
-  // ── Étape 8 : En mode supervised, mise en attente pour validation admin ──
-  if (assistantMode === "supervised") {
-    const { error: insertError } = await supabaseAdmin
-      .from("assistant_pending")
-      .insert({
-        question: prompt,
-        proposed_answer: answer,
-        source_ids: passages.map((p) => p.id),
-        status: "pending",
-      });
-
-    if (insertError) {
-      console.error("assistant_pending insert error:", insertError);
-    }
-
-    return jsonResponse({
-      answer: "Votre question a été transmise à un administrateur pour validation.",
-      sources: passages.map((p) => p.id),
-      mode: assistantMode,
-    });
-  }
-
-  // ── Mode auto : retour direct avec sources ──
-  return jsonResponse({
+  // Les connaissances étant déjà approuvées en base par un humain, la réponse est directement transmise au joueur !
+  return jsonResponse(req, {
     answer,
     sources: passages.map((p) => p.id),
-    mode: "auto",
+    mode: assistantMode,
   });
 });

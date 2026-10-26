@@ -68,10 +68,13 @@ Réponds UNIQUEMENT avec un tableau JSON valide, sans texte autour, sans markdow
     const prompt = type === "bluff" ? bluffPrompt : mcqPrompt;
 
     const geminiRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${Deno.env.get("GEMINI_API_KEY")}`,
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
       {
         method: "POST",
-        headers: { "content-type": "application/json" },
+        headers: {
+          "content-type": "application/json",
+          "x-goog-api-key": Deno.env.get("GEMINI_API_KEY") ?? "",
+        },
         body: JSON.stringify({
           contents: [{ parts: [{ text: prompt }] }],
           generationConfig: {

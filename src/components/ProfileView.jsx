@@ -8,7 +8,7 @@ import { getLevel } from '../data/levels';
 import { getDominantBranch } from '../utils/xpHelpers';
 import { BRANCHES } from '../data/branches';
 
-export default function ProfileView({ user, xp, unlockedSkills, unlockedAchievements, setXp, setUnlockedAchievements }) {
+export default function ProfileView({ user, xp, unlockedSkills, unlockedAchievements, setXp, onCompleteQuest, grantXp }) {
   const navigate = useNavigate();
   const [scanning, setScanning] = useState(false);
   const [scanApproved, setScanApproved] = useState(false);
@@ -93,7 +93,7 @@ export default function ProfileView({ user, xp, unlockedSkills, unlockedAchievem
         osc.start();
         osc.stop(now + 1.2);
       }
-    } catch(e) {}
+    } catch (e) { /* ignore */ }
   };
 
   const claimQuest = (questId, xpReward) => {
@@ -121,31 +121,21 @@ export default function ProfileView({ user, xp, unlockedSkills, unlockedAchievem
           osc.stop(now + idx * 0.08 + 0.5);
         });
       }
-    } catch(e) {}
+    } catch (e) { /* ignore */ }
 
-    // Award XP
-    if (setXp) {
+    // Award XP (RPC sécurisée ou synchro)
+    if (onCompleteQuest) {
+      onCompleteQuest({ id: questId, title: `Mission ${questId}`, xpReward });
+    } else if (grantXp) {
+      grantXp(xpReward);
+    } else if (setXp) {
       setXp(prev => prev + xpReward);
     }
-  };
-
-  // Tasks state for Task Management panel
-  const [tasks, setTasks] = useState({
-    quest: true,
-    plan: false,
-    meditate: true,
-    read: false
-  });
-
-  const toggleTask = (key) => {
-    setTasks(prev => ({ ...prev, [key]: !prev[key] }));
-    playScanSFX();
   };
 
 
   const currentLevel = getLevel(xp);
   const nextLevelXp = currentLevel.nextXp || (currentLevel.xp + 100);
-  const progressPercent = Math.min(100, Math.max(0, ((xp - currentLevel.xp) / (nextLevelXp - currentLevel.xp)) * 100)) || (xp % 100);
   
   const dominantBranchId = getDominantBranch(unlockedSkills);
   const dominantBranch = dominantBranchId ? BRANCHES[dominantBranchId] : null;
@@ -554,7 +544,7 @@ export default function ProfileView({ user, xp, unlockedSkills, unlockedAchievem
               FUSION ÉLÉMENTAIRE
             </h3>
             <p className="text-zinc-500 text-[10px] text-center font-bold uppercase tracking-widest mb-8">
-              Équipez votre Avatar d'une Aura Active
+              Équipez votre Avatar d&apos;une Aura Active
             </p>
 
             <div className="space-y-4">

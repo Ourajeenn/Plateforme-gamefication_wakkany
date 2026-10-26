@@ -131,6 +131,7 @@ export default function DashboardPage({
               unlockedAchievements={unlockedAchievements}
               setXp={setXp}
               setUnlockedAchievements={setUnlockedAchievements}
+              onCompleteQuest={onCompleteQuest}
             />
           )}
 

@@ -41,7 +41,7 @@ jobs:
         run: npm run build
 
       - name: Run secret scan
-        run: npm run security:scan || true
+        run: npm run security:scan
 
       - name: Run npm audit
         run: npm run security:audit || true
