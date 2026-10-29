@@ -29,6 +29,8 @@ export default function BluffRoyal() {
 
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
+  // Origine des questions affichées : 'base' (validées), 'mixte' ou 'local'
+  const [source, setSource] = useState(null);
   
   const [roundIndex, setRoundIndex] = useState(0);
   const [phase, setPhase] = useState('pass-collect');
@@ -54,26 +56,34 @@ export default function BluffRoyal() {
   useEffect(() => {
     async function fetchQuestions() {
       setLoading(true);
-      const currentTheme = config.theme || 'rpg';
-      
+      // 'general' (« Multi-Thèmes ») n'est pas un thème de bluff : il désigne
+      // tous les thèmes. Sans thème connu, on prend donc toutes les catégories.
+      const requestedTheme = config.theme || 'rpg';
+      const themeKey = BLUFF_QUESTIONS[requestedTheme] ? requestedTheme : null;
+      const allLocal = Object.values(BLUFF_QUESTIONS).flat();
+      const localPool = themeKey ? BLUFF_QUESTIONS[themeKey] : allLocal;
+
       try {
-        const { data, error: fetchError } = await supabase
+        let query = supabase
           .from('ai_questions')
           .select('*')
           .eq('type', 'bluff')
           .eq('status', 'approved')
-          .eq('theme', currentTheme)
           .limit(ROUNDS_PER_GAME * 2);
+        if (themeKey) query = query.eq('theme', themeKey);
+
+        const { data, error: fetchError } = await query;
 
         // Questions validées en base d'abord, complétées par les questions locales
         // si l'admin n'en a pas validé assez (sinon la partie aurait moins de manches).
-        const localSet = shuffle(BLUFF_QUESTIONS[currentTheme] || BLUFF_QUESTIONS['rpg']);
         const dbSet = fetchError || !data ? [] : shuffle(data);
+        const localSet = shuffle(localPool);
+        setSource(dbSet.length === 0 ? 'local' : dbSet.length >= ROUNDS_PER_GAME ? 'base' : 'mixte');
         setQuestions([...dbSet, ...localSet].slice(0, ROUNDS_PER_GAME));
       } catch (err) {
         console.warn("Erreur fetch, bascule sur les questions locales :", err);
-        const localSet = BLUFF_QUESTIONS[currentTheme] || BLUFF_QUESTIONS['rpg'];
-        setQuestions(shuffle(localSet).slice(0, ROUNDS_PER_GAME));
+        setSource('local');
+        setQuestions(shuffle(localPool).slice(0, ROUNDS_PER_GAME));
       } finally {
         setLoading(false);
       }
@@ -189,7 +199,14 @@ export default function BluffRoyal() {
 
         <div className="w-full max-w-2xl">
           <div className="flex justify-between items-center mb-8 text-sm text-zinc-500 uppercase tracking-widest">
-            <span>Manche {roundIndex + 1}/{questions.length}</span>
+            <span>
+              Manche {roundIndex + 1}/{questions.length}
+              {source && (
+                <span className="ml-3 normal-case tracking-normal text-zinc-600">
+                  · {source === 'base' ? 'questions validées' : source === 'mixte' ? 'questions validées + locales' : 'questions locales'}
+                </span>
+              )}
+            </span>
             <span className="text-[#c28e3a] font-bold">Bluff Royal</span>
           </div>
 
