@@ -30,7 +30,7 @@ describe('isSupabaseConfigured', () => {
   });
 
   it('accepts a real Supabase publishable anon key format', () => {
-    import.meta.env.VITE_SUPABASE_URL = 'https://elzjjsynbcrqdvdupdwm.supabase.co';
+    import.meta.env.VITE_SUPABASE_URL = 'https://example-project.supabase.co';
     import.meta.env.VITE_SUPABASE_ANON_KEY = 'sb_publishable_-4jqMTZ4Q6UlE3YW-79J4w_d6W5qI6p';
     expect(isSupabaseConfigured()).toBe(true);
   });
