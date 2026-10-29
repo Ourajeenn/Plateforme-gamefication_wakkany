@@ -112,11 +112,9 @@ export function useFamilyGame() {
         setBossHp(nextBossHp);
       }
 
-      let multiplier = 1.0;
-      if (gameConfig.difficulty === 'rookie') multiplier = 0.7;
-      if (gameConfig.difficulty === 'monarch') multiplier = 1.5;
-      
-      const pointsEarned = Math.round((10 + (streak * 2)) * multiplier);
+      // Une seule formule, identique à l'écran de résultat : 100 pts par bonne réponse
+      // + bonus de vitesse (géré à part dans speedBonus).
+      const pointsEarned = 100;
       // Speed bonus: faster answer = more bonus points
       const timerLimit = gameConfig.timerLimit || 8;
       earnedSpeedBonus = Math.round(Math.max(0, (timerLimit - timeTaken) / timerLimit) * 50);
