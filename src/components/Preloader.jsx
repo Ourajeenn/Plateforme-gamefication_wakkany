@@ -85,18 +85,35 @@ export default function Preloader({ onComplete }) {
         @media (prefers-reduced-motion: reduce) {
           .animate-auto-zoom { animation: none; }
         }
+        /* Écrans portrait (téléphones) : l'image 16:9 contient le logo WAKKANY.
+           En object-cover, les bords du logo sont coupés. On l'affiche donc en
+           entier (contain) sur un fond flouté de la même image. */
+        .splash-backdrop { display: none; }
+        @media (max-aspect-ratio: 4/5) {
+          img.splash-main { position: relative; z-index: 1; object-fit: contain; object-position: center 30%; }
+          img.splash-backdrop {
+            display: block; position: absolute; inset: 0; width: 100%; height: 100%;
+            object-fit: cover; filter: blur(28px) brightness(0.55); transform: scale(1.15);
+          }
+        }
       `}</style>
 
       {/* Fullscreen Background Image */}
       <div className="absolute inset-0 w-full h-full overflow-hidden">
-        <img 
+        <img
+          src={imageSrc}
+          alt=""
+          aria-hidden="true"
+          className="splash-backdrop"
+        />
+        <img
           src={imageSrc}
           alt="Wakkany Background"
           decoding="async"
           fetchPriority="high"
           onLoad={handleImageLoad}
           onError={handleImageError}
-          className={`w-full h-full object-cover object-center transition-opacity duration-700 ${
+          className={`splash-main w-full h-full object-cover object-center transition-opacity duration-700 ${
             imageLoaded ? 'opacity-100' : 'opacity-0'
           }`}
         />
@@ -131,7 +148,7 @@ export default function Preloader({ onComplete }) {
             scale: { repeat: Infinity, duration: 1.6, ease: 'easeInOut' },
             opacity: { duration: 0.4 },
           }}
-          className={`group relative px-20 py-5 text-3xl md:text-4xl font-bold text-black uppercase tracking-[0.2em] bg-gradient-to-b from-[#fde68a] via-[#fcd34d] to-[#d97706] rounded-md shadow-[0_10px_30px_rgba(217,119,6,0.4)] overflow-hidden ${
+          className={`group relative px-20 py-5 text-3xl md:text-4xl 2xl:px-32 2xl:py-7 2xl:text-6xl min-[2400px]:px-44 min-[2400px]:py-9 min-[2400px]:text-7xl font-bold text-black uppercase tracking-[0.2em] bg-gradient-to-b from-[#fde68a] via-[#fcd34d] to-[#d97706] rounded-md shadow-[0_10px_30px_rgba(217,119,6,0.4)] overflow-hidden ${
             ready ? 'cursor-pointer' : 'opacity-50 cursor-not-allowed'
           }`}
           title={ready ? 'Cliquez pour commencer' : 'Préparation du jeu...'}
