@@ -67,6 +67,18 @@ export const BRANCHES = {
       { id: "sb_prim_3", name: "RAPTR", xp: 220, tier: 7, req: ["d6"], desc: "Raptor Alpha - L'intelligence meurtrière et la vitesse pure.", x: 96, y: 82, label: "SEMI-BOSS", isSemiBoss: true },
       { id: "boss_primitive", name: "GOLIATH", xp: 350, tier: 8, req: ["sb_primitive", "sb_prim_2", "sb_prim_3"], ultimate: true, desc: "Goliath - Le Titan Terrestre Invaincu. La force primitive à l'état brut.", x: 106, y: 82, label: "BOSS SUPRÊME", isBoss: true, isSpecialColor: "#ef4444" }
     ]
-  }
+  },
+  cars: {
+    id: "cars",
+    label: "CLAN DES PILOTES",
+    color: "#38bdf8",
+    icon: "mdi:car-sports",
+    nodes: [
+      { id: "c1", name: "DRIFT", xp: 25, tier: 1, req: ["root"], desc: "Maîtrise des virages serrés et de la trajectoire.", x: 20, y: 50, label: "PILOTAGE" },
+      { id: "c2", name: "NITRO", xp: 50, tier: 2, req: ["c1"], desc: "Propulsion d'appoint pour dépasser les concurrents.", x: 35, y: 50, label: "VITESSE" },
+      { id: "c3", name: "GRIP", xp: 75, tier: 3, req: ["c2"], desc: "Adhérence parfaite sur tous les terrains.", x: 50, y: 50, label: "ADHÉRENCE" },
+      { id: "c4", name: "MULTIVERS", xp: 180, tier: 6, req: ["c3"], desc: "Course à travers les dimensions, sans jamais ralentir.", x: 75, y: 50, label: "ULTIME" },
+    ],
+  },
 };
 
