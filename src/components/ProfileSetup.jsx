@@ -127,7 +127,7 @@ export default function ProfileSetup({ onComplete, isAuthenticated = true }) {
                 </div>
                 <div>
                   <label className="block text-zinc-400 text-[10px] font-black uppercase tracking-widest mb-3">
-                    Académie / Origine
+                    Meute / Origine
                   </label>
                   <input
                     type="text"
@@ -159,43 +159,53 @@ export default function ProfileSetup({ onComplete, isAuthenticated = true }) {
               >
                 <div>
                   <label className="block text-zinc-400 text-[10px] font-black uppercase tracking-widest mb-6 text-center">
-                    Choisissez votre Faction Multiverselle
+                    Choisissez votre clan
                   </label>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {FACTIONS.map((clan) => (
+                    {FACTIONS.map((clan) => {
+                      const selected = selectedClan.id === clan.id;
+                      return (
                       <button
                         key={clan.id}
                         type="button"
                         onClick={() => setSelectedClan(clan)}
-                        className={`relative group flex flex-col items-center p-6 rounded-2xl border transition-all duration-300 cursor-pointer ${
-                          selectedClan.id === clan.id
-                            ? 'bg-[#c28e3a]/15 border-[#c28e3a] scale-102 shadow-[0_0_25px_rgba(194,142,58,0.35)]'
-                            : 'bg-black/30 border-white/5 hover:border-white/20'
+                        className={`relative group flex flex-col overflow-hidden rounded-2xl border text-left transition-all duration-300 cursor-pointer ${
+                          selected
+                            ? 'border-[#c28e3a] shadow-[0_0_25px_rgba(194,142,58,0.35)]'
+                            : 'border-white/5 hover:border-white/20'
                         }`}
                       >
-                        <div
-                          className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-4 transition-all ${
-                            selectedClan.id === clan.id
-                              ? 'bg-[#c28e3a] text-black rotate-6 scale-105'
-                              : 'bg-zinc-800 text-gray-400 group-hover:text-white'
-                          }`}
-                        >
-                          <iconify-icon icon={clan.icon} width="32" height="32" />
+                        {/* Personnage recadré : on garde le haut de l'image (visages) */}
+                        <div className="relative aspect-[16/10] w-full bg-black overflow-hidden">
+                          <img
+                            src={clan.image}
+                            alt={clan.name}
+                            loading="lazy"
+                            className={`h-full w-full object-cover object-[center_15%] transition-transform duration-500 ${selected ? 'scale-105' : 'group-hover:scale-105'}`}
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent" />
+                          <div
+                            className={`absolute bottom-3 left-3 w-9 h-9 rounded-xl flex items-center justify-center ${
+                              selected ? 'bg-[#c28e3a] text-black' : 'bg-black/60 text-gray-300'
+                            }`}
+                          >
+                            <iconify-icon icon={clan.icon} width="20" height="20" />
+                          </div>
                         </div>
-                        <span
-                          className={`text-xs font-black uppercase tracking-tight transition-colors ${
-                            selectedClan.id === clan.id ? 'text-white' : 'text-zinc-400'
-                          }`}
-                        >
-                          {clan.name}
-                        </span>
-                        {selectedClan.id === clan.id && (
-                          <div className="absolute -top-2 -right-2 w-6 h-6 bg-[#c28e3a] rounded-lg flex items-center justify-center shadow-lg">
+                        <div className={`p-4 ${selected ? 'bg-[#c28e3a]/15' : 'bg-black/30'}`}>
+                          <span className={`block text-xs font-black uppercase tracking-tight ${selected ? 'text-white' : 'text-zinc-300'}`}>
+                            {clan.name}
+                          </span>
+                          <span className="block text-[10px] text-zinc-500 mt-1">{clan.desc}</span>
+                        </div>
+                        {selected && (
+                          <div className="absolute top-3 right-3 w-6 h-6 bg-[#c28e3a] rounded-lg flex items-center justify-center shadow-lg">
                             <iconify-icon icon="mdi:check" width="14" height="14" className="text-black" />
                           </div>
                         )}
                       </button>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
 

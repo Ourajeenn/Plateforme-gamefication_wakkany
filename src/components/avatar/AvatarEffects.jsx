@@ -37,7 +37,7 @@ export default function AvatarEffects({ level, branchColor, dominant, unlockedSk
       )}
       {unlockedSkills.includes('c2') && (
          <g stroke="#007aff" strokeWidth="2" fill="none" opacity="0.6">
-           <path d="M50,110 L30,100 M150,110 L170,100" className="animate-[ping_1.8s_ease-in-out_infinite]" />
+           <path d="M50,110 L30,100 M150,110 L170,100" className="animate-[pulse_1.8s_ease-in-out_infinite]" />
          </g>
       )}
 

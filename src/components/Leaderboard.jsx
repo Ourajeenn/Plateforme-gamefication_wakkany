@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import useLeaderboard from '../hooks/useLeaderboard';
 import { BRANCHES } from '../data/branches';
 
+// Libellés affichés. Les clés internes ne changent pas.
+const TAB_LABELS = { champions: 'Champions', academies: 'Meutes', branches: 'Branches' };
+
 export default function Leaderboard({ currentUser }) {
   const [view, setView] = useState('champions'); // champions | academies | branches
   const { globalPlayers, loading, refresh } = useLeaderboard(currentUser);
@@ -46,7 +49,7 @@ export default function Leaderboard({ currentUser }) {
                 className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300
                   ${view === v ? 'bg-white text-black shadow-lg shadow-white/10' : 'text-zinc-500 hover:text-white'}`}
               >
-                {v}
+                {TAB_LABELS[v]}
               </button>
             ))}
           </div>
