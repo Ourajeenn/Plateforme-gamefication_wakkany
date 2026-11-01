@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { useGameCompletion } from '../../hooks/useGameCompletion';
+import UnlockNotification from '../notifications/UnlockNotification';
 import { motion } from 'framer-motion';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useFamilyGame } from '../../hooks/useFamilyGame';
@@ -29,6 +31,30 @@ export default function FamilyGame() {
     answersHistory,
     speedBonus
   } = useFamilyGame();
+
+  // Fin de partie : enregistrement XP + compétences (comme BluffRoyal)
+  const [unlockedSkill, setUnlockedSkill] = useState(null);
+  const [startTime] = useState(() => Date.now());
+  const [userId] = useState(() => localStorage.getItem('wakkany_user_id'));
+  const [deviceId] = useState(() => localStorage.getItem('wakkany_device_id'));
+  const { completeGame } = useGameCompletion({
+    userId,
+    onSkillUnlocked: (skill) => setUnlockedSkill(skill),
+  });
+  const savedRef = useRef(false);
+  useEffect(() => {
+    if (gameState !== 'results' || savedRef.current) return;
+    savedRef.current = true;
+    const correct = answersHistory.filter((a) => a.correct).length;
+    completeGame({
+      mode: 'family-game',
+      category: 'family',
+      won: correct > 0,
+      deviceId,
+      score: score + speedBonus,
+      duration: Math.round((Date.now() - startTime) / 1000),
+    }).catch(() => {});
+  }, [gameState, answersHistory, score, speedBonus, completeGame, deviceId, startTime]);
 
   // local states for Jokers and Help System
   const [jokers, setJokers] = useState(() => {
@@ -387,7 +413,7 @@ export default function FamilyGame() {
           </div>
 
           <div className="text-right flex flex-col">
-            <span className="text-3xl font-black italic font-heading text-purple-400">{score}</span>
+            <span className="text-3xl font-black italic font-heading text-purple-400">{score + speedBonus}</span>
             <span className="text-[10px] text-zinc-500 uppercase tracking-widest font-bold">Points Global</span>
           </div>
         </div>
@@ -519,6 +545,14 @@ export default function FamilyGame() {
 
     return (
       <div className="min-h-screen bg-zinc-950 flex flex-col items-center justify-start overflow-y-auto text-white pb-36 font-monda">
+        {unlockedSkill && (
+          <UnlockNotification
+            skillId={unlockedSkill.skillId}
+            xpGain={unlockedSkill.xpGain}
+            message={unlockedSkill.message}
+            onClose={() => setUnlockedSkill(null)}
+          />
+        )}
 
         {/* Gold radial glow at top */}
         <div className="fixed inset-0 pointer-events-none z-0">

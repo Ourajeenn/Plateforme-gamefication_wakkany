@@ -17,7 +17,7 @@ export const BRANCHES = {
       { id: "sb_hero", name: "SERAP", xp: 220, tier: 7, req: ["h6"], desc: "Séraphin Cosmique - Gardien céleste des portes stellaires.", x: 88, y: 8, label: "SEMI-BOSS", isSemiBoss: true },
       { id: "sb_hero_2", name: "AEGIS", xp: 220, tier: 7, req: ["h6"], desc: "Aegis Stellaire - Bouclier impénétrable de la légion.", x: 88, y: 28, label: "SEMI-BOSS", isSemiBoss: true },
       { id: "sb_hero_3", name: "VALOR", xp: 220, tier: 7, req: ["h6"], desc: "Vaillance Pure - L'épée de lumière qui pourfend les ombres.", x: 96, y: 18, label: "SEMI-BOSS", isSemiBoss: true },
-      { id: "boss_hero", name: "SOLARIS", xp: 350, tier: 8, req: ["sb_hero", "sb_hero_2", "sb_hero_3"], desc: "Solaris - Le Soleil Absolu. Purifie tout sur son passage.", x: 106, y: 18, label: "BOSS SUPRÊME", isBoss: true, isSpecialColor: "#ef4444" }
+      { id: "boss_hero", name: "SOLARIS", xp: 350, tier: 8, req: ["sb_hero", "sb_hero_2", "sb_hero_3"], ultimate: true, desc: "Solaris - Le Soleil Absolu. Purifie tout sur son passage.", x: 106, y: 18, label: "BOSS SUPRÊME", isBoss: true, isSpecialColor: "#ef4444" }
     ]
   },
   warriors: {
@@ -65,8 +65,20 @@ export const BRANCHES = {
       { id: "sb_primitive", name: "CHIMER", xp: 220, tier: 7, req: ["d6"], desc: "Chimère Primal - Fusion génétique des prédateurs.", x: 88, y: 72, label: "SEMI-BOSS", isSemiBoss: true },
       { id: "sb_prim_2", name: "MAMUT", xp: 220, tier: 7, req: ["d6"], desc: "Mammouth de Glace - Béhémoth au pelage de givre éternel.", x: 88, y: 92, label: "SEMI-BOSS", isSemiBoss: true },
       { id: "sb_prim_3", name: "RAPTR", xp: 220, tier: 7, req: ["d6"], desc: "Raptor Alpha - L'intelligence meurtrière et la vitesse pure.", x: 96, y: 82, label: "SEMI-BOSS", isSemiBoss: true },
-      { id: "boss_primitive", name: "GOLIATH", xp: 350, tier: 8, req: ["sb_primitive", "sb_prim_2", "sb_prim_3"], desc: "Goliath - Le Titan Terrestre Invaincu. La force primitive à l'état brut.", x: 106, y: 82, label: "BOSS SUPRÊME", isBoss: true, isSpecialColor: "#ef4444" }
+      { id: "boss_primitive", name: "GOLIATH", xp: 350, tier: 8, req: ["sb_primitive", "sb_prim_2", "sb_prim_3"], ultimate: true, desc: "Goliath - Le Titan Terrestre Invaincu. La force primitive à l'état brut.", x: 106, y: 82, label: "BOSS SUPRÊME", isBoss: true, isSpecialColor: "#ef4444" }
     ]
-  }
+  },
+  cars: {
+    id: "cars",
+    label: "CLAN DES PILOTES",
+    color: "#38bdf8",
+    icon: "mdi:car-sports",
+    nodes: [
+      { id: "c1", name: "DRIFT", xp: 25, tier: 1, req: ["root"], desc: "Maîtrise des virages serrés et de la trajectoire.", x: 20, y: 50, label: "PILOTAGE" },
+      { id: "c2", name: "NITRO", xp: 50, tier: 2, req: ["c1"], desc: "Propulsion d'appoint pour dépasser les concurrents.", x: 35, y: 50, label: "VITESSE" },
+      { id: "c3", name: "GRIP", xp: 75, tier: 3, req: ["c2"], desc: "Adhérence parfaite sur tous les terrains.", x: 50, y: 50, label: "ADHÉRENCE" },
+      { id: "c4", name: "MULTIVERS", xp: 180, tier: 6, req: ["c3"], desc: "Course à travers les dimensions, sans jamais ralentir.", x: 75, y: 50, label: "ULTIME" },
+    ],
+  },
 };
 

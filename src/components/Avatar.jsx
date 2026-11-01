@@ -95,20 +95,17 @@ export default function Avatar({ xp, unlockedSkills = [] }) {
 
         {selectedAura === 'lightning' && (
           <g filter="url(#glowStrong)">
-            {/* Outer amplified glow */}
-            <circle cx="100" cy="100" r="100" fill="none" stroke="#3b82f6" strokeWidth="4" strokeDasharray="30,8" className="animate-spin-slow" opacity="1" />
-            <circle cx="100" cy="100" r="90" fill="none" stroke="#3b82f6" strokeWidth="4.5" strokeDasharray="30,8" className="animate-spin-slow" opacity="1" />
-            <circle cx="100" cy="100" r="80" fill="none" stroke="#60a5fa" strokeWidth="3" strokeDasharray="2,4" className="animate-[spin_4s_linear_infinite_reverse]" opacity="0.9" />
-            <circle cx="100" cy="100" r="95" fill="none" stroke="#93c5fd" strokeWidth="1.5" strokeDasharray="1,6" className="animate-[spin_2s_linear_infinite]" opacity="0.6" />
-            {/* Lightning bolt tracks — main and forks */}
-            <path d="M95,10 L105,30 L98,45 L108,60 L100,80" stroke="#93c5fd" strokeWidth="5" fill="none" className="animate-pulse" />
-            <path d="M108,60 L115,70 L108,80 L120,95" stroke="#93c5fd" strokeWidth="4" fill="none" className="animate-pulse" style={{animationDelay: '0.2s'}} />
-            {/* Side bolts — branching */}
-            <path d="M40,80 L30,95 L45,110" stroke="#3b82f6" strokeWidth="4.5" fill="none" className="animate-ping" />
-            <path d="M160,80 L170,95 L155,110" stroke="#3b82f6" strokeWidth="4.5" fill="none" className="animate-ping" />
-            {/* Bottom sparks — ground interaction */}
-            <path d="M80,170 L75,185 L85,180" stroke="#60a5fa" strokeWidth="3" fill="none" className="animate-pulse" style={{animationDelay: '0.5s'}} />
-            <path d="M120,170 L125,185 L115,180" stroke="#60a5fa" strokeWidth="3" fill="none" className="animate-pulse" style={{animationDelay: '0.7s'}} />
+            {/* Anneaux : un seul sens de rotation, vitesses voisines */}
+            <circle cx="100" cy="100" r="94" fill="none" stroke="#3b82f6" strokeWidth="3" strokeDasharray="30,10" className="animate-spin-slow" opacity="0.9" />
+            <circle cx="100" cy="100" r="86" fill="none" stroke="#93c5fd" strokeWidth="1.5" strokeDasharray="6,12" className="animate-spin-slow" style={{ animationDuration: '16s' }} opacity="0.6" />
+
+            {/* Éclairs : disposition symétrique, un seul rythme de scintillement */}
+            <path d="M100,12 L106,32 L97,46 L107,62 L100,78" stroke="#e0f2fe" strokeWidth="4" strokeLinejoin="round" strokeLinecap="round" fill="none" className="animate-bolt" />
+            <path d="M107,62 L116,74 L108,84" stroke="#93c5fd" strokeWidth="2.5" strokeLinecap="round" fill="none" className="animate-bolt" />
+            <path d="M42,70 L32,86 L44,98" stroke="#93c5fd" strokeWidth="3" strokeLinejoin="round" strokeLinecap="round" fill="none" className="animate-bolt" />
+            <path d="M158,70 L168,86 L156,98" stroke="#93c5fd" strokeWidth="3" strokeLinejoin="round" strokeLinecap="round" fill="none" className="animate-bolt" />
+            <path d="M80,176 L76,186 L84,182" stroke="#60a5fa" strokeWidth="2.5" strokeLinecap="round" fill="none" className="animate-bolt" />
+            <path d="M120,176 L124,186 L116,182" stroke="#60a5fa" strokeWidth="2.5" strokeLinecap="round" fill="none" className="animate-bolt" />
           </g>
         )}
 

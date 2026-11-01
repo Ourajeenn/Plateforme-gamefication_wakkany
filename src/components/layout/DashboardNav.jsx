@@ -1,20 +1,22 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Icon from '../common/Icons.jsx';
-import { realtime } from '../../utils/realtime';
+import { fetchRecentActivity, subscribeActivity } from '../../utils/activityFeed';
 
 function LiveFeed() {
-  const [events, setEvents] = useState(realtime.getEvents());
+  const [events, setEvents] = useState([]);
 
   useEffect(() => {
-    const unsubscribe = realtime.subscribe((event) => {
-      setEvents((prev) => [event, ...prev].slice(0, 5));
+    let active = true;
+    fetchRecentActivity(5).then((rows) => { if (active) setEvents(rows); });
+    const unsubscribe = subscribeActivity((row) => {
+      setEvents((prev) => [row, ...prev.filter((e) => e.id !== row.id)].slice(0, 5));
     });
-    return unsubscribe;
+    return () => { active = false; unsubscribe(); };
   }, []);
 
   return (
-    <div className="hidden xl:flex items-center gap-6 bg-black/40 border border-white/5 py-2 px-6 rounded-2xl backdrop-blur-xl overflow-hidden max-w-md">
+    <div className="hidden md:flex items-center gap-6 bg-black/40 border border-white/5 py-2 px-6 rounded-2xl backdrop-blur-xl overflow-hidden max-w-md">
       <div className="flex items-center gap-2">
         <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
         <span className="text-[8px] font-black uppercase tracking-widest text-zinc-500">Flux Live</span>
@@ -24,7 +26,7 @@ function LiveFeed() {
           {events.length > 0 ? (
             <div key={events[0].id} className="animate-slide-up py-1">
               <p className="text-[10px] text-zinc-400 font-monda truncate">
-                <span className="text-[#c28e3a] font-bold">{events[0].user}</span> {events[0].message}
+                <span className="text-[#c28e3a] font-bold">{events[0].pseudo}</span> {events[0].message}
               </p>
             </div>
           ) : (

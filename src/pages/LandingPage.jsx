@@ -507,14 +507,7 @@ export default function LandingPage({ user, onJoin }) {
                     <button type="button" onClick={() => { setLandingTab('waitlist'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-[#c28e3a] transition-colors w-max text-left cursor-pointer">Newsletter</button>
                   </div>
 
-                  {/* Lang Select */}
-                  <div className="md:col-span-2 flex justify-start md:justify-end items-start">
-                    <button className="flex items-center gap-2 hover:text-white transition-colors border border-white/10 px-4 py-2 rounded-lg bg-white/5">
-                      <iconify-icon icon="solar:global-linear" width="16" height="16" className="stroke-[1.5]"></iconify-icon> 
-                      <span className="font-medium uppercase text-base">FR</span> 
-                      <iconify-icon icon="solar:alt-arrow-down-linear" width="16" height="16" className="stroke-[1.5]"></iconify-icon>
-                    </button>
-                  </div>
+
                 </div>
               </div>
             </footer>

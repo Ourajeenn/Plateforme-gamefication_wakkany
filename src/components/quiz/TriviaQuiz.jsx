@@ -70,7 +70,6 @@ export default function TriviaQuiz({ setXp, xpPerCorrect = 10, userId, deviceId 
   };
 
   const claimReward = async () => {
-    const earnedXp = score * xpPerCorrect;
     const duration = startTime ? Math.round((Date.now() - startTime) / 1000) : 0;
 
     // Déterminer si c'est parfait (10/10)
