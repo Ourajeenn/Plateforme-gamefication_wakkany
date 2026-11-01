@@ -107,9 +107,9 @@ export default function AvatarEffects({ level, branchColor, dominant, unlockedSk
           {/* Crown */}
 <path d="M85,35 L92.5,20 L100,35 L107.5,20 L115,35" fill="none" stroke="#fce5a1" strokeWidth="4" filter="url(#glow)" strokeLinecap="round" />
 {/* Main lightning bolt */}
-<path d="M100,20 L105,40 L95,40 L100,60" fill="none" stroke="#fff" strokeWidth="3.5" filter="url(#glow)" className="animate-[pulse_1.0s_ease-in-out_infinite]" />
+<path d="M100,20 L105,40 L95,40 L100,60" fill="none" stroke="#fff" strokeWidth="3.5" filter="url(#glow)" className="animate-bolt" />
 {/* Forked bolt */}
-<path d="M105,40 L112,55 L106,55 L115,72" fill="none" stroke="#93c5fd" strokeWidth="2" filter="url(#glow)" className="animate-[pulse_1.0s_ease-in-out_infinite]" style={{animationDelay: '0.4s'}} />
+<path d="M105,40 L112,55 L106,55 L115,72" fill="none" stroke="#93c5fd" strokeWidth="2" filter="url(#glow)" className="animate-bolt" />
           
           {/* Shield Level 4: Divine Radiating Shield */}
           <g transform="translate(45, 150)">

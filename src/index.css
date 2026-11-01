@@ -215,3 +215,23 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* ── Animations SVG de l'avatar ──────────────────────────────────────────
+   Par défaut, une rotation CSS sur un élément SVG pivote autour de l'origine
+   du repère (le coin haut-gauche), pas autour de son centre : les anneaux
+   partaient hors du cadre. On fixe donc le pivot au centre de chaque élément. */
+svg [class*="animate-"] {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+/* Scintillement commun à tous les éclairs : même rythme, pas de décalage
+   aléatoire entre les branches, pour que la foudre paraisse une seule décharge. */
+@keyframes bolt-flicker {
+  0%, 100% { opacity: 0.35; }
+  12%      { opacity: 1; }
+  28%      { opacity: 0.5; }
+  40%      { opacity: 1; }
+  68%      { opacity: 0.7; }
+}
+.animate-bolt { animation: bolt-flicker 1.6s linear infinite; }
