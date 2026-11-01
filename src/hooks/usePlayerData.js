@@ -3,6 +3,7 @@ import { storage } from '../utils/storageHelpers';
 import { supabase } from '../utils/supabaseClient';
 import { isSupabaseConfigured } from '../utils/isSupabaseConfigured';
 import { enqueueOfflineOperation } from '../utils/offlineQueue';
+import { onProgressChanged } from '../utils/progressEvents';
 
 const MOCK_HISTORY = [
     { day: 'Lun', xp: 20 },
@@ -334,8 +335,27 @@ export default function usePlayerData() {
         }
     }, [authUserId, completedQuests]);
 
+    /**
+     * Relit depuis le serveur XP, compétences et quêtes. Appelé après chaque
+     * écriture de progression (y compris celles faites pendant une partie),
+     * pour que l'arbre de talents suive l'évolution réelle du joueur.
+     */
+    const refreshServerProgress = useCallback(async () => {
+        if (!isSupabaseConfigured() || !authUserId || !navigator.onLine) return;
+        const [{ data: profile }, { data: skills }, { data: quests }] = await Promise.all([
+            supabase.from('profiles').select('xp').eq('id', authUserId).single(),
+            supabase.from('unlocked_skills').select('skill_id').eq('user_id', authUserId),
+            supabase.from('completed_quests').select('quest_id').eq('user_id', authUserId),
+        ]);
+        if (profile && typeof profile.xp === 'number') setXp(profile.xp);
+        if (skills) setUnlockedSkills(skills.map((r) => r.skill_id));
+        if (quests) setCompletedQuests(quests.map((r) => r.quest_id));
+    }, [authUserId]);
+
+    useEffect(() => onProgressChanged(refreshServerProgress), [refreshServerProgress]);
+
     return {
-        user, setUser,
+        user, setUser, authUserId,
         xp, setXp,
         unlockedSkills, setUnlockedSkills,
         completedQuests, setCompletedQuests,

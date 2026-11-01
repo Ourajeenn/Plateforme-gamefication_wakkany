@@ -15,7 +15,7 @@ import useAuth from '../hooks/useAuth';
 import { useNetworkStatus } from '../hooks/useNetworkStatus';
 import { signOut } from '../utils/auth';
 import { ACHIEVEMENTS } from '../data/achievements';
-import { realtime } from '../utils/realtime';
+import { publishActivity } from '../utils/activityFeed';
 import { getTotalXp } from '../utils/xpHelpers';
 import { getLevel } from '../data/levels';
 import { useSoundFX, getBgMusic } from '../hooks/useSoundFX';
@@ -42,7 +42,7 @@ export default function App() {
   const dashboardTab = isDashboard ? location.pathname.replace('/dashboard/', '') || 'profile' : 'profile';
 
   const {
-    user, setUser, xp, setXp, unlockedSkills, setUnlockedSkills,
+    user, setUser, authUserId, xp, setXp, unlockedSkills, setUnlockedSkills,
     completedQuests, xpHistory,
     unlockedAchievements, setUnlockedAchievements, isLoaded,
     unlockSkill, completeQuest, grantXp,
@@ -185,16 +185,11 @@ export default function App() {
     const result = await unlockSkill(node.id, node.xp);
     if (result?.success) {
       addNotification('success', `Talent débloqué : ${node.name} est maintenant actif !`);
-      realtime.broadcast({
-        type: 'SKILL_UNLOCK',
-        user: user.name,
-        clan: user.clan?.name,
-        message: `a acquis le talent [${node.name}]`,
-      });
+      publishActivity({ userId: authUserId, pseudo: user?.name, message: `a acquis le talent [${node.name}]` });
     } else {
       addNotification('error', `Échec du déblocage : ${result?.error || 'Compétence non débloquée'}`);
     }
-  }, [user, unlockSkill, addNotification]);
+  }, [user, authUserId, unlockSkill, addNotification]);
 
   const handleResetSkills = useCallback(() => {
     setUnlockedSkills([]);
@@ -206,12 +201,7 @@ export default function App() {
     const result = await completeQuest(quest.id, quest.xpReward);
     if (result?.success) {
       addNotification('xp', `+${quest.xpReward} XP gagnés !`);
-      realtime.broadcast({
-        type: 'QUEST_COMPLETE',
-        user: user.name,
-        clan: user.clan?.name,
-        message: `a terminé la mission [${quest.title}] (+${quest.xpReward} XP)`,
-      });
+      publishActivity({ userId: authUserId, pseudo: user?.name, message: `a terminé la mission [${quest.title}] (+${quest.xpReward} XP)` });
       if (getLevel(cumulativeXp + quest.xpReward).level > oldLevel) {
         playLevelUp();
         addNotification('level', `Niveau ${getLevel(cumulativeXp + quest.xpReward).level} atteint !`);
@@ -219,7 +209,7 @@ export default function App() {
     } else {
       addNotification('error', `Erreur quête : ${result?.error || 'Validation impossible'}`);
     }
-  }, [cumulativeXp, user, completeQuest, addNotification, playLevelUp]);
+  }, [cumulativeXp, user, authUserId, completeQuest, addNotification, playLevelUp]);
 
   const handleUpdateClan = useCallback((clanData) => {
     setUser((prev) => ({ ...prev, clan: clanData }));

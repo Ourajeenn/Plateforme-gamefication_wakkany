@@ -10,13 +10,24 @@
 import { useState, useCallback } from 'react';
 import { supabase } from '../utils/supabaseClient';
 import { getSkillUnlock } from '../data/gameToSkillMapping';
+import { emitProgressChanged } from '../utils/progressEvents';
+import { publishActivity } from '../utils/activityFeed';
+import { BRANCHES } from '../data/branches';
+
+const skillName = (id) => {
+  for (const b of Object.values(BRANCHES)) {
+    const n = b.nodes.find((x) => x.id === id);
+    if (n) return n.name;
+  }
+  return id;
+};
 
 export function useGameCompletion({ userId, onSkillUnlocked }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   const completeGame = useCallback(
-    async ({ mode, category, won, deviceId, score, duration }) => {
+    async ({ mode, category, won, deviceId, score, duration, pseudo }) => {
       setLoading(true);
       setError(null);
 
@@ -71,6 +82,8 @@ export function useGameCompletion({ userId, onSkillUnlocked }) {
           } else {
             console.log(`Skill unlocked: ${skillId}`);
 
+            publishActivity({ userId, pseudo, message: `a acquis le talent [${skillName(skillId)}] en jouant` });
+
             // Trigger callback pour chaque déblocage
             if (onSkillUnlocked) {
               onSkillUnlocked({
@@ -81,6 +94,7 @@ export function useGameCompletion({ userId, onSkillUnlocked }) {
             }
           }
         }
+        emitProgressChanged();
       } catch (err) {
         console.error('Game completion error:', err);
         setError(err.message);
