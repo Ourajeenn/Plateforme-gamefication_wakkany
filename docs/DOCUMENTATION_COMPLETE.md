@@ -251,16 +251,15 @@ Retirer le rôle : remplacer `'admin'` par `'player'` (ou la valeur par défaut 
 
 ### 8.1 Vue d'ensemble
 
-```
-Navigateur (React 18 + Vite, PWA)
-   │  supabase-js (clé publique + JWT utilisateur)
-   ├── Postgres / RLS / RPC SECURITY DEFINER
-   ├── Realtime (postgres_changes, canal activity_feed)
-   └── Fonctions Edge (Deno)
-         ├── assistant
-         ├── generate-questions  ──► Gemini
-         └── generate-quiz       ──► Gemini
-```
+L'architecture technique est décrite directement dans le dépôt, qui fait foi :
+
+- **Front-end** : `src/` (React 18 + Vite, PWA configurée dans `vite.config.js`).
+- **Base de données et sécurité** : `supabase/migrations/` (schéma, RLS, fonctions `SECURITY DEFINER`).
+- **Fonctions serveur** : `supabase/functions/` (`assistant`, `generate-questions`, `generate-quiz`).
+- **Données de jeu** : `src/data/` (arbre de talents, quêtes).
+- **Infrastructure** : `Dockerfile`, `nginx.conf`, `vercel.json`, `.github/workflows/ci-cd.yml`.
+
+Cette documentation ne reproduit pas le détail technique ; en cas d'écart, le code du dépôt prime.
 
 ### 8.2 Front-end
 
