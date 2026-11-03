@@ -19,7 +19,7 @@ FROM nginx:1.27-alpine
 LABEL maintainer="Wakkany Platform"
 LABEL description="Wakkany - Plateforme de gamification intergénérationnelle"
 
-# curl pour le health-check Fly.io
+# curl pour le health-check du conteneur
 RUN apk add --no-cache curl
 
 # Désactiver les logs d'accès (meilleure perf, moins d'I/O)
@@ -32,10 +32,10 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 # Fichiers statiques compilés
 COPY --from=build --chown=nginx:nginx /app/dist /usr/share/nginx/html
 
-# Port 80 exposé (Fly.io redirige automatiquement 443 → 80 interne)
+# Port 80 exposé ; le TLS est géré par le reverse proxy ou l hébergeur en amont
 EXPOSE 80
 
-# Health check compatible Fly.io
+# Health check HTTP du conteneur
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
   CMD curl -f http://localhost/ || exit 1
 

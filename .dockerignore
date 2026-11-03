@@ -33,7 +33,6 @@ coverage/
 # Configs plateformes tierces
 .vercel/
 .netlify/
-fly.toml
 vercel.json
 netlify.toml
 
