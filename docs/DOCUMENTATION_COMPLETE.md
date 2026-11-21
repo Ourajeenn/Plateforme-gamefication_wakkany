@@ -32,7 +32,7 @@ Elle décrit l'état du dépôt sur la branche `dev` (commit `2295379`, novembre
 
 - **Front-end** : React 18 + Vite, application PWA (installable, utilisable hors ligne pour la partie statique).
 - **Back-end** : Supabase (PostgreSQL, authentification, Realtime, fonctions Edge en Deno).
-- **IA** : Google Gemini (`gemini-2.0-flash`) pour la génération de questions et de quiz, utilisée par des fonctions réservées aux administrateurs. L'assistant conversationnel s'appuie sur une recherche plein texte en base, pas sur un modèle entraîné.
+- **IA** : Google Gemini (`gemini-2.0-flash`) pour les questions de jeu, via la fonction `game-master` (génération automatique par manche) et la fonction admin `generate-questions`. L'assistant conversationnel utilise la recherche plein texte (RAG) ; son mode `generate_question` appelle OpenAI (`gpt-4-turbo-preview`), voir section 10.
 - **Hébergement** : Vercel et Netlify (déploiement automatique depuis GitHub), GitHub Pages (job CI), image Docker nginx.
 - **Langue** : interface uniquement en français. Aucune internationalisation n'est en place (voir section 15).
 
@@ -368,6 +368,7 @@ Les migrations s'appliquent **dans l'ordre alphabétique des noms de fichiers** 
 20. `20261101000100_app_knowledge_seed.sql`
 21. `20261101000200_unlock_root_prerequisite.sql`
 22. `20261121000000_secure_game_room_writes.sql` (RPC des salons multijoueurs, suppression des écritures directes)
+23. `20261122000000_game_master_questions.sql` (empreinte anti-doublon, historique par salle, budget quotidien du Game Master)
 
 **Règle** : ne jamais modifier une migration déjà appliquée. Pour corriger, créer une nouvelle migration avec un horodatage postérieur. La migration `20261101000200` en est un exemple : elle rétablit l'exemption de `root` supprimée par `20261026000002`.
 
@@ -388,7 +389,8 @@ Après modification de `src/data/branches.js`, relancer le script de seed des ta
 
 | Fonction | Entrée principale | Sécurité | Variables requises |
 |---|---|---|---|
-| `assistant` | `{ prompt, mode?, context? }`, `mode` ∈ `chat`, `generate_question`, `generate_scenario` | JWT obligatoire, débit limité, mode lu dans `app_settings` | `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `ALLOWED_ORIGIN`, `GEMINI_API_KEY` |
+| `assistant` | `{ prompt, mode?, context? }`, `mode` ∈ `chat`, `generate_question`, `generate_scenario` | JWT obligatoire, débit limité, mode lu dans `app_settings` | `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `ALLOWED_ORIGIN`, `OPENAI_API_KEY` (mode `generate_question` uniquement) |
+| `game-master` | `{ room_id, device_id, round, theme, difficulty? }`. Réservé à l'hôte d'une partie `playing`. Génère une question Gemini, la valide, évite les répétitions (salle et thème), la publie automatiquement, avec repli sur le pool validé | Hôte vérifié côté serveur. Plafonds : 40 questions par salle, budget quotidien (`GAME_MASTER_DAILY_BUDGET`, 500 par défaut) | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `GEMINI_API_KEY`, `ALLOWED_ORIGIN` (optionnel) |
 | `generate-questions` | Demande de génération | Rôle `admin` vérifié | `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `GEMINI_API_KEY` |
 | `generate-quiz` | Demande de quiz | Rôle `admin` vérifié | Idem |
 
