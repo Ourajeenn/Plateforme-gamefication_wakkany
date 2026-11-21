@@ -326,7 +326,8 @@ Configurée dans `vite.config.js` (`vite-plugin-pwa`, Workbox `generateSW`) :
 | `assistant_rate` | Compteur de débit de l'assistant | Via RPC `assistant_hit`. |
 | `xp_grants` | Historique des attributions d'XP (limites) | Via RPC `increment_xp`. |
 | `activity_events` | Flux d'activité | Lecture authentifiée ; insertion uniquement pour soi-même ; publié en Realtime. |
-| `game_rooms`, `game_sessions` | Salons et suivi des parties | RLS corrigée par les migrations `20261026000001` ; voir section 15. |
+| `game_rooms`, `game_room_players` | Salons multijoueurs | Aucune écriture directe : toutes les modifications passent par les RPC `room_*` (migration `20261121000000`). Lecture publique. |
+| `game_sessions` | Suivi des parties | RLS corrigée par la migration `20261026000001`. |
 | `chat`, `notifications` | Messagerie et notifications | Migration `20260620000000`. |
 
 ### 9.2 Fonctions SQL importantes
@@ -366,6 +367,7 @@ Les migrations s'appliquent **dans l'ordre alphabétique des noms de fichiers** 
 19. `20261101000000_activity_events.sql`
 20. `20261101000100_app_knowledge_seed.sql`
 21. `20261101000200_unlock_root_prerequisite.sql`
+22. `20261121000000_secure_game_room_writes.sql` (RPC des salons multijoueurs, suppression des écritures directes)
 
 **Règle** : ne jamais modifier une migration déjà appliquée. Pour corriger, créer une nouvelle migration avec un horodatage postérieur. La migration `20261101000200` en est un exemple : elle rétablit l'exemption de `root` supprimée par `20261026000002`.
 
@@ -536,7 +538,7 @@ Déclenché sur les pushes vers `main`, `dev`, `features/**`, sur les pull reque
 | 4 | **CORS de l'assistant** | La version de développement accepte par défaut les origines `localhost`, `*.vercel.app` et `*.github.io` lorsque `ALLOWED_ORIGIN` n'est pas défini. | Définir `ALLOWED_ORIGIN` en production et restreindre le repli. |
 | 5 | **Migrations en production** | Les migrations `20261024000000` à `20261101000200` doivent être appliquées manuellement sur le projet Supabase de production. | Vérifier l'état avec la table de suivi des migrations avant chaque publication. |
 | 6 | **Netlify** | Branche de déploiement non confirmée dans le tableau de bord. | Confirmer et consigner la branche dans ce document. |
-| 7 | **RLS des salons (`game_rooms`)** | Décision de politique d'accès en attente (point C3 de l'audit). | Trancher entre salon public et salon restreint à l'hôte. |
+| 7 | **Identité des joueurs de salon** | Les écritures des salons passent désormais par des RPC qui vérifient l'hôte et le joueur (`20261121000000`). Mais `device_id` est un identifiant de navigateur, lisible publiquement : un client qui le connaît peut agir au nom d'un autre joueur. | Identité serveur (session anonyme Supabase) ou colonne `device_id` masquée côté lecture. | Trancher entre salon public et salon restreint à l'hôte. |
 | 8 | **Vulnérabilités `vitest`** | Des vulnérabilités critiques signalées par `npm audit` concernent la chaîne de test. | Mettre à jour `vitest` et ses dépendances (test uniquement, pas le bundle de production). |
 | 9 | **Lint `LandingPage.jsx`** | 36 erreurs `react/no-unescaped-entities`, pré-existantes. | Échapper les caractères ou corriger les chaînes. |
 | 10 | **Commentaire `OPENAI_API_KEY`** | Mention obsolète dans `generate-questions`. | Supprimer le commentaire. |

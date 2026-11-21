@@ -405,22 +405,12 @@ export function useGameRoom({ network = 'online' } = {}) {
       if (roomErr || !roomData) throw new Error('Salle introuvable ou partie déjà commencée.');
 
       // 2. Rejoindre en tant que joueur (upsert pour les reconnexions)
-      const { data: playerData, error: playerErr } = await supabase
-        .from('game_room_players')
-        .upsert(
-          {
-            room_id: roomData.id,
-            device_id: deviceId.current,
-            pseudo,
-            is_host: false,
-            is_ready: false,
-            joined_at: new Date().toISOString(),
-            score: 0
-          },
-          { onConflict: 'room_id,device_id' }
-        )
-        .select()
-        .single();
+      // Via RPC : une reconnexion conserve le score et l'état "prêt".
+      const { data: playerData, error: playerErr } = await supabase.rpc('room_join', {
+        p_room_id: roomData.id,
+        p_device_id: deviceId.current,
+        p_pseudo: pseudo,
+      });
 
       if (playerErr) throw playerErr;
 
@@ -447,10 +437,13 @@ export function useGameRoom({ network = 'online' } = {}) {
       if (result.error) setError(result.error);
       return;
     }
-    await supabase
-      .from('game_room_players')
-      .update({ is_ready: ready })
-      .eq('id', myPlayer.id);
+    // Écriture via RPC : vérifie l'identité du joueur et le statut du lobby côté serveur.
+    const { error: rpcError } = await supabase.rpc('room_set_ready', {
+      p_room_id: roomIdRef.current,
+      p_device_id: deviceId.current,
+      p_ready: ready,
+    });
+    if (rpcError) setError(rpcError.message);
   }, [isLocalNetwork, myPlayer, requestLocal]);
 
   // ── Lancer la partie (hôte uniquement) ────────────────────────────────────
@@ -461,13 +454,17 @@ export function useGameRoom({ network = 'online' } = {}) {
       if (result.error) setError(result.error);
       return;
     }
-    await supabase
-      .from('game_rooms')
-      .update({ status: 'playing', game_state: gameState })
-      .eq('id', roomIdRef.current);
+    const { data, error: rpcError } = await supabase.rpc('room_start_game', {
+      p_room_id: roomIdRef.current,
+      p_device_id: deviceId.current,
+      p_state: gameState,
+    });
+    if (rpcError) setError(rpcError.message);
+    else if (data === false) setError("Seul l'hôte peut lancer une salle en attente.");
   }, [isLocalNetwork, requestLocal]);
 
   // ── Mettre à jour le game_state (hôte) ────────────────────────────────────
+  // La fusion avec l'état existant se fait côté serveur (opérateur JSONB ||).
   const updateGameState = useCallback(async (patch) => {
     if (!roomIdRef.current) return;
     if (isLocalNetwork) {
@@ -475,14 +472,15 @@ export function useGameRoom({ network = 'online' } = {}) {
       if (result.error) setError(result.error);
       return;
     }
-    const current = room?.game_state || {};
-    await supabase
-      .from('game_rooms')
-      .update({ game_state: { ...current, ...patch } })
-      .eq('id', roomIdRef.current);
-  }, [isLocalNetwork, requestLocal, room]);
+    const { error: rpcError } = await supabase.rpc('room_update_state', {
+      p_room_id: roomIdRef.current,
+      p_device_id: deviceId.current,
+      p_patch: patch,
+    });
+    if (rpcError) setError(rpcError.message);
+  }, [isLocalNetwork, requestLocal]);
 
-  // ── Mettre à jour le score d'un joueur ───────────────────────────────────
+  // ── Ajouter des points au joueur (delta, borné côté serveur) ─────────────
   const updateScore = useCallback(async (delta) => {
     if (!myPlayer) return;
     if (isLocalNetwork) {
@@ -490,10 +488,12 @@ export function useGameRoom({ network = 'online' } = {}) {
       if (result.error) setError(result.error);
       return;
     }
-    await supabase
-      .from('game_room_players')
-      .update({ score: (myPlayer.score || 0) + delta })
-      .eq('id', myPlayer.id);
+    const { error: rpcError } = await supabase.rpc('room_update_score', {
+      p_room_id: roomIdRef.current,
+      p_device_id: deviceId.current,
+      p_delta: delta,
+    });
+    if (rpcError) setError(rpcError.message);
   }, [isLocalNetwork, myPlayer, requestLocal]);
 
   // ── Terminer la partie (hôte) ─────────────────────────────────────────────
@@ -504,10 +504,11 @@ export function useGameRoom({ network = 'online' } = {}) {
       if (result.error) setError(result.error);
       return;
     }
-    await supabase
-      .from('game_rooms')
-      .update({ status: 'finished' })
-      .eq('id', roomIdRef.current);
+    const { error: rpcError } = await supabase.rpc('room_end_game', {
+      p_room_id: roomIdRef.current,
+      p_device_id: deviceId.current,
+    });
+    if (rpcError) setError(rpcError.message);
   }, [isLocalNetwork, requestLocal]);
 
   // ── Quitter la salle ──────────────────────────────────────────────────────
@@ -523,12 +524,12 @@ export function useGameRoom({ network = 'online' } = {}) {
       return;
     }
 
-    // Si on est l'hôte et la partie n'a pas commencé → supprimer la salle
-    if (myPlayer.is_host && room?.status === 'lobby') {
-      await supabase.from('game_rooms').delete().eq('id', roomIdRef.current);
-    } else {
-      await supabase.from('game_room_players').delete().eq('id', myPlayer.id);
-    }
+    // Côté serveur : l'hôte en lobby supprime la salle, sinon seul ce joueur est retiré.
+    const { error: rpcError } = await supabase.rpc('room_leave', {
+      p_room_id: roomIdRef.current,
+      p_device_id: deviceId.current,
+    });
+    if (rpcError) setError(rpcError.message);
 
     if (channelRef.current) {
       supabase.removeChannel(channelRef.current);
@@ -539,7 +540,7 @@ export function useGameRoom({ network = 'online' } = {}) {
     setPlayers([]);
     setMyPlayer(null);
     roomIdRef.current = null;
-  }, [isLocalNetwork, myPlayer, requestLocal, room]);
+  }, [isLocalNetwork, myPlayer, requestLocal]);
 
   // ── Nettoyage au démontage ────────────────────────────────────────────────
   useEffect(() => {
